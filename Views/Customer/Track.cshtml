@@ -1,0 +1,147 @@
+@model SDMS.Models.DonHang
+@{
+    ViewData["Title"] = "Tra cứu hành trình #" + Model.MaDonHang;
+}
+
+<div class="glass" style="max-width: 800px; margin: 0 auto; padding: 3rem; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1.5rem; margin-bottom: 2rem;">
+        <div>
+            <span style="font-size: 0.8125rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; display: block;">Mã vận đơn</span>
+            <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--accent-primary); margin: 0; font-family: monospace;">@Model.MaDonHang</h2>
+        </div>
+        <a asp-action="Orders" class="btn-premium" style="background: transparent; color: var(--text-main); border: 1px solid var(--border-color); text-decoration: none; padding: 0.625rem 1.25rem; font-size: 0.875rem;">
+            <i class="fas fa-arrow-left"></i> Quay lại lịch sử
+        </a>
+    </div>
+
+    <!-- Tóm tắt Đơn Hàng -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem; background: rgba(0,0,0,0.02); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+        <div>
+            <span style="display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Người nhận</span>
+            <strong style="color: var(--text-main); font-size: 1rem;">@Model.TenNguoiNhan</strong>
+            <span style="display: block; font-size: 0.875rem; color: var(--text-muted);">@Model.SoDienThoaiNguoiNhan</span>
+        </div>
+        <div>
+            <span style="display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Địa chỉ nhận</span>
+            <span style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.4; display: block;">@Model.DiaChiNguoiNhan</span>
+        </div>
+        <div>
+            <span style="display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Phí giao hàng & COD</span>
+            <strong style="color: var(--text-main); display: block;">@Model.PhiGiaoHang.ToString("N0") VNĐ</strong>
+            <span style="font-size: 0.8125rem; background: #eff6ff; color: #1e40af; padding: 0.125rem 0.5rem; border-radius: 4px; display: inline-block; margin-top: 0.25rem;">@Model.HinhThucThanhToan</span>
+        </div>
+        <div>
+            <span style="display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Trạng thái hiện tại</span>
+            @{
+                var badgeClass = Model.TrangThaiDonHang == "Giao hàng thành công" ? "badge-success" : 
+                                (Model.TrangThaiDonHang == "Giao hàng thất bại" ? "badge-error" : "badge-warning");
+            }
+            <span class="badge @badgeClass" style="margin-top: 0.25rem; display: inline-block;">@Model.TrangThaiDonHang</span>
+        </div>
+    </div>
+
+    <!-- Timeline Hành Trình -->
+    <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 2.5rem; color: var(--text-main); border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+        <i class="fas fa-route" style="color: var(--accent-primary);"></i> Dòng thời gian Logistics
+    </h3>
+
+    <div style="position: relative; padding-left: 2.5rem; margin-left: 1rem; border-left: 2px dashed #cbd5e1;">
+        
+        <!-- Bước 4: Kết quả giao nhận -->
+        @{
+            var currentDelivery = Model.HanhTrinhDonHangs.OrderByDescending(h => h.ThoiGianTiepNhan).FirstOrDefault();
+            if (currentDelivery != null && (currentDelivery.TrangThai == "Giao hàng thành công" || currentDelivery.TrangThai == "Giao hàng thất bại"))
+            {
+                var isSuccess = currentDelivery.TrangThai == "Giao hàng thành công";
+                var iconColor = isSuccess ? "#16a34a" : "#dc2626";
+                var iconClass = isSuccess ? "fa-check-circle" : "fa-times-circle";
+                
+                <div style="position: relative; margin-bottom: 2.5rem;">
+                    <div style="position: absolute; left: -3.5rem; top: 0; width: 2rem; height: 2rem; border-radius: 50%; background: white; border: 2px solid @iconColor; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                        <i class="fas @iconClass" style="color: @iconColor; font-size: 1rem;"></i>
+                    </div>
+                    <div class="glass" style="padding: 1.25rem; border-left: 4px solid @iconColor;">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">@currentDelivery.ThoiGianHoanThanh?.ToString("dd/MM/yyyy HH:mm")</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin: 0.25rem 0 0.5rem 0; color: var(--text-main);">@currentDelivery.TrangThai</h4>
+                        <div style="font-size: 0.875rem; color: var(--text-muted);">
+                            <div><i class="fas fa-map-marker-alt" style="color: @iconColor;"></i> Vị trí: @currentDelivery.ViTriHienTai</div>
+                            @if (!isSuccess && !string.IsNullOrEmpty(currentDelivery.LyDoThatBai))
+                            {
+                                <div style="background: #fff5f5; color: #991b1b; padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; border: 1px solid #fecaca;">
+                                    <strong>Lý do thất bại:</strong> @currentDelivery.LyDoThatBai
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(currentDelivery.HinhAnhThucTe))
+                            {
+                                <div style="margin-top: 0.75rem;">
+                                    <span style="display:block; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.25rem;">Ảnh chụp minh chứng thực tế:</span>
+                                    <img src="@currentDelivery.HinhAnhThucTe" alt="Minh chứng giao hàng" style="max-width: 250px; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        <!-- Bước 3: Đang giao hàng / Bàn giao Shipper -->
+        @if (currentDelivery != null)
+        {
+            <div style="position: relative; margin-bottom: 2.5rem;">
+                <div style="position: absolute; left: -3.5rem; top: 0; width: 2rem; height: 2rem; border-radius: 50%; background: white; border: 2px solid var(--accent-primary); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                    <i class="fas fa-shipping-fast" style="color: var(--accent-primary); font-size: 0.875rem;"></i>
+                </div>
+                <div class="glass" style="padding: 1.25rem; border-left: 4px solid var(--accent-primary);">
+                    <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">@currentDelivery.ThoiGianTiepNhan.ToString("dd/MM/yyyy HH:mm")</span>
+                    <h4 style="font-size: 1rem; font-weight: 700; margin: 0.25rem 0 0.5rem 0; color: var(--text-main);">Tiếp nhận vận chuyển (Shipper)</h4>
+                    <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">
+                        Nhân viên giao hàng <strong>@currentDelivery.NhanVien?.HoTen</strong> (@currentDelivery.NhanVien?.SoDienThoai) đã nhận bàn giao kiện hàng và đang tiến hành vận chuyển.
+                    </p>
+                </div>
+            </div>
+        }
+
+        <!-- Bước 2: Nhập kho bưu cục & Đối soát kiểm định -->
+        @{
+            var storageRecord = Model.NhapKhos.OrderByDescending(n => n.ThoiGianNhap).FirstOrDefault();
+            if (storageRecord != null)
+            {
+                <div style="position: relative; margin-bottom: 2.5rem;">
+                    <div style="position: absolute; left: -3.5rem; top: 0; width: 2rem; height: 2rem; border-radius: 50%; background: var(--bg-body); border: 2px solid var(--color-warning); display: flex; align-items: center; justify-content: center; z-index: 2;">
+                        <i class="fas fa-warehouse" style="color: var(--color-warning); font-size: 0.875rem;"></i>
+                    </div>
+                    <div class="glass" style="padding: 1.25rem; border-left: 4px solid var(--color-warning);">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">@storageRecord.ThoiGianNhap.ToString("dd/MM/yyyy HH:mm")</span>
+                        <h4 style="font-size: 1rem; font-weight: 700; margin: 0.25rem 0 0.5rem 0; color: var(--text-main);">Đã kiểm định & Nhập kho</h4>
+                        <div style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.5;">
+                            <div>Bưu cục lưu trữ: <strong>@storageRecord.KhoHang?.TenKho</strong> (Vị trí kệ: <code>@storageRecord.ViTriLuuTru</code>)</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.5rem; background: var(--bg-body-secondary); padding: 0.75rem; border-radius: 6px; font-size: 0.8125rem;">
+                                <div>⚖️ Cân nặng thực tế: <strong>@storageRecord.KhoiLuongThucTe kg</strong></div>
+                                <div>📦 Số kiện nhận: <strong>@storageRecord.SoLuongKienHang</strong></div>
+                                <div style="grid-column: span 2;">📝 Tình trạng kiểm định: <em>@storageRecord.TinhTrangDonHang</em></div>
+                            </div>
+                            <div style="font-size: 0.8125rem; margin-top: 0.5rem; color: var(--text-muted);">
+                                Tiếp nhận bởi Thủ kho: <strong>@storageRecord.NhanVien?.HoTen</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        <!-- Bước 1: Khởi tạo đơn hàng -->
+        <div style="position: relative; margin-bottom: 1rem;">
+            <div style="position: absolute; left: -3.5rem; top: 0; width: 2rem; height: 2rem; border-radius: 50%; background: white; border: 2px solid #94a3b8; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                <i class="fas fa-box" style="color: #94a3b8; font-size: 0.875rem;"></i>
+            </div>
+            <div class="glass" style="padding: 1.25rem; border-left: 4px solid #94a3b8;">
+                <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">@Model.ThoiGianTao.ToString("dd/MM/yyyy HH:mm")</span>
+                <h4 style="font-size: 1rem; font-weight: 700; margin: 0.25rem 0 0.5rem 0; color: var(--text-main);">Khởi tạo vận đơn</h4>
+                <p style="margin: 0; font-size: 0.875rem; color: var(--text-muted);">
+                    Khách hàng <strong>@Model.KhachHang?.HoTen</strong> tạo vận đơn trực tuyến thành công. Trạng thái: Chờ mang hàng đến bưu cục.
+                </p>
+            </div>
+        </div>
+
+    </div>
+</div>

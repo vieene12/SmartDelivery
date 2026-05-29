@@ -1,0 +1,90 @@
+﻿@model SDMS.Models.HanhTrinhDonHang
+@{
+    ViewData["Title"] = "Cập nhật kết quả giao hàng";
+}
+
+<style>
+    .glass.active-success {
+        border-color: #16a34a !important;
+        background: rgba(22, 163, 74, 0.08) !important;
+    }
+    .glass.active-fail {
+        border-color: #dc2626 !important;
+        background: rgba(220, 38, 38, 0.08) !important;
+    }
+</style>
+
+<div class="glass" style="max-width: 600px; margin: 0 auto; padding: 3rem;">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div style="background-color: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem; font-weight: 500;">
+            <i class="fas fa-exclamation-circle" style="margin-right: 0.5rem;"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-main); text-align: center;">
+        Hoàn tất Đơn hàng #@Model.MaDonHang
+    </h2>
+
+    <form asp-action="ConfirmDelivery" method="post">
+        <input type="hidden" name="maHanhTrinh" value="@Model.MaHanhTrinh" />
+        
+        <div style="display: flex; gap: 1.5rem; margin-bottom: 2.5rem;">
+            <label class="glass" style="flex: 1; padding: 1.5rem; text-align: center; cursor: pointer; border: 2px solid var(--border-color); transition: all 0.2s;" id="label-success">
+                <input type="radio" name="isSuccess" value="true" checked style="display: none;" onchange="toggleStatus(true)" />
+                <i class="fas fa-check-circle" style="color: #16a34a; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
+                <span style="font-weight: 700;">Thành công</span>
+            </label>
+            <label class="glass" style="flex: 1; padding: 1.5rem; text-align: center; cursor: pointer; border: 2px solid var(--border-color); transition: all 0.2s;" id="label-fail">
+                <input type="radio" name="isSuccess" value="false" style="display: none;" onchange="toggleStatus(false)" />
+                <i class="fas fa-times-circle" style="color: #dc2626; font-size: 2rem; display: block; margin-bottom: 0.75rem;"></i>
+                <span style="font-weight: 700;">Thất bại</span>
+            </label>
+        </div>
+
+        <div id="cod-section" class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.875rem; font-weight: 600;">Số tiền thu hộ (COD) - VNĐ</label>
+            <input type="number" name="codAmount" class="glass" style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); font-size: 1.125rem; font-weight: 700;" value="@Model.DonHang?.PhiGiaoHang" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.875rem; font-weight: 600;">Định vị GPS / Địa điểm giao (ViTriHienTai)</label>
+            <input type="text" name="viTriHienTai" class="glass" style="width: 100%; padding: 1rem; border: 1px solid var(--border-color);" placeholder="Nhập địa chỉ hoặc toạ độ GPS..." value="@Model.DonHang?.DiaChiNguoiNhan" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.875rem; font-weight: 600;">Đường dẫn Ảnh minh chứng (HinhAnhThucTe)</label>
+            <input type="text" name="hinhAnhThucTe" class="glass" style="width: 100%; padding: 1rem; border: 1px solid var(--border-color);" placeholder="Nhập đường dẫn ảnh chụp giao hàng..." value="/images/proof_@Model.MaDonHang\.jpg" />
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Mô phỏng chụp ảnh hàng hóa tại điểm nhận</span>
+        </div>
+
+        <div id="note-section" class="form-group" style="margin-bottom: 2.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.875rem; font-weight: 600;">Ghi chú / Lý do giao không thành</label>
+            <textarea name="note" class="glass" style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); min-height: 100px;" placeholder="Nhập chi tiết phát sinh nếu có..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-premium" style="width: 100%; padding: 1.25rem; font-size: 1.125rem;">
+            Xác nhận Hoàn tất
+        </button>
+    </form>
+</div>
+
+<script>
+    function toggleStatus(success) {
+        const successLabel = document.getElementById('label-success');
+        const failLabel = document.getElementById('label-fail');
+        const codSection = document.getElementById('cod-section');
+
+        if (success) {
+            successLabel.classList.add('active-success');
+            failLabel.classList.remove('active-fail');
+            codSection.style.display = 'block';
+        } else {
+            failLabel.classList.add('active-fail');
+            successLabel.classList.remove('active-success');
+            codSection.style.display = 'none';
+        }
+    }
+    // Initial call
+    toggleStatus(true);
+</script>

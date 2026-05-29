@@ -1,0 +1,366 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SDMS.Models
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    @* Dashboard cho người dùng đã đăng nhập *@
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+        <div class="glass stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <span class="stat-label">Đơn hàng đang xử lý</span>
+            <span class="stat-value">1.284</span>
+            <div style="display: flex; align-items: center; gap: 0.5rem; color: #10b981; font-size: 0.875rem; font-weight: 600; margin-top: 0.5rem;">
+                <i class="fas fa-arrow-up"></i> +12% so với tháng trước
+            </div>
+        </div>
+        <div class="glass stat-card">
+            <div class="stat-card-icon" style="color: var(--secondary); background: rgba(255, 107, 53, 0.08);">
+                <i class="fas fa-percent"></i>
+            </div>
+            <span class="stat-label">Tỷ lệ thành công</span>
+            <span class="stat-value">98.2%</span>
+            <div style="display: flex; align-items: center; gap: 0.5rem; color: #10b981; font-size: 0.875rem; font-weight: 600; margin-top: 0.5rem;">
+                <i class="fas fa-check-circle"></i> Đang cực kỳ ổn định
+            </div>
+        </div>
+        <div class="glass stat-card">
+            <div class="stat-card-icon" style="color: var(--cyan-accent); background: rgba(6, 182, 212, 0.08);">
+                <i class="fas fa-warehouse"></i>
+            </div>
+            <span class="stat-label">Hiệu suất kho</span>
+            <span class="stat-value">64%</span>
+            <div style="width: 100%; height: 6px; background: #e2e8f0; border-radius: 10px; overflow: hidden; margin-top: 0.75rem;">
+                <div style="width: 64%; height: 100%; background: var(--primary); border-radius: 10px;"></div>
+            </div>
+        </div>
+        <div class="glass stat-card">
+            <div class="stat-card-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.08);">
+                <i class="fas fa-wallet"></i>
+            </div>
+            <span class="stat-label">Doanh thu COD</span>
+            <span class="stat-value">12.400.000đ</span>
+            <div style="color: var(--text-muted); font-size: 0.875rem; font-weight: 550; margin-top: 0.5rem;">
+                <i class="far fa-calendar-alt"></i> 7 ngày qua
+            </div>
+        </div>
+    </div>
+
+    <div class="glass" style="padding: 2rem; border-radius: var(--radius-md);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h2 style="font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.02em;">Hoạt động gần đây</h2>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin: 0.25rem 0 0;">Cập nhật trạng thái đơn hàng thời gian thực</p>
+            </div>
+            <button class="btn-premium">Xem tất cả <i class="fas fa-arrow-right" style="font-size: 0.8rem; margin-left: 0.25rem;"></i></button>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="premium-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Người nhận</th>
+                        <th>Trạng thái</th>
+                        <th>Mức độ ưu tiên</th>
+                        <th>Cập nhật</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 750; color: var(--primary);">#ORD-8291</td>
+                        <td style="font-weight: 600;">Nguyễn Văn A</td>
+                        <td><span class="badge badge-success"><i class="fas fa-shipping-fast"></i> Đang giao</span></td>
+                        <td><span style="color: #dc2626; font-weight: 700; font-size: 0.85rem;"><i class="fas fa-exclamation-circle"></i> Cao</span></td>
+                        <td style="color: var(--text-muted); font-weight: 550;">Vừa xong</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 750; color: var(--primary);">#ORD-8290</td>
+                        <td style="font-weight: 600;">Trần Thị B</td>
+                        <td><span class="badge badge-warning"><i class="fas fa-spinner"></i> Đang xử lý</span></td>
+                        <td><span style="color: #d97706; font-weight: 700; font-size: 0.85rem;"><i class="fas fa-minus-circle"></i> Trung bình</span></td>
+                        <td style="color: var(--text-muted); font-weight: 550;">10 phút trước</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    @* Decorative Background Glows *@
+    <div class="bg-glow-container">
+        <div class="bg-glow glow-1"></div>
+        <div class="bg-glow glow-2"></div>
+        <div class="bg-glow glow-3"></div>
+    </div>
+
+    @* Landing Page cho khách vãng lai *@
+    <div class="hero-section" style="padding: 4rem 0 3rem 0; position: relative; z-index: 5;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 3.5rem; text-align: left; align-items: start; margin-bottom: 4rem;">
+            
+            <!-- Cột trái: Tiêu đề & Tra cứu & Stepper -->
+            <div style="display: flex; flex-direction: column;">
+                <span style="background: var(--accent-secondary); color: var(--primary); padding: 0.45rem 1.25rem; border-radius: 50px; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; align-self: flex-start; margin-bottom: 1.25rem; border: 1px solid rgba(37,99,235,0.12);">
+                    SmartDelivery Logistics
+                </span>
+                <h1 class="hero-title" style="font-size: 3.4rem; text-align: left; margin-bottom: 1.25rem;">
+                    Hệ thống Giao nhận <br/>
+                    <span>SmartDelivery</span>
+                </h1>
+                <p style="font-size: 1.05rem; color: var(--text-muted); line-height: 1.7; font-weight: 550; margin: 0 0 2.25rem 0;">
+                    Tra cứu bưu gửi thời gian thực, tự động hóa quy trình quản lý kho bãi và tối ưu hóa tuyến đường vận chuyển một cách chuyên nghiệp nhất.
+                </p>
+
+                <!-- Tra cứu mã vận đơn -->
+                <div class="search-container" style="margin: 0 0 1.75rem 0; max-width: 100%;">
+                    <input id="input-track" type="text" placeholder="Nhập mã vận đơn (ví dụ: DH123456, SDMS-8291)..." />
+                    <button id="btn-track" class="btn-premium" style="padding: 0.8rem 2.25rem;">
+                        <i class="fas fa-search"></i> Tra cứu
+                    </button>
+                </div>
+
+                <!-- Nút điều hướng -->
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <a asp-area="Identity" asp-page="/Account/Login" class="btn-premium" style="padding: 0.8rem 2.25rem; text-decoration: none;">
+                        Đăng nhập ngay
+                    </a>
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn-premium btn-secondary-premium" style="padding: 0.8rem 2.25rem; text-decoration: none;">
+                        Tạo tài khoản mới
+                    </a>
+                </div>
+
+                <!-- STEPPER TIMELINE CONTAINER (Ẩn mặc định, hiển thị khi bấm tìm kiếm) -->
+                <div id="tracking-result-container" class="tracking-timeline-card" style="display: none;">
+                    <div class="stepper-header">
+                        <div>
+                            <span style="font-size: 0.75rem; font-weight: 750; text-transform: uppercase; color: var(--text-light); letter-spacing: 0.05em;">Đơn hàng của bạn</span>
+                            <h4 id="track-code-disp" style="margin: 0.15rem 0 0; font-size: 1.15rem; font-weight: 850; color: var(--primary);">DH123456</h4>
+                        </div>
+                        <span id="track-status-badge" class="badge badge-info">Đang vận chuyển</span>
+                    </div>
+
+                    <!-- Truck animation line -->
+                    <div class="truck-line-anim-wrapper">
+                        <div class="truck-line-progress"></div>
+                        <div class="truck-icon-anim">
+                            <i class="fas fa-truck-fast"></i>
+                        </div>
+                    </div>
+
+                    <!-- Stepper Timeline steps -->
+                    <div class="stepper-timeline">
+                        <div class="stepper-progress-line"></div>
+                        
+                        <div class="step-item">
+                            <div class="step-marker"></div>
+                            <span class="step-title">Đã tiếp nhận yêu cầu</span>
+                            <span class="step-desc">Hệ thống ghi nhận bưu gửi mới thành công.</span>
+                            <span class="step-time">Hôm qua, 09:30</span>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-marker"></div>
+                            <span class="step-title">Đang xử lý tại kho bãi</span>
+                            <span class="step-desc">Đã kiểm đếm trọng lượng và đóng gói bưu kiện hoàn tất.</span>
+                            <span class="step-time">Hôm nay, 08:15</span>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-marker"></div>
+                            <span class="step-title">Đang vận chuyển liên tỉnh</span>
+                            <span class="step-desc">Bưu gửi đang được luân chuyển trực tiếp bằng xe trung chuyển lớn.</span>
+                            <span class="step-time">Hôm nay, 14:00</span>
+                        </div>
+                        
+                        <div class="step-item">
+                            <div class="step-marker"></div>
+                            <span class="step-title">Giao hàng thành công</span>
+                            <span class="step-desc">Người nhận đã xác nhận ký nhận đơn hàng an toàn.</span>
+                            <span class="step-time">Đang đợi cập nhật...</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Cột phải: Widget tính cước trực quan -->
+            <div class="estimator-card glass" style="margin-top: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                    <div style="width: 44px; height: 44px; background: var(--accent-secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 1.25rem;">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-size: 1.35rem; font-weight: 850; margin: 0; color: var(--text-main); letter-spacing: -0.02em;">Tính Cước Giao Hàng Nhanh</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.25rem 0 0; font-weight: 550;">Nhận báo giá cước dự kiến tức thì theo cân nặng</p>
+                    </div>
+                </div>
+
+                <!-- Weight Slider -->
+                <div class="slider-container">
+                    <div class="slider-label-row">
+                        <span>Trọng lượng bưu gửi</span>
+                        <span class="weight-value-display"><span id="home-weight-val">1.5</span> kg</span>
+                    </div>
+                    <input id="home-weight-slider" type="range" min="0.1" max="20" step="0.1" value="1.5" class="slider-premium" />
+                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-light); font-weight: 700; margin-top: 0.5rem;">
+                        <span>0.1 kg</span>
+                        <span>5.0 kg</span>
+                        <span>10.0 kg</span>
+                        <span>15.0 kg</span>
+                        <span>20.0 kg</span>
+                    </div>
+                </div>
+
+                <!-- Route Select Pills -->
+                <div class="slider-label-row" style="margin-bottom: 0.6rem;">
+                    <span>Tuyến đường kết nối</span>
+                </div>
+                <div class="route-toggle-group">
+                    <button class="route-btn active" data-route="hcm-hn">
+                        <i class="fas fa-city" style="font-size: 0.8rem;"></i> HN ↔ TP. HCM
+                    </button>
+                    <button class="route-btn" data-route="others">
+                        <i class="fas fa-map-marked-alt" style="font-size: 0.8rem;"></i> Tỉnh thành khác
+                    </button>
+                </div>
+
+                <!-- Price Ledger -->
+                <div class="ledger-screen">
+                    <div>
+                        <span style="font-size: 0.7rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.85;">Cước phí dự tính</span>
+                        <div style="display: flex; align-items: baseline; gap: 0.25rem; margin-top: 0.25rem;">
+                            <span id="home-result-price" style="font-size: 2.15rem; font-weight: 900; color: #38bdf8; letter-spacing: -0.02em; line-height: 1;">25.000</span>
+                            <span style="font-size: 1.1rem; font-weight: 800; color: #38bdf8;">đ</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right; border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.5rem;">
+                        <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.3rem; font-weight: 600;">
+                            Cơ bản: <span id="home-base-price">25.000đ</span>
+                        </div>
+                        <div style="font-size: 0.85rem; opacity: 0.9; font-weight: 600;">
+                            Phụ trội: <span id="home-overweight-price">0đ</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1.5rem; text-align: center;">
+                    <a asp-controller="Home" asp-action="Pricing" style="font-size: 0.85rem; font-weight: 700; color: var(--primary); display: inline-flex; align-items: center; gap: 0.35rem; transition: var(--transition-fast);">
+                        Xem biểu phí chi tiết đầy đủ <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        @* Tính năng *@
+        <div style="margin-top: 7rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2.5rem;">
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h4 style="margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Siêu tốc</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">Cập nhật trạng thái vận đơn thời gian thực theo từng giây.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon-wrapper" style="color: var(--secondary); background: rgba(255, 107, 53, 0.08);">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4 style="margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Bảo mật</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">An toàn dữ liệu tuyệt đối với công nghệ mã hóa đầu cuối cao cấp.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon-wrapper" style="color: var(--cyan-accent); background: rgba(6, 182, 212, 0.08);">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h4 style="margin-bottom: 0.75rem; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">Chính xác</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin: 0;">Thống kê thông minh và báo cáo chi tiết giúp tối ưu hóa doanh nghiệp.</p>
+            </div>
+        </div>
+
+        <!-- Bảng giá Section (Teaser) -->
+        <div id="pricing-section" class="pricing-section" style="padding: 5rem 0;">
+            <h2 class="pricing-title">Bảng Giá Dịch Vụ Giao Nhận</h2>
+            <p class="pricing-subtitle">SmartDelivery cung cấp giải pháp vận chuyển đa vùng với mức cước phí minh bạch, kinh tế và tối ưu nhất theo trọng lượng.</p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; max-width: 1000px; margin: 0 auto; text-align: left;">
+                <!-- Card 1: Hanoi - HCM -->
+                <div class="price-card-red" style="display: flex; flex-direction: column; height: 100%;">
+                    <div class="price-header">
+                        <div class="price-header-icon" style="background: rgba(255,255,255,0.18);">
+                            <i class="fas fa-city"></i>
+                        </div>
+                        <div class="price-header-content">
+                            <h3 style="color: white;">Hà Nội ↔ TP. HCM</h3>
+                            <p style="color: rgba(255,255,255,0.9);">Tuyến kết nối liên vùng đặc biệt</p>
+                        </div>
+                    </div>
+                    <div style="padding: 2.5rem 2rem; display: flex; flex-direction: column; flex: 1; justify-content: space-between; background: white;">
+                        <div>
+                            <div style="display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 1.75rem;">
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Chỉ từ</span>
+                                <span style="font-size: 2.75rem; font-weight: 900; color: #ea580c; line-height: 1; letter-spacing: -0.03em;">25.000đ</span>
+                                <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">/ 0 - 3 kg</span>
+                            </div>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 2.5rem; display: flex; flex-direction: column; gap: 1.15rem;">
+                                <li style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-main); font-size: 0.95rem; font-weight: 600;">
+                                    <i class="fas fa-check-circle" style="color: #ea580c; font-size: 1.15rem;"></i> Áp dụng cước siêu ưu đãi cho bưu gửi từ 0 - 3 kg
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-main); font-size: 0.95rem; font-weight: 600;">
+                                    <i class="fas fa-check-circle" style="color: #ea580c; font-size: 1.15rem;"></i> Phụ trội cực thấp chỉ 5.000đ cho mỗi 0,5 kg tiếp theo
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-main); font-size: 0.95rem; font-weight: 600;">
+                                    <i class="fas fa-check-circle" style="color: #ea580c; font-size: 1.15rem;"></i> Tối ưu thời gian bằng đường bay vận tải chuyên dụng trực tiếp
+                                </li>
+                            </ul>
+                        </div>
+                        <a asp-controller="Home" asp-action="Pricing" asp-route-tab="hcm-hn" class="btn-premium btn-speed" style="display: block; text-align: center; text-decoration: none; font-size: 0.95rem; padding: 0.85rem 1.5rem; border-radius: var(--radius-sm);">
+                            Xem chi tiết bảng cước <i class="fas fa-arrow-right" style="margin-left: 0.5rem; font-size: 0.85rem;"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Card 2: Rest of Vietnam -->
+                <div class="price-card-blue" style="display: flex; flex-direction: column; height: 100%;">
+                    <div class="price-header">
+                        <div class="price-header-icon" style="background: rgba(255,255,255,0.18);">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div class="price-header-content">
+                            <h3 style="color: white;">Tỉnh thành khác</h3>
+                            <p style="color: rgba(255,255,255,0.9);">Kết nối 63 tỉnh thành toàn quốc</p>
+                        </div>
+                    </div>
+                    <div style="padding: 2.5rem 2rem; display: flex; flex-direction: column; flex: 1; justify-content: space-between; background: white;">
+                        <div>
+                            <div style="display: flex; align-items: baseline; gap: 0.25rem; margin-bottom: 1.75rem;">
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Chỉ từ</span>
+                                <span style="font-size: 2.75rem; font-weight: 900; color: var(--primary); line-height: 1; letter-spacing: -0.03em;">29.000đ</span>
+                                <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">/ 0 - 3 kg</span>
+                            </div>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 2.5rem; display: flex; flex-direction: column; gap: 1.15rem;">
+                                <li style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-main); font-size: 0.95rem; font-weight: 600;">
+                                    <i class="fas fa-check-circle" style="color: var(--primary); font-size: 1.15rem;"></i> Cước phí khởi điểm kinh tế chỉ 29.000đ cho bưu gửi từ 0 - 3 kg
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-main); font-size: 0.95rem; font-weight: 600;">
+                                    <i class="fas fa-check-circle" style="color: var(--primary); font-size: 1.15rem;"></i> Chỉ thêm 5.000đ cho mỗi 0,5 kg vượt thêm cước hạn định
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 0.75rem; color: var(--text-main); font-size: 0.95rem; font-weight: 600;">
+                                    <i class="fas fa-check-circle" style="color: var(--primary); font-size: 1.15rem;"></i> Mạng lưới bưu cục rộng khắp phủ sóng tận thôn bản
+                                </li>
+                            </ul>
+                        </div>
+                        <a asp-controller="Home" asp-action="Pricing" asp-route-tab="others" class="btn-premium" style="display: block; text-align: center; text-decoration: none; font-size: 0.95rem; padding: 0.85rem 1.5rem; border-radius: var(--radius-sm);">
+                            Xem chi tiết bảng cước <i class="fas fa-arrow-right" style="margin-left: 0.5rem; font-size: 0.85rem;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

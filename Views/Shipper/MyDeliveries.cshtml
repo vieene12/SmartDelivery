@@ -1,0 +1,77 @@
+﻿@model IEnumerable<SDMS.Models.HanhTrinhDonHang>
+@{
+    ViewData["Title"] = "Nhiệm vụ Giao hàng";
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div style="background-color: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem; font-weight: 500;">
+        <i class="fas fa-exclamation-circle" style="margin-right: 0.5rem;"></i> @TempData["ErrorMessage"]
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div style="background-color: #f0fdf4; border: 1px solid #86efac; color: #15803d; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1.5rem; font-weight: 500;">
+        <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i> @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="glass" style="padding: 2rem; margin-bottom: 2rem;">
+    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.75rem;">
+        <i class="fas fa-barcode" style="color: var(--accent-primary);"></i> Tiếp nhận tại Kho
+    </h2>
+    <p style="color: var(--text-muted); font-size: 0.9375rem; margin-top: 0.5rem;">Vui lòng quét mã đơn hàng tại khu vực phân loại của bạn để bắt đầu giao.</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+    <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-main);">Đơn hàng chờ lấy (@Model.Count(m => m.TrangThai == "Chờ shipper lấy hàng"))</h3>
+    
+    @foreach (var item in Model.Where(m => m.TrangThai == "Chờ shipper lấy hàng"))
+    {
+        <div class="glass" style="padding: 1.5rem; border-left: 4px solid var(--accent-primary);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Mã vận đơn</div>
+                    <div style="font-weight: 800; font-size: 1.25rem; color: var(--accent-primary);">@item.MaDonHang</div>
+                    <div style="margin-top: 0.75rem; color: var(--text-muted);">
+                        <i class="fas fa-map-marker-alt" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> @item.DonHang?.DiaChiNguoiNhan
+                    </div>
+                </div>
+                <form asp-action="ScanToPickUp" method="post">
+                    <input type="hidden" name="maHanhTrinh" value="@item.MaHanhTrinh" />
+                    <button type="submit" class="btn-premium">
+                        <i class="fas fa-qrcode"></i> Quét nhận hàng
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+
+    <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-main); margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 2rem;">
+        Đơn hàng đang giao (@Model.Count(m => m.TrangThai == "Đang giao"))
+    </h3>
+
+    @foreach (var item in Model.Where(m => m.TrangThai == "Đang giao"))
+    {
+        <div class="glass" style="padding: 1.5rem; border-left: 4px solid #16a34a;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: 800; color: var(--accent-primary); font-size: 1.125rem;">@item.MaDonHang</div>
+                    <div style="margin-top: 0.25rem;">Người nhận: <strong style="color: var(--text-main);">@item.DonHang?.TenNguoiNhan</strong></div>
+                    <div style="font-size: 0.875rem; color: var(--text-muted);"><i class="fas fa-phone"></i> @item.DonHang?.SoDienThoaiNguoiNhan</div>
+                </div>
+                <a asp-action="UpdateStatus" asp-route-id="@item.MaHanhTrinh" class="btn-premium" style="background: var(--card-bg); color: var(--primary); border: 1px solid var(--primary); text-decoration: none;">
+                    Cập nhật kết quả
+                </a>
+            </div>
+        </div>
+    }
+
+    @if (!Model.Any(m => m.TrangThai == "Chờ shipper lấy hàng" || m.TrangThai == "Đang giao"))
+    {
+        <div style="text-align: center; padding: 5rem; color: var(--text-muted);">
+            <i class="fas fa-truck-loading" style="font-size: 4rem; display: block; margin-bottom: 1.5rem; opacity: 0.1;"></i>
+            Hiện bạn không có nhiệm vụ giao hàng nào.
+        </div>
+    }
+</div>

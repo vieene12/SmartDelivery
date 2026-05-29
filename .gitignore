@@ -1,0 +1,25 @@
+## Visual Studio / VS Code
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+## Publish output
+publish/
+
+## Database/Local backups
+*.db
+*.sqlite
+
+## OS Metadata
+.DS_Store
+Thumbs.db

@@ -1,0 +1,130 @@
+@model IEnumerable<SDMS.Models.CaLamViec>
+@{
+    ViewData["Title"] = "Quản lý Ca làm việc";
+}
+
+<!-- Tab Navigation Header -->
+<div style="display: flex; gap: 0.75rem; margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+    <a asp-action="Staff" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-users-cog"></i> Nhân sự
+    </a>
+    <a asp-action="Warehouses" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-warehouse"></i> Kho bãi
+    </a>
+    <a asp-action="Categories" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-tags"></i> Nhóm hàng
+    </a>
+    <a asp-action="Routes" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-route"></i> Tuyến đường
+    </a>
+    <a asp-action="Shifts" class="nav-item active" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-calendar-alt"></i> Ca làm việc
+    </a>
+</div>
+
+<!-- Alert Notifications -->
+@if (TempData["Success"] != null)
+{
+    <div class="glass" style="padding: 1rem 1.5rem; margin-bottom: 2rem; background: rgba(22, 163, 74, 0.08); border-color: rgba(22, 163, 74, 0.2); color: #166534; display: flex; align-items: center; gap: 0.75rem; border-radius: 10px;">
+        <i class="fas fa-check-circle" style="font-size: 1.25rem; color: #16a34a;"></i>
+        <span style="font-weight: 600;">@TempData["Success"]</span>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="glass" style="padding: 1rem 1.5rem; margin-bottom: 2rem; background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); color: #991b1b; display: flex; align-items: center; gap: 0.75rem; border-radius: 10px;">
+        <i class="fas fa-exclamation-circle" style="font-size: 1.25rem; color: #ef4444;"></i>
+        <span style="font-weight: 600;">@TempData["Error"]</span>
+    </div>
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main);">Danh sách Ca làm việc</h2>
+        <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.9375rem;">Thiết lập khung giờ trực cho nhân viên kho và shipper điều phối</p>
+    </div>
+    <button class="btn-premium" onclick="document.getElementById('add-shift-modal').style.display='flex'">
+        <i class="fas fa-plus"></i> Thêm Ca trực mới
+    </button>
+</div>
+
+<div class="glass" style="padding: 1.5rem; overflow-x: auto;">
+    <table class="premium-table">
+        <thead>
+            <tr>
+                <th>Mã Ca</th>
+                <th>Tên Ca Làm Việc</th>
+                <th>Giờ Bắt đầu</th>
+                <th>Giờ Kết thúc</th>
+                <th>Thời lượng ca</th>
+                <th>Trạng thái hoạt động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem 0;">
+                        <i class="fas fa-clock" style="font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        Chưa có ca làm việc nào được định cấu hình.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var shift in Model)
+                {
+                    <tr>
+                        <td style="font-family: monospace; font-weight: 700; color: var(--accent-primary);">@shift.MaCa</td>
+                        <td style="font-weight: 700;">@shift.TenCa</td>
+                        <td style="font-weight: 600; color: #16a34a;"><i class="far fa-clock" style="margin-right: 0.25rem;"></i> @shift.GioBatDau.ToString("HH:mm")</td>
+                        <td style="font-weight: 600; color: #ef4444;"><i class="far fa-clock" style="margin-right: 0.25rem;"></i> @shift.GioKetThuc.ToString("HH:mm")</td>
+                        <td style="font-weight: 600;">
+                            @{
+                                var duration = shift.GioKetThuc - shift.GioBatDau;
+                                var durationText = $"{duration.Hours} tiếng";
+                                if (duration.Minutes > 0)
+                                {
+                                    durationText += $" {duration.Minutes} phút";
+                                }
+                            }
+                            @durationText
+                        </td>
+                        <td>
+                            <span class="badge badge-success">Sẵn sàng áp dụng</span>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Thêm Ca Trực -->
+<div id="add-shift-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="glass" style="width: 440px; padding: 2.5rem; position: relative; background: var(--card-bg, white); border-radius: 16px;">
+        <button onclick="document.getElementById('add-shift-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #64748b; cursor: pointer; font-size: 1.5rem; outline: none;">&times;</button>
+        <h3 style="margin-top: 0; margin-bottom: 1.75rem; font-weight: 800; font-size: 1.5rem; color: var(--text-color, #0f172a);">Cấu hình Ca làm việc mới</h3>
+        <form asp-action="CreateShift" method="post">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Mã Ca trực (Ví dụ: CA_TOI)</label>
+                <input name="maCa" placeholder="Nhập mã định danh ca trực" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 600; outline: none; box-sizing: border-box;" required maxlength="20" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Tên Ca trực</label>
+                <input name="tenCa" placeholder="Ví dụ: Ca Tối / Ca Đêm" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required maxlength="100" />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2.25rem;">
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Giờ Bắt đầu</label>
+                    <input name="gioBatDau" type="time" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required />
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Giờ Kết thúc</label>
+                    <input name="gioKetThuc" type="time" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required />
+                </div>
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1rem; font-size: 1rem;">Lưu cấu hình ca</button>
+        </form>
+    </div>
+</div>

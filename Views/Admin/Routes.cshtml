@@ -1,0 +1,176 @@
+@model IEnumerable<SDMS.Models.TuyenGiao>
+@{
+    ViewData["Title"] = "Quản lý Tuyến đường";
+}
+
+<!-- Tab Navigation Header -->
+<div style="display: flex; gap: 0.75rem; margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+    <a asp-action="Staff" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-users-cog"></i> Nhân sự
+    </a>
+    <a asp-action="Warehouses" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-warehouse"></i> Kho bãi
+    </a>
+    <a asp-action="Categories" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-tags"></i> Nhóm hàng
+    </a>
+    <a asp-action="Routes" class="nav-item active" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-route"></i> Tuyến đường
+    </a>
+    <a asp-action="Shifts" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-calendar-alt"></i> Ca làm việc
+    </a>
+</div>
+
+<!-- Alert Notifications -->
+@if (TempData["Success"] != null)
+{
+    <div class="glass" style="padding: 1rem 1.5rem; margin-bottom: 2rem; background: rgba(22, 163, 74, 0.08); border-color: rgba(22, 163, 74, 0.2); color: #166534; display: flex; align-items: center; gap: 0.75rem; border-radius: 10px;">
+        <i class="fas fa-check-circle" style="font-size: 1.25rem; color: #16a34a;"></i>
+        <span style="font-weight: 600;">@TempData["Success"]</span>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="glass" style="padding: 1rem 1.5rem; margin-bottom: 2rem; background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); color: #991b1b; display: flex; align-items: center; gap: 0.75rem; border-radius: 10px;">
+        <i class="fas fa-exclamation-circle" style="font-size: 1.25rem; color: #ef4444;"></i>
+        <span style="font-weight: 600;">@TempData["Error"]</span>
+    </div>
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main);">Danh sách Tuyến đường Giao hàng</h2>
+        <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.9375rem;">Phân vùng tuyến địa lý để tối ưu hóa điều phối giao nhận shipper</p>
+    </div>
+    <button class="btn-premium" onclick="document.getElementById('add-route-modal').style.display='flex'">
+        <i class="fas fa-plus"></i> Thêm Tuyến giao mới
+    </button>
+</div>
+
+<div class="glass" style="padding: 1.5rem; overflow-x: auto;">
+    <table class="premium-table">
+        <thead>
+            <tr>
+                <th>Mã Tuyến</th>
+                <th>Tên Tuyến Đường</th>
+                <th>Khu vực vận hành</th>
+                <th>Mô tả chi tiết</th>
+                <th>Độ phức tạp tuyến</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 3rem 0;">
+                        <i class="fas fa-map-marked-alt" style="font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        Chưa có tuyến giao nào được tạo lập.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var route in Model)
+                {
+                    <tr>
+                        <td style="font-family: monospace; font-weight: 700; color: var(--accent-primary);">@route.MaTuyen</td>
+                        <td style="font-weight: 700;">@route.TenTuyen</td>
+                        <td style="font-weight: 600; color: var(--text-main);">@route.KhuVuc</td>
+                        <td style="color: var(--text-muted); font-size: 0.9375rem;">@(string.IsNullOrWhiteSpace(route.MoTa) ? "Không có mô tả" : route.MoTa)</td>
+                        <td>
+                            @{
+                                var levelBg = "rgba(14, 165, 233, 0.1)";
+                                var levelTextColor = "#0284c7";
+                                var levelText = "Tiêu chuẩn";
+                                if (route.TenTuyen.Contains("Q1") || route.TenTuyen.Contains("Quận 1") || route.TenTuyen.Contains("Trung tâm"))
+                                {
+                                    levelBg = "rgba(239, 68, 68, 0.1)";
+                                    levelTextColor = "#ef4444";
+                                    levelText = "Mật độ cao / Kẹt xe";
+                                }
+                                else if (route.TenTuyen.Contains("Q7") || route.TenTuyen.Contains("Q12"))
+                                {
+                                    levelBg = "rgba(249, 115, 22, 0.1)";
+                                    levelTextColor = "#ea580c";
+                                    levelText = "Diện rộng";
+                                }
+                            }
+                            <span class="badge" style="background: @levelBg; color: @levelTextColor;">@levelText</span>
+                        </td>
+                        <td>
+                            <button class="glass" onclick="openEditRouteModal('@route.MaTuyen', '@route.TenTuyen.Replace("'", "\\'")', '@route.KhuVuc.Replace("'", "\\'")', '@(route.MoTa?.Replace("'", "\\'")?.Replace("\r", "")?.Replace("\n", "\\n"))')" style="padding: 0.625rem; border: 1px solid #e2e8f0; color: #3b82f6; cursor: pointer; border-radius: 8px;" title="Sửa thông tin">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Thêm Tuyến Đường -->
+<div id="add-route-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="glass" style="width: 460px; padding: 2.5rem; position: relative; background: var(--card-bg, white); border-radius: 16px;">
+        <button onclick="document.getElementById('add-route-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #64748b; cursor: pointer; font-size: 1.5rem; outline: none;">&times;</button>
+        <h3 style="margin-top: 0; margin-bottom: 1.75rem; font-weight: 800; font-size: 1.5rem; color: var(--text-color, #0f172a);">Thêm Tuyến đường mới</h3>
+        <form asp-action="CreateRoute" method="post">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Mã Tuyến đường (Ví dụ: TG_Q5)</label>
+                <input name="maTuyen" placeholder="Nhập mã tuyến giao hàng định danh" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 600; outline: none; box-sizing: border-box;" required maxlength="20" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Tên Tuyến đường</label>
+                <input name="tenTuyen" placeholder="Ví dụ: Quận 5 - Chợ Lớn" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required maxlength="100" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Khu vực vận hành</label>
+                <input name="khuVuc" placeholder="Ví dụ: TP. Hồ Chí Minh" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required maxlength="100" />
+            </div>
+            <div class="form-group" style="margin-bottom: 2.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Mô tả chi tiết</label>
+                <textarea name="moTa" rows="3" placeholder="Ghi chú về phân vùng địa lý, các khu phố hoặc thuộc tính tuyến đường..." class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; font-family: inherit; font-size: 0.9375rem; box-sizing: border-box; resize: vertical;" maxlength="255"></textarea>
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1rem; font-size: 1rem;">Lưu thông tin tuyến</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Sửa Tuyến Đường -->
+<div id="edit-route-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="glass animate-fade-in" style="width: 460px; padding: 2.5rem; position: relative; background: var(--card-bg, white); border-radius: 16px;">
+        <button onclick="document.getElementById('edit-route-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #64748b; cursor: pointer; font-size: 1.5rem; outline: none;">&times;</button>
+        <h3 style="margin-top: 0; margin-bottom: 1.75rem; font-weight: 800; font-size: 1.5rem; color: var(--text-color, #0f172a);">Sửa Tuyến đường</h3>
+        <form asp-action="EditRoute" method="post">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Mã Tuyến đường (Không thể sửa)</label>
+                <input name="maTuyen" id="edit-route-id" readonly class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 600; outline: none; box-sizing: border-box; background: var(--bg-muted, #f1f5f9); cursor: not-allowed;" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Tên Tuyến đường</label>
+                <input name="tenTuyen" id="edit-route-name" placeholder="Ví dụ: Quận 5 - Chợ Lớn" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required maxlength="100" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Khu vực vận hành</label>
+                <input name="khuVuc" id="edit-route-area" placeholder="Ví dụ: TP. Hồ Chí Minh" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required maxlength="100" />
+            </div>
+            <div class="form-group" style="margin-bottom: 2.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Mô tả chi tiết</label>
+                <textarea name="moTa" id="edit-route-description" rows="3" placeholder="Ghi chú về phân vùng địa lý, các khu phố hoặc thuộc tính tuyến đường..." class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; font-family: inherit; font-size: 0.9375rem; box-sizing: border-box; resize: vertical;" maxlength="255"></textarea>
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1rem; font-size: 1rem;">Cập nhật tuyến đường</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditRouteModal(id, name, area, description) {
+        document.getElementById('edit-route-id').value = id;
+        document.getElementById('edit-route-name').value = name;
+        document.getElementById('edit-route-area').value = area;
+        document.getElementById('edit-route-description').value = description || '';
+        document.getElementById('edit-route-modal').style.display = 'flex';
+    }
+</script>

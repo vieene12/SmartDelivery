@@ -1,0 +1,555 @@
+﻿@model SDMS.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Thông tin tài khoản";
+    var customer = ViewBag.Customer as SDMS.Models.KhachHang;
+    var staff = ViewBag.Staff as SDMS.Models.NhanVien;
+
+    string address = customer?.DiaChi ?? staff?.DiaChi ?? Model.Address ?? "";
+    string birthDate = staff?.NgaySinh.ToString("yyyy-MM-dd") ?? "";
+}
+
+<style>
+    :root {
+        --profile-red: #E30613;
+        --profile-bg: #F4F6F9;
+        --profile-text-dark: #1E293B;
+        --profile-text-muted: #64748B;
+        --profile-border: #E2E8F0;
+        --profile-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    }
+
+    .profile-page-wrapper {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background-color: var(--profile-bg);
+        min-height: 100vh;
+        margin: -2rem -1rem; /* Negative margin to pull page full-bleed */
+        padding: 0;
+    }
+
+    /* Top Search Bar & Header */
+    .profile-top-header {
+        background: white;
+        padding: 0.75rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--profile-border);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    .search-container-custom {
+        position: relative;
+        width: 400px;
+    }
+
+    .search-input-custom {
+        width: 100%;
+        background: #F8FAFC;
+        border: 1px solid var(--profile-border);
+        border-radius: 8px;
+        padding: 0.6rem 1rem 0.6rem 2.5rem;
+        font-size: 0.9rem;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .search-input-custom:focus {
+        border-color: var(--profile-red);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.05);
+    }
+
+    .search-icon-left {
+        position: absolute;
+        left: 0.9rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--profile-text-muted);
+        font-size: 0.95rem;
+    }
+
+    .header-actions-custom {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .notification-bell-wrapper {
+        position: relative;
+        cursor: pointer;
+        color: var(--profile-text-muted);
+        transition: color 0.2s;
+    }
+
+    .notification-bell-wrapper:hover {
+        color: var(--profile-red);
+    }
+
+    .bell-badge-count {
+        position: absolute;
+        top: -6px;
+        right: -8px;
+        background: var(--profile-red);
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 800;
+        border-radius: 10px;
+        padding: 1px 5px;
+        min-width: 15px;
+        text-align: center;
+    }
+
+    .user-profile-widget {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--profile-text-dark);
+    }
+
+    .widget-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #E2E8F0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--profile-text-muted);
+        font-size: 1rem;
+    }
+
+    /* Page Grid Layout */
+    .profile-main-grid {
+        max-width: 1350px;
+        margin: 1.5rem auto;
+        padding: 0 1.5rem;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 1.5rem;
+    }
+
+    @@media(max-width: 992px) {
+        .profile-main-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Sidebar list */
+    .profile-sidebar-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--profile-border);
+        box-shadow: var(--profile-shadow);
+        overflow: hidden;
+        padding: 0.5rem 0;
+    }
+
+    .sidebar-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.25rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--profile-text-dark);
+        text-decoration: none;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+        cursor: pointer;
+    }
+
+    .sidebar-menu-item:hover {
+        background-color: #F8FAFC;
+        color: var(--profile-red);
+    }
+
+    .sidebar-menu-item.active {
+        background-color: #FFF1F2;
+        color: var(--profile-red);
+        border-left-color: var(--profile-red);
+    }
+
+    .sidebar-menu-item i {
+        font-size: 1.05rem;
+        width: 20px;
+        text-align: center;
+        color: var(--profile-text-muted);
+        transition: color 0.2s;
+    }
+
+    .sidebar-menu-item.active i {
+        color: var(--profile-red);
+    }
+
+    /* Form Content Box */
+    .profile-content-card {
+        background: white;
+        border-radius: 12px;
+        border: 1px solid var(--profile-border);
+        box-shadow: var(--profile-shadow);
+        padding: 2rem;
+    }
+
+    .section-headline {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: var(--profile-text-dark);
+        text-transform: uppercase;
+        border-bottom: 2px solid #F1F5F9;
+        padding-bottom: 0.75rem;
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.5px;
+    }
+
+    .profile-form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-form-label {
+        display: block;
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--profile-text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-input-row {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .profile-input-field {
+        flex: 1;
+        background: white;
+        border: 1.5px solid #CBD5E1;
+        border-radius: 6px;
+        padding: 0.65rem 0.9rem;
+        font-size: 0.925rem;
+        font-weight: 500;
+        color: var(--profile-text-dark);
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .profile-input-field:focus {
+        border-color: var(--profile-red);
+        box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.05);
+    }
+
+    .profile-input-field:disabled {
+        background: #F1F5F9;
+        color: #94A3B8;
+        cursor: not-allowed;
+        border-color: #E2E8F0;
+    }
+
+    .btn-action-blue {
+        background: #0066FF;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.65rem 1.25rem;
+        font-weight: 700;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        white-space: nowrap;
+    }
+
+    .btn-action-blue:hover {
+        background: #0052CC;
+    }
+
+    .btn-action-red {
+        background: var(--profile-red);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.85rem 2rem;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: background 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 10px rgba(227, 6, 19, 0.15);
+    }
+
+    .btn-action-red:hover {
+        background: #C20510;
+    }
+
+    /* Address Selects row */
+    .address-select-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+    }
+
+    @@media(max-width: 768px) {
+        .address-select-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .custom-select-profile {
+        background: white;
+        border: 1.5px solid #CBD5E1;
+        border-radius: 6px;
+        padding: 0.65rem 0.9rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        outline: none;
+        cursor: pointer;
+        width: 100%;
+        transition: border-color 0.2s;
+    }
+
+    .custom-select-profile:focus {
+        border-color: var(--profile-red);
+    }
+</style>
+
+<div class="profile-page-wrapper">
+    <!-- Top Header Bar matching screenshot -->
+    <div class="profile-top-header">
+        <div class="search-container-custom">
+            <i class="fas fa-search search-icon-left"></i>
+            <input type="text" class="search-input-custom" placeholder="Tra cứu đơn hàng" />
+        </div>
+        <div class="header-actions-custom">
+            <div class="notification-bell-wrapper">
+                <i class="far fa-bell" style="font-size: 1.25rem;"></i>
+                <span class="bell-badge-count">46</span>
+            </div>
+            <div class="user-profile-widget">
+                <span style="font-weight: 700;">@Model.FullName</span>
+                <div class="widget-avatar">
+                    <i class="fas fa-user-circle" style="font-size: 1.5rem; color: var(--profile-red);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-main-grid">
+        <!-- Sidebar Navigation List -->
+        <div>
+            <div class="profile-sidebar-card">
+                <div class="sidebar-menu-item active">
+                    <i class="fas fa-user-edit"></i> Thông tin tài khoản
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Card details -->
+        <div>
+            @if (TempData["Success"] != null)
+            {
+                <div style="background: #ECFDF5; border: 1px solid #10B981; color: #065F46; padding: 1rem; border-radius: 8px; font-weight: 600; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    <i class="fas fa-check-circle" style="color: #10B981; margin-right: 0.5rem;"></i> @TempData["Success"]
+                </div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div style="background: #FEF2F2; border: 1px solid #EF4444; color: #991B1B; padding: 1rem; border-radius: 8px; font-weight: 600; margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    <i class="fas fa-exclamation-circle" style="color: #EF4444; margin-right: 0.5rem;"></i> @TempData["Error"]
+                </div>
+            }
+
+            <div class="profile-content-card">
+                <form asp-action="UpdateProfile" method="post">
+                    @Html.AntiForgeryToken()
+                    
+                    <h3 class="section-headline">Thông tin tài khoản</h3>
+
+                    <!-- Customer/Company Name -->
+                    <div class="profile-form-group">
+                        <label class="profile-form-label" for="fullName">Tên khách hàng, công ty</label>
+                        <input type="text" id="fullName" name="fullName" class="profile-input-field" value="@Model.FullName" placeholder="Nhập tên khách hàng hoặc tên công ty *" required />
+                    </div>
+
+                    <!-- Email -->
+                    <div class="profile-form-group">
+                        <label class="profile-form-label" for="email">Email</label>
+                        <div class="profile-input-row">
+                            <input type="email" id="email" name="email" class="profile-input-field" value="@Model.Email" placeholder="Chưa cấu hình Email" readonly />
+                            <button type="button" class="btn-action-blue" onclick="enableEmailEdit()">Thay đổi</button>
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="profile-form-group">
+                        <label class="profile-form-label" for="phoneNumber">Số điện thoại</label>
+                        <div class="profile-input-row">
+                            <input type="tel" id="phoneNumber" name="phoneNumber" class="profile-input-field" value="@Model.PhoneNumber" placeholder="Chưa cấu hình SĐT *" readonly required />
+                            <button type="button" class="btn-action-blue" onclick="enablePhoneEdit()">Thay đổi</button>
+                        </div>
+                    </div>
+
+                    <!-- Date of birth -->
+                    <div class="profile-form-group">
+                        <label class="profile-form-label" for="birthDate">Ngày sinh</label>
+                        <input type="date" id="birthDate" name="birthDate" class="profile-input-field" value="@birthDate" />
+                    </div>
+
+                    <!-- Tax code/ID number -->
+                    <div class="profile-form-group">
+                        <label class="profile-form-label" for="taxId">Chứng minh thư/ Mã số thuế</label>
+                        <input type="text" id="taxId" name="taxId" class="profile-input-field" placeholder="Nhập số CMT/CCCD hoặc Mã số thuế doanh nghiệp" />
+                    </div>
+
+                    <!-- Permanent Address / Billing address -->
+                    <div class="profile-form-group">
+                        <label class="profile-form-label" for="address">Địa chỉ thường trú/ Địa chỉ xuất hóa đơn</label>
+                        <input type="text" id="address" name="address" class="profile-input-field" value="@address" placeholder="Nhập địa chỉ nhà, số đường, khu dân cư..." />
+                    </div>
+
+                    <!-- Location Grid Selects -->
+                    <div class="profile-form-group">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span class="profile-form-label" style="margin-bottom:0;">Tỉnh/Thành phố</span>
+                            <span class="profile-form-label" style="margin-bottom:0;">Quận/Huyện</span>
+                            <span class="profile-form-label" style="margin-bottom:0;">Phường xã</span>
+                        </div>
+                        <div class="address-select-grid">
+                            <div>
+                                <select id="province-sel" class="custom-select-profile" onchange="onProvinceSelect()">
+                                    <option value="" selected disabled>-- Chọn Tỉnh/Thành --</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="Bình Dương">Bình Dương</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="district-sel" class="custom-select-profile" disabled onchange="onDistrictSelect()">
+                                    <option value="" selected disabled>-- Chọn Quận/Huyện --</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select id="ward-sel" class="custom-select-profile" disabled onchange="appendSelectedLocation()">
+                                    <option value="" selected disabled>-- Chọn Phường/Xã --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; border-top: 1.5px solid #F1F5F9; padding-top: 1.5rem; text-align: right;">
+                        <button type="submit" class="btn-action-red">
+                            <i class="fas fa-save"></i> Lưu thông tin cấu hình
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const locationData = {
+        "Hà Nội": {
+            "Cầu Giấy": ["Dịch Vọng", "Dịch Vọng Hậu", "Yên Hòa", "Mai Dịch", "Quan Hoa"],
+            "Ba Đình": ["Trúc Bạch", "Vĩnh Phúc", "Cống Vị", "Kim Mã", "Giảng Võ"],
+            "Đống Đa": ["Láng Thượng", "Láng Hạ", "Cát Linh", "Quốc Tử Giám", "Khương Thượng"]
+        },
+        "TP. Hồ Chí Minh": {
+            "Quận 1": ["Bến Nghé", "Bến Thành", "Đa Kao", "Tân Định", "Phạm Ngũ Lão"],
+            "Quận 3": ["Võ Thị Sáu", "Phường 1", "Phường 2", "Phường 5", "Phường 9"],
+            "Quận 10": ["Phường 1", "Phường 2", "Phường 12", "Phường 14", "Phường 15"]
+        },
+        "Đà Nẵng": {
+            "Hải Châu": ["Thạch Thang", "Thanh Bình", "Thuận Phước", "Hòa Cường Bắc", "Hòa Cường Nam"],
+            "Thanh Khê": ["Vĩnh Trung", "Tân Chính", "Thạc Gián", "Chính Gián", "Hòa Khê"]
+        },
+        "Bình Dương": {
+            "Thủ Dầu Một": ["Phú Cường", "Hiệp Thành", "Chánh Nghĩa", "Phú Hòa", "Phú Lợi"],
+            "Thuận An": ["Lái Thiêu", "An Thạnh", "Vĩnh Phú", "Bình Hòa", "Thuận Giao"]
+        }
+    };
+
+    function enableEmailEdit() {
+        const input = document.getElementById("email");
+        input.removeAttribute("readonly");
+        input.focus();
+        input.style.borderColor = "var(--profile-red)";
+    }
+
+    // Allow user to temporarily override standard readonly values (e.g. email/phone) to trigger successful DB updates
+    function enablePhoneEdit() {
+        const input = document.getElementById("phoneNumber");
+        input.removeAttribute("readonly");
+        input.focus();
+        input.style.borderColor = "var(--profile-red)";
+    }
+
+    function onProvinceSelect() {
+        const province = document.getElementById("province-sel").value;
+        const districtSelect = document.getElementById("district-sel");
+        const wardSelect = document.getElementById("ward-sel");
+
+        districtSelect.innerHTML = '<option value="" selected disabled>-- Chọn Quận/Huyện --</option>';
+        wardSelect.innerHTML = '<option value="" selected disabled>-- Chọn Phường/Xã --</option>';
+        wardSelect.disabled = true;
+
+        if (locationData[province]) {
+            districtSelect.disabled = false;
+            for (const district in locationData[province]) {
+                const opt = document.createElement("option");
+                opt.value = district;
+                opt.innerText = district;
+                districtSelect.appendChild(opt);
+            }
+        } else {
+            districtSelect.disabled = true;
+        }
+        appendSelectedLocation();
+    }
+
+    function onDistrictSelect() {
+        const province = document.getElementById("province-sel").value;
+        const district = document.getElementById("district-sel").value;
+        const wardSelect = document.getElementById("ward-sel");
+
+        wardSelect.innerHTML = '<option value="" selected disabled>-- Chọn Phường/Xã --</option>';
+
+        if (locationData[province] && locationData[province][district]) {
+            wardSelect.disabled = false;
+            locationData[province][district].forEach(ward => {
+                const opt = document.createElement("option");
+                opt.value = ward;
+                opt.innerText = ward;
+                wardSelect.appendChild(opt);
+            });
+        } else {
+            wardSelect.disabled = true;
+        }
+        appendSelectedLocation();
+    }
+
+    function appendSelectedLocation() {
+        const province = document.getElementById("province-sel").value;
+        const district = document.getElementById("district-sel").value;
+        const ward = document.getElementById("ward-sel").value;
+        
+        let parts = [];
+        if (ward) parts.push(ward);
+        if (district) parts.push(district);
+        if (province) parts.push(province);
+
+        if (parts.length > 0) {
+            const locString = parts.join(", ");
+            const addressInput = document.getElementById("address");
+            
+            // Extract the core house number part if any
+            let currentAddr = addressInput.value.split(" - ")[0].trim();
+            if (currentAddr === "18c khu phố 4" || !currentAddr) {
+                currentAddr = "18c khu phố 4";
+            }
+            addressInput.value = currentAddr + " - " + locString;
+        }
+    }
+</script>

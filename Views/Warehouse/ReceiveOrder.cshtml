@@ -1,0 +1,95 @@
+﻿@model SDMS.Models.DonHang
+@{
+    ViewData["Title"] = "Xử lý nhập kho #" + Model.MaDonHang;
+}
+
+<div style="display: grid; grid-template-columns: 1fr 380px; gap: 2rem;">
+    <!-- Chi tiết đơn hàng -->
+    <div class="glass" style="padding: 2.5rem;">
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 2rem; color: var(--accent-primary);">
+            <i class="fas fa-info-circle"></i> Thông tin vận đơn
+        </h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 3rem; background: var(--accent-secondary); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+            <div>
+                <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Người gửi</label>
+                <div style="font-weight: 700; color: var(--text-main);">@Model.KhachHang?.HoTen</div>
+            </div>
+            <div>
+                <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Người nhận</label>
+                <div style="font-weight: 700; color: var(--text-main);">@Model.TenNguoiNhan</div>
+            </div>
+            <div style="grid-column: span 2;">
+                <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Địa chỉ giao hàng</label>
+                <div style="font-weight: 700; color: var(--text-main);">@Model.DiaChiNguoiNhan</div>
+            </div>
+        </div>
+
+        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent-primary);">
+            <i class="fas fa-boxes"></i> Danh mục hàng hóa
+        </h3>
+        <table class="premium-table">
+            <thead>
+                <tr>
+                    <th>Tên món đồ</th>
+                    <th>Số lượng</th>
+                    <th>Khối lượng theo hệ thống</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ChiTietDonHangs)
+                {
+                    <tr>
+                        <td style="font-weight: 600;">@item.HangHoa?.TenHangHoa</td>
+                        <td>@item.SoLuong</td>
+                        <td>@item.HangHoa?.KhoiLuong kg</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Thao tác nhập kho -->
+    <div class="glass" style="padding: 2.5rem; height: fit-content; border-top: 4px solid var(--accent-primary);">
+        <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; color: var(--text-main);">Nhập kho & Điều phối</h3>
+        
+        <form asp-action="ConfirmReceipt" method="post">
+            <input type="hidden" name="maDonHang" value="@Model.MaDonHang" />
+            
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <select name="maKhoHang" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); background: var(--card-bg);" required>
+                    @foreach (var kho in (IEnumerable<SDMS.Models.KhoHang>)ViewBag.Warehouses)
+                    {
+                        <option value="@kho.MaKhoHang">@kho.TenKho</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <input name="viTri" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); background: var(--card-bg);" placeholder="Ví dụ: Khu A-01" required />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <input name="soLuongKienHang" type="number" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); background: var(--card-bg);" value="1" min="1" required />
+                </div>
+                <div>
+                    <input name="khoiLuongThucTe" type="number" step="0.01" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); background: var(--card-bg);" value="@Model.TongKhoiLuong" required />
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+                <textarea name="ghiChu" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid var(--border-color); border-radius: 8px; min-height: 100px; color: var(--text-main); background: var(--card-bg);" placeholder="Độ nguyên vẹn, bao bì có móp méo gì không..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1.25rem; font-size: 1.125rem;">
+                <i class="fas fa-check-double"></i> Xác nhận & Gán Shipper
+            </button>
+            
+            <div style="margin-top: 1.5rem; padding: 1rem; background: var(--accent-secondary); border-radius: 8px; font-size: 0.8125rem; color: var(--primary); display: flex; gap: 0.75rem; border: 1px solid var(--border-color);">
+                <i class="fas fa-robot" style="font-size: 1.25rem;"></i>
+                <span>Hệ thống sẽ tự động gợi ý Tuyến giao và Shipper phù hợp nhất dựa trên địa chỉ người nhận.</span>
+            </div>
+        </form>
+    </div>
+</div>

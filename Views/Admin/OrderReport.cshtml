@@ -1,0 +1,499 @@
+﻿@{
+    ViewData["Title"] = "Báo cáo Thống kê Đơn hàng";
+    var byStatus = ViewBag.ByStatus as List<dynamic> ?? new List<dynamic>();
+    var byMonth  = ViewBag.ByMonth  as List<dynamic> ?? new List<dynamic>();
+    var byShipper = ViewBag.ByShipper as List<dynamic> ?? new List<dynamic>();
+
+    // Màu sắc theo trạng thái
+    var statusColors = new Dictionary<string, string>
+    {
+        {"Mới tạo",                  "#6366f1"},
+        {"Đã nhập kho",              "#f59e0b"},
+        {"Chờ shipper lấy hàng",     "#3b82f6"},
+        {"Đang giao hàng",           "#8b5cf6"},
+        {"Giao hàng thành công",     "#10b981"},
+        {"Giao hàng thất bại",       "#ef4444"},
+        {"Đã hoàn kho",              "#6b7280"},
+    };
+    string GetColor(string s) => statusColors.TryGetValue(s, out var c) ? c : "#94a3b8";
+}
+
+<style>
+    :root {
+        --rpt-red: #E30613;
+        --rpt-bg: #F4F6F9;
+        --rpt-border: #E2E8F0;
+        --rpt-shadow: 0 4px 16px rgba(0,0,0,0.07);
+        --rpt-text: #1E293B;
+        --rpt-muted: #64748B;
+        --rpt-card-bg: white;
+        --rpt-table-header-bg: #F8FAFC;
+        --rpt-table-row-hover: #FAFAFA;
+        --rpt-table-border: #F1F5F9;
+    }
+
+    body.dark-mode {
+        --rpt-bg: #0b0f19;
+        --rpt-border: #334155;
+        --rpt-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        --rpt-text: #ffffff;
+        --rpt-muted: #cbd5e1;
+        --rpt-card-bg: #1e293b;
+        --rpt-table-header-bg: #111827;
+        --rpt-table-row-hover: rgba(255, 255, 255, 0.02);
+        --rpt-table-border: #334155;
+    }
+
+    body.dark-mode .section-card,
+    body.dark-mode .kpi-card {
+        background: #1e293b !important;
+        border-color: #334155 !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important;
+    }
+
+    body.dark-mode .rpt-table th {
+        background: #111827 !important;
+        color: #ffffff !important;
+        border-bottom: 2px solid #334155 !important;
+    }
+
+    body.dark-mode .rpt-table td {
+        background: #1e293b !important;
+        color: #ffffff !important;
+        border-bottom: 1px solid #334155 !important;
+    }
+
+    body.dark-mode .rpt-table tr:hover td {
+        background: #253147 !important;
+    }
+
+    body.dark-mode .kpi-card .kpi-value {
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .kpi-card .kpi-label {
+        color: #cbd5e1 !important;
+    }
+
+    body.dark-mode .kpi-card .kpi-sub {
+        color: #cbd5e1 !important;
+    }
+
+    body.dark-mode .section-title {
+        color: #ffffff !important;
+    }
+
+    body.dark-mode .badge-success {
+        background: rgba(16, 185, 129, 0.2) !important;
+        color: #34d399 !important;
+    }
+
+    body.dark-mode .badge-fail {
+        background: rgba(239, 68, 68, 0.2) !important;
+        color: #f87171 !important;
+    }
+
+    body.dark-mode .badge-total {
+        background: rgba(99, 102, 241, 0.2) !important;
+        color: #818cf8 !important;
+    }
+
+    .rpt-wrapper { font-family: 'Inter', sans-serif; color: var(--rpt-text); }
+
+    /* Page header */
+    .rpt-page-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .rpt-page-header h1 {
+        font-size: 1.75rem; font-weight: 800; color: var(--rpt-text);
+        margin: 0; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .rpt-page-header h1 i { color: var(--rpt-red); }
+    .rpt-meta { font-size: 0.85rem; color: var(--rpt-muted); margin-top: 0.25rem; }
+
+    /* Buttons */
+    .btn-export-pdf {
+        display: inline-flex; align-items: center; gap: 0.5rem;
+        background: var(--rpt-red); color: white;
+        border: none; border-radius: 8px;
+        padding: 0.7rem 1.5rem; font-weight: 700; font-size: 0.9rem;
+        cursor: pointer; transition: all 0.2s;
+        box-shadow: 0 4px 14px rgba(227,6,19,0.3);
+        text-decoration: none;
+    }
+    .btn-export-pdf:hover { background: #C20510; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(227,6,19,0.4); }
+    .btn-export-pdf:active { transform: translateY(0); }
+    .btn-export-pdf.loading { opacity: 0.75; cursor: not-allowed; }
+
+    /* KPI cards */
+    .kpi-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem; margin-bottom: 2rem;
+    }
+    .kpi-card {
+        background: var(--rpt-card-bg); border-radius: 14px; padding: 1.5rem;
+        border: 1px solid var(--rpt-border); box-shadow: var(--rpt-shadow);
+        display: flex; flex-direction: column; gap: 0.4rem;
+        position: relative; overflow: hidden;
+        transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .kpi-card::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+        background: var(--kpi-color, var(--rpt-red));
+    }
+    .kpi-label { font-size: 0.8rem; font-weight: 600; color: var(--rpt-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-value { font-size: 1.9rem; font-weight: 800; color: var(--rpt-text); line-height: 1; }
+    .kpi-sub { font-size: 0.8rem; color: var(--rpt-muted); }
+    .kpi-icon { position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); font-size: 2.5rem; opacity: 0.08; }
+
+    /* Section cards */
+    .section-card {
+        background: var(--rpt-card-bg); border-radius: 14px; padding: 1.75rem;
+        border: 1px solid var(--rpt-border); box-shadow: var(--rpt-shadow);
+        margin-bottom: 1.5rem;
+        transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .section-title {
+        font-size: 1.05rem; font-weight: 800; color: var(--rpt-text);
+        margin: 0 0 1.25rem 0; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-title i { color: var(--rpt-red); }
+
+    /* Two-column layout for charts */
+    .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+    @@media(max-width: 860px) { .chart-row { grid-template-columns: 1fr; } }
+
+    /* Canvas charts */
+    .chart-container { position: relative; height: 260px; }
+
+    /* Status table */
+    .rpt-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .rpt-table th {
+        text-align: left; padding: 0.6rem 0.9rem;
+        background: var(--rpt-table-header-bg); color: var(--rpt-muted);
+        font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--rpt-border);
+    }
+    .rpt-table td { padding: 0.75rem 0.9rem; border-bottom: 1px solid var(--rpt-table-border); vertical-align: middle; color: var(--rpt-text); }
+    .rpt-table tr:last-child td { border-bottom: none; }
+    .rpt-table tr:hover td { background: var(--rpt-table-row-hover); }
+    .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.5rem; }
+
+    /* Progress bar */
+    .progress-bar-wrap { background: var(--rpt-table-border); border-radius: 4px; height: 7px; min-width: 80px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+
+    /* Shipper table badges */
+    .badge-num { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; }
+    .badge-success { background: rgba(16,185,129,0.1); color: #065f46; }
+    .badge-fail    { background: rgba(239,68,68,0.1);  color: #991b1b; }
+    .badge-total   { background: rgba(99,102,241,0.1); color: #3730a3; }
+
+    /* Print / PDF styles */
+    @@media print {
+        .btn-export-pdf, .no-print { display: none !important; }
+        .kpi-card, .section-card { box-shadow: none !important; break-inside: avoid; }
+        body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+
+    /* Spinner */
+    .spinner {
+        display: inline-block; width: 14px; height: 14px;
+        border: 2px solid rgba(255,255,255,0.4); border-top-color: white;
+        border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<div class="rpt-wrapper" id="reportContent">
+    <!-- Page Header -->
+    <div class="rpt-page-header">
+        <div>
+            <h1><i class="fas fa-chart-bar"></i> Báo cáo Thống kê Đơn hàng</h1>
+            <div class="rpt-meta">
+                <i class="fas fa-clock"></i> Cập nhật lúc: @ViewBag.NgayXuatBaoCao.ToString("HH:mm:ss — dd/MM/yyyy")
+                &nbsp;|&nbsp; Dữ liệu thực từ hệ thống SmartDelivery
+            </div>
+        </div>
+        <button class="btn-export-pdf no-print" id="btnExportPdf" onclick="exportToPdf()">
+            <i class="fas fa-file-pdf"></i> Xuất PDF
+        </button>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+        <div class="kpi-card" style="--kpi-color:#6366f1;">
+            <span class="kpi-label">Tổng đơn hàng</span>
+            <span class="kpi-value">@ViewBag.TongDonHang</span>
+            <span class="kpi-sub">Tất cả trạng thái</span>
+            <i class="fas fa-box kpi-icon"></i>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#10b981;">
+            <span class="kpi-label">Giao thành công</span>
+            <span class="kpi-value">@ViewBag.DonThanhCong</span>
+            <span class="kpi-sub">
+                @{
+                    var total = (int)ViewBag.TongDonHang;
+                    var ok = (int)ViewBag.DonThanhCong;
+                    var rate = total > 0 ? Math.Round((double)ok / total * 100, 1) : 0;
+                }
+                Tỷ lệ: <strong>@rate%</strong>
+            </span>
+            <i class="fas fa-check-circle kpi-icon"></i>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#ef4444;">
+            <span class="kpi-label">Giao thất bại</span>
+            <span class="kpi-value">@ViewBag.DonThatBai</span>
+            <span class="kpi-sub">Cần xử lý hoàn kho</span>
+            <i class="fas fa-times-circle kpi-icon"></i>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#f59e0b;">
+            <span class="kpi-label">Phí giao hàng</span>
+            <span class="kpi-value" style="font-size:1.4rem;">@string.Format("{0:N0}", ViewBag.TongPhiGiao)</span>
+            <span class="kpi-sub">VNĐ tổng phí vận chuyển</span>
+            <i class="fas fa-tags kpi-icon"></i>
+        </div>
+        <div class="kpi-card" style="--kpi-color:#E30613;">
+            <span class="kpi-label">Doanh thu COD</span>
+            <span class="kpi-value" style="font-size:1.4rem;">@string.Format("{0:N0}", ViewBag.TongDoanhThu)</span>
+            <span class="kpi-sub">VNĐ đã thu hộ</span>
+            <i class="fas fa-wallet kpi-icon"></i>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="chart-row">
+        <!-- Biểu đồ cột: xu hướng theo tháng -->
+        <div class="section-card">
+            <h3 class="section-title"><i class="fas fa-chart-line"></i> Xu hướng đơn hàng theo tháng</h3>
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+        </div>
+        <!-- Biểu đồ tròn: phân bổ trạng thái -->
+        <div class="section-card">
+            <h3 class="section-title"><i class="fas fa-chart-pie"></i> Phân bổ theo trạng thái</h3>
+            <div class="chart-container">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bảng chi tiết theo trạng thái -->
+    <div class="section-card">
+        <h3 class="section-title"><i class="fas fa-list-alt"></i> Chi tiết theo Trạng thái đơn hàng</h3>
+        @{
+            var maxCount = byStatus.Count > 0 ? (int)byStatus[0].SoLuong : 1;
+        }
+        <table class="rpt-table">
+            <thead>
+                <tr>
+                    <th>Trạng thái</th>
+                    <th>Số lượng</th>
+                    <th style="width:200px;">Tỷ lệ</th>
+                    <th style="text-align:right;">Tổng phí giao (VNĐ)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in byStatus)
+                {
+                    string color = GetColor((string)row.TrangThai);
+                    double pct = maxCount > 0 ? (double)row.SoLuong / maxCount * 100 : 0;
+                    <tr>
+                        <td>
+                            <span class="status-dot" style="background:@color;"></span>
+                            @row.TrangThai
+                        </td>
+                        <td style="font-weight:700;">@row.SoLuong</td>
+                        <td>
+                            <div class="progress-bar-wrap">
+                                <div class="progress-bar-fill" style="width:@pct.ToString("F0")%;background:@color;"></div>
+                            </div>
+                        </td>
+                        <td style="text-align:right;font-weight:600;">@string.Format("{0:N0}", row.TongPhi)</td>
+                    </tr>
+                }
+                @if (!byStatus.Any())
+                {
+                    <tr><td colspan="4" style="text-align:center;color:var(--rpt-muted);padding:2rem;">Chưa có dữ liệu</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bảng hiệu suất Shipper -->
+    <div class="section-card">
+        <h3 class="section-title"><i class="fas fa-truck"></i> Hiệu suất Shipper (Top 10)</h3>
+        <table class="rpt-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Tên Shipper</th>
+                    <th style="text-align:center;">Tổng đơn</th>
+                    <th style="text-align:center;">Thành công</th>
+                    <th style="text-align:center;">Thất bại</th>
+                    <th style="text-align:center;">Tỷ lệ TS</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{int idx = 1;}
+                @foreach (var s in byShipper)
+                {
+                    double ts = s.TongDon > 0 ? Math.Round((double)s.ThanhCong / s.TongDon * 100, 1) : 0;
+                    <tr>
+                        <td style="color:var(--rpt-muted);font-weight:600;">@idx</td>
+                        <td style="font-weight:700;">@s.TenNhanVien</td>
+                        <td style="text-align:center;"><span class="badge-num badge-total">@s.TongDon</span></td>
+                        <td style="text-align:center;"><span class="badge-num badge-success">@s.ThanhCong</span></td>
+                        <td style="text-align:center;"><span class="badge-num badge-fail">@s.ThatBai</span></td>
+                        <td style="text-align:center;font-weight:700;color:@(ts >= 80 ? "#10b981" : ts >= 50 ? "#f59e0b" : "#ef4444");">@ts%</td>
+                    </tr>
+                    idx++;
+                }
+                @if (!byShipper.Any())
+                {
+                    <tr><td colspan="6" style="text-align:center;color:var(--rpt-muted);padding:2rem;">Chưa có dữ liệu shipper</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer báo cáo -->
+    <div style="text-align:center;color:var(--rpt-muted);font-size:0.8rem;margin-top:1rem;padding:1rem 0;border-top:1px solid var(--rpt-border);">
+        <i class="fas fa-shield-alt"></i> Báo cáo được tạo tự động bởi hệ thống SmartDelivery — Bảo mật nội bộ
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+    // ── Dữ liệu từ server ──────────────────────────────────────
+    const byMonthData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        byMonth.Select(x => new {
+            label = $"T{x.Month}/{x.Year}",
+            soLuong = (int)x.SoLuong,
+            tongPhi = (decimal)x.TongPhi
+        }).ToList()
+    ));
+
+    const byStatusData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        byStatus.Select(x => new {
+            label = (string)x.TrangThai,
+            value = (int)x.SoLuong
+        }).ToList()
+    ));
+
+    const STATUS_COLORS = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(statusColors));
+
+    // ── Biểu đồ xu hướng theo tháng (Bar) ─────────────────────
+    const monthCtx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(monthCtx, {
+        type: 'bar',
+        data: {
+            labels: byMonthData.map(d => d.label),
+            datasets: [{
+                label: 'Số đơn hàng',
+                data: byMonthData.map(d => d.soLuong),
+                backgroundColor: 'rgba(99,102,241,0.75)',
+                borderColor: '#6366f1',
+                borderWidth: 1.5,
+                borderRadius: 6,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+                y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { precision: 0 } }
+            }
+        }
+    });
+
+    // ── Biểu đồ tròn trạng thái (Doughnut) ────────────────────
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusColors = byStatusData.map(d => STATUS_COLORS[d.label] || '#94a3b8');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: byStatusData.map(d => d.label),
+            datasets: [{
+                data: byStatusData.map(d => d.value),
+                backgroundColor: statusColors,
+                borderWidth: 2, borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 11 }, padding: 12, boxWidth: 12, boxHeight: 12 }
+                }
+            }
+        }
+    });
+
+    // ── Xuất PDF ───────────────────────────────────────────────
+    async function exportToPdf() {
+        const btn = document.getElementById('btnExportPdf');
+        btn.classList.add('loading');
+        btn.innerHTML = '<span class="spinner"></span> Đang tạo PDF...';
+        btn.disabled = true;
+
+        try {
+            const { jsPDF } = window.jspdf;
+            const el = document.getElementById('reportContent');
+
+            // Ẩn nút trước khi chụp
+            btn.style.visibility = 'hidden';
+
+            const canvas = await html2canvas(el, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#F4F6F9',
+                logging: false
+            });
+
+            btn.style.visibility = 'visible';
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+            const pageW = pdf.internal.pageSize.getWidth();
+            const pageH = pdf.internal.pageSize.getHeight();
+            const imgW = pageW - 20;
+            const imgH = (canvas.height * imgW) / canvas.width;
+
+            let y = 10;
+            let heightLeft = imgH;
+
+            // Vẽ từng trang
+            pdf.addImage(imgData, 'PNG', 10, y, imgW, imgH);
+            heightLeft -= (pageH - 20);
+
+            while (heightLeft > 0) {
+                y = heightLeft - imgH + 10;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 10, y, imgW, imgH);
+                heightLeft -= (pageH - 20);
+            }
+
+            const dateStr = new Date().toLocaleDateString('vi-VN').replace(/\//g, '-');
+            pdf.save(`BaoCao_DonHang_${dateStr}.pdf`);
+        } catch (err) {
+            alert('Có lỗi khi tạo PDF: ' + err.message);
+            console.error(err);
+        } finally {
+            btn.classList.remove('loading');
+            btn.innerHTML = '<i class="fas fa-file-pdf"></i> Xuất PDF';
+            btn.disabled = false;
+        }
+    }
+</script>
+}

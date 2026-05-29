@@ -1,0 +1,166 @@
+@model IEnumerable<SDMS.Models.NhanVien>
+@{
+    ViewData["Title"] = "Quản lý Nhân sự";
+}
+
+<!-- Tab Navigation Header -->
+<div style="display: flex; gap: 0.75rem; margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+    <a asp-action="Staff" class="nav-item active" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-users-cog"></i> Nhân sự
+    </a>
+    <a asp-action="Warehouses" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-warehouse"></i> Kho bãi
+    </a>
+    <a asp-action="Categories" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-tags"></i> Nhóm hàng
+    </a>
+    <a asp-action="Routes" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-route"></i> Tuyến đường
+    </a>
+    <a asp-action="Shifts" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-calendar-alt"></i> Ca làm việc
+    </a>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem;">
+    <div>
+        <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main);">Danh sách Nhân sự</h2>
+        <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.9375rem;">Đăng ký, phân quyền và khóa tài khoản thành viên hệ thống</p>
+    </div>
+    <button class="btn-premium" onclick="document.getElementById('add-staff-modal').style.display='flex'">
+        <i class="fas fa-plus"></i> Thêm Nhân viên mới
+    </button>
+</div>
+
+<div class="glass" style="padding: 1.5rem;">
+    <table class="premium-table">
+        <thead>
+            <tr>
+                <th>Mã NV</th>
+                <th>Họ và Tên</th>
+                <th>Số điện thoại</th>
+                <th>Chức vụ</th>
+                <th>Email</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var staff in Model)
+            {
+                <tr>
+                    <td style="font-family: monospace; font-weight: 600; color: var(--text-muted);">@staff.MaNhanVien</td>
+                    <td style="font-weight: 700;">@staff.HoTen</td>
+                    <td style="font-weight: 600; color: var(--accent-primary);">@staff.SoDienThoai</td>
+                    <td>
+                        @{
+                            var roleColor = staff.ChucVu == "Admin" ? "#4f46e5" : (staff.ChucVu == "Shipper" ? "#0ea5e9" : "#6366f1");
+                        }
+                        <span class="badge" style="background: rgba(14, 165, 233, 0.1); color: @roleColor;">@staff.ChucVu</span>
+                    </td>
+                    <td>@staff.Email</td>
+                    <td>
+                        @{
+                            var badgeClass = staff.TrangThaiLamViec == "Đang làm việc" ? "badge-success" : "badge-error";
+                        }
+                        <span class="badge @badgeClass">@staff.TrangThaiLamViec</span>
+                    </td>
+                    <td>
+                        <button class="glass" onclick="openEditStaffModal('@staff.MaNhanVien', '@staff.HoTen', '@staff.SoDienThoai', '@staff.Email', '@staff.ChucVu', '@staff.MatKhau')" style="padding: 0.625rem; border: 1px solid #e2e8f0; color: #3b82f6; cursor: pointer; border-radius: 8px; margin-right: 0.25rem;" title="Sửa thông tin">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <form asp-action="ToggleStaffStatus" method="post" style="display: inline;">
+                            <input type="hidden" name="id" value="@staff.MaNhanVien" />
+                            <button type="submit" class="glass" style="padding: 0.625rem; border: 1px solid #e2e8f0; color: #ef4444; cursor: pointer; border-radius: 8px;" title="Khóa/Mở khóa">
+                                <i class="fas @(staff.TrangThaiLamViec == "Đang làm việc" ? "fa-user-lock" : "fa-user-check")"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Thêm Nhân viên -->
+<div id="add-staff-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="glass" style="width: 450px; padding: 2.5rem; position: relative; background: var(--card-bg, white); border-radius: 16px;">
+        <button onclick="document.getElementById('add-staff-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #64748b; cursor: pointer; font-size: 1.5rem;">&times;</button>
+        <h3 style="margin-top: 0; margin-bottom: 2rem; font-weight: 800; font-size: 1.5rem; color: var(--text-color, #0f172a);">Đăng ký Nhân viên</h3>
+        <form asp-action="CreateStaff" method="post">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Họ và Tên</label>
+                <input name="hoTen" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;" required />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Số điện thoại (Dùng làm Tên đăng nhập)</label>
+                <input name="soDienThoai" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;" placeholder="Ví dụ: 0912345678" required />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Địa chỉ Email (Tùy chọn)</label>
+                <input name="email" type="email" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;" placeholder="nhanvien@sdms.com" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Chức vụ</label>
+                <select name="chucVu" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;">
+                    <option value="WarehouseStaff">Nhân viên Kho</option>
+                    <option value="Shipper">Shipper (Giao hàng)</option>
+                    <option value="Admin">Quản trị viên</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Mật khẩu khởi tạo</label>
+                <input name="password" type="password" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;" value="Nhanvien@123" required />
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1rem; font-size: 1rem;">Lưu thông tin</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Sửa Nhân viên -->
+<div id="edit-staff-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="glass" style="width: 450px; padding: 2.5rem; position: relative; background: var(--card-bg, white); border-radius: 16px;">
+        <button onclick="document.getElementById('edit-staff-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #64748b; cursor: pointer; font-size: 1.5rem;">&times;</button>
+        <h3 style="margin-top: 0; margin-bottom: 2rem; font-weight: 800; font-size: 1.5rem; color: var(--text-color, #0f172a);">Sửa thông tin Nhân viên</h3>
+        <form asp-action="EditStaff" method="post">
+            <input type="hidden" name="maNhanVien" id="edit-staff-id" />
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Họ và Tên</label>
+                <input name="hoTen" id="edit-staff-name" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;" required />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Số điện thoại (Dùng làm Tên đăng nhập)</label>
+                <input name="soDienThoai" id="edit-staff-phone" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;" required />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Địa chỉ Email (Tùy chọn)</label>
+                <input name="email" id="edit-staff-email" type="email" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Chức vụ</label>
+                <select name="chucVu" id="edit-staff-role" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;">
+                    <option value="WarehouseStaff">Nhân viên Kho</option>
+                    <option value="Shipper">Shipper (Giao hàng)</option>
+                    <option value="Admin">Quản trị viên</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 2.5rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Mật khẩu khởi tạo / Mới (Bỏ trống hoặc giữ nguyên nếu không đổi)</label>
+                <input name="password" id="edit-staff-password" type="password" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box;" />
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1rem; font-size: 1rem;">Cập nhật thông tin</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditStaffModal(id, name, phone, email, role, password) {
+        document.getElementById('edit-staff-id').value = id;
+        document.getElementById('edit-staff-name').value = name;
+        document.getElementById('edit-staff-phone').value = phone;
+        document.getElementById('edit-staff-email').value = email || '';
+        document.getElementById('edit-staff-role').value = role;
+        document.getElementById('edit-staff-password').value = password || '';
+        document.getElementById('edit-staff-modal').style.display = 'flex';
+    }
+</script>

@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using SDMS.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<div style="display: flex; align-items: center; gap: 1rem;">
+@if (SignInManager.IsSignedIn(User))
+{
+    <a asp-controller="Home" asp-action="Profile" style="text-decoration: none; display: flex; align-items: center; gap: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 99px; background: var(--border-color); color: var(--text-main); transition: background 0.2s; border: 1px solid var(--border-color);" title="Cấu hình tài khoản">
+        <div style="width: 28px; height: 28px; background: var(--accent-secondary); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-user" style="color: var(--accent-primary); font-size: 0.8rem;"></i>
+        </div>
+        <span style="font-size: 0.875rem; font-weight: 600;">@User.Identity?.Name</span>
+    </a>
+    
+    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+        <button type="submit" class="nav-item" style="border: none; background: transparent; cursor: pointer;">
+            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+        </button>
+    </form>
+}
+else
+{
+    <a class="nav-item" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
+    <a class="nav-item" asp-area="Identity" asp-page="/Account/Register">Đăng ký</a>
+}
+</div>

@@ -1,0 +1,74 @@
+@page
+@model SDMS.Areas.Identity.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="glass" style="max-width: 480px; margin: 5rem auto; padding: 3rem 2.5rem; position: relative; overflow: hidden; border-color: rgba(37, 99, 235, 0.15); box-shadow: var(--shadow-lg);">
+    <div style="position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: linear-gradient(to bottom, var(--primary), var(--cyan-accent));"></div>
+    
+    <div style="text-align: center; margin-bottom: 2.5rem;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; background: var(--accent-secondary); border-radius: 16px; color: var(--primary); font-size: 1.6rem; margin-bottom: 1.25rem; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.12);">
+            <i class="fas fa-user-shield"></i>
+        </div>
+        <h1 style="font-size: 1.8rem; font-weight: 900; color: var(--text-main); margin: 0; letter-spacing: -0.03em;">@ViewData["Title"]</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; font-weight: 550;">Chào mừng quay trở lại với SmartDelivery</p>
+    </div>
+
+    <form id="account" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 1.25rem; color: #ef4444; font-size: 0.85rem; font-weight: 600;"></div>
+        
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label asp-for="Input.Identifier" style="display: block; font-weight: 750; font-size: 0.825rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.04em;">Tài khoản (SĐT / Mã nhân viên)</label>
+            <div style="position: relative; display: flex; align-items: center; background: var(--card-bg, white); border: 1.5px solid var(--border-color, #CBD5E1); border-radius: 8px; padding: 0.15rem 0.75rem; box-shadow: var(--shadow-sm); transition: all 0.2s;" class="login-input-wrapper">
+                <i class="fas fa-user" style="color: var(--text-light); margin-right: 0.5rem; font-size: 0.95rem;"></i>
+                <input asp-for="Input.Identifier" autocomplete="username" aria-required="true" style="flex: 1; border: none; background: transparent; padding: 0.7rem 0; font-size: 0.95rem; font-weight: 600; color: var(--text-main); outline: none; width: 100%;" placeholder="Nhập SĐT hoặc Mã NV" />
+            </div>
+            <span asp-validation-for="Input.Identifier" class="text-danger" style="color: #ef4444; font-size: 0.825rem; margin-top: 0.35rem; display: block; font-weight: 600;"></span>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.75rem;">
+            <label asp-for="Input.Password" style="display: block; font-weight: 750; font-size: 0.825rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.04em;">Mật khẩu</label>
+            <div style="position: relative; display: flex; align-items: center; background: var(--card-bg, white); border: 1.5px solid var(--border-color, #CBD5E1); border-radius: 8px; padding: 0.15rem 0.75rem; box-shadow: var(--shadow-sm); transition: all 0.2s;" class="login-input-wrapper">
+                <i class="fas fa-lock" style="color: var(--text-light); margin-right: 0.5rem; font-size: 0.95rem;"></i>
+                <input asp-for="Input.Password" type="password" autocomplete="current-password" aria-required="true" style="flex: 1; border: none; background: transparent; padding: 0.7rem 0; font-size: 0.95rem; font-weight: 600; color: var(--text-main); outline: none; width: 100%;" placeholder="Nhập mật khẩu" />
+            </div>
+            <span asp-validation-for="Input.Password" class="text-danger" style="color: #ef4444; font-size: 0.825rem; margin-top: 0.35rem; display: block; font-weight: 600;"></span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.25rem;">
+            <label class="form-check-label" asp-for="Input.RememberMe" style="display: flex; align-items: center; gap: 0.45rem; color: var(--text-muted); cursor: pointer; font-size: 0.875rem; font-weight: 600; user-select: none;">
+                <input class="form-check-input" asp-for="Input.RememberMe" style="accent-color: var(--primary); width: 16px; height: 16px; cursor: pointer;" />
+                Ghi nhớ đăng nhập
+            </label>
+        </div>
+
+        <button id="login-submit" type="submit" class="btn-premium" style="width: 100%; padding: 0.85rem; font-size: 1rem; border: none; border-radius: 8px; font-weight: 750; cursor: pointer; box-shadow: var(--shadow-glow);">Đăng nhập hệ thống</button>
+    </form>
+
+    <div style="text-align: center; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1.5px solid var(--border-color);">
+        <p style="color: var(--text-muted); font-size: 0.875rem; font-weight: 550; margin: 0;">
+            Chưa có tài khoản khách hàng? 
+            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" style="color: var(--primary); font-weight: 750; text-decoration: none; margin-left: 0.25rem; transition: var(--transition-fast);">Đăng ký ngay &rarr;</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <style>
+        .login-input-wrapper:focus-within {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08) !important;
+        }
+        body.dark-mode .login-input-wrapper:focus-within {
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+        }
+        .login-input-wrapper input::placeholder {
+            color: var(--text-light) !important;
+            font-weight: 500;
+            opacity: 0.75;
+        }
+    </style>
+}

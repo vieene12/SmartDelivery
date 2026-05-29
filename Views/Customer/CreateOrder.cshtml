@@ -1,0 +1,1641 @@
+@model SDMS.Models.DonHang
+@{
+    ViewData["Title"] = "Tạo đơn hàng mới";
+}
+
+<style>
+    /* Ocean Tech Theme Variables */
+    :root {
+        --vp-red: #2563eb;
+        --vp-red-hover: #1d4ed8;
+        --vp-bg-light: var(--bg-secondary, #f8fafc);
+        --vp-text-dark: var(--text-main, #0f172a);
+        --vp-text-muted: var(--text-muted, #64748b);
+        --vp-border: var(--border-color, rgba(226, 232, 240, 0.8));
+        --vp-shadow-card: var(--shadow-md);
+        --vp-shadow-input: var(--shadow-sm);
+    }
+
+    .order-container {
+        max-width: 1450px;
+        margin: 0 auto;
+        padding: 1rem 1.5rem;
+        padding-bottom: 150px; /* Space for sticky bar */
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        color: var(--vp-text-dark);
+        background-color: var(--bg-color, #F1F5F9);
+    }
+
+    /* Back Header */
+    .order-header-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        background: var(--card-bg, white);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: var(--vp-shadow-card);
+        border: 1px solid var(--vp-border);
+    }
+
+    .back-btn {
+        background: transparent;
+        border: none;
+        color: var(--vp-text-dark);
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        font-weight: 700;
+        transition: transform 0.2s;
+    }
+
+    .back-btn:hover {
+        transform: translateX(-4px);
+        color: var(--vp-red);
+    }
+
+    /* Form Layout Grid */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 1.25rem;
+    }
+
+    @@media (max-width: 1024px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Card Panels */
+    .premium-card {
+        background: var(--card-bg, white);
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: var(--vp-shadow-card);
+        border: 1px solid var(--vp-border);
+        margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+        font-size: 0.95rem;
+        font-weight: 800;
+        margin-top: 0;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--vp-text-dark);
+        border-bottom: 1.5px solid var(--border-color, #F1F5F9);
+        padding-bottom: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .card-title-left {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card-title-left i {
+        font-size: 1.1rem;
+        color: var(--vp-red);
+    }
+
+    /* Custom Radio styling */
+    .radio-group-custom {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        align-items: center;
+    }
+
+    .radio-label-custom {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--vp-text-dark);
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .radio-label-custom input[type="radio"] {
+        accent-color: var(--vp-red);
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Standard Label and Inputs */
+    .form-group-custom {
+        margin-bottom: 1rem;
+    }
+
+    .form-label-custom {
+        display: block;
+        font-size: 0.825rem;
+        font-weight: 700;
+        color: var(--vp-text-dark);
+        margin-bottom: 0.4rem;
+    }
+
+    .input-wrapper-custom {
+        display: flex;
+        align-items: center;
+        background: var(--card-bg, white);
+        border: 1.5px solid var(--border-color, #CBD5E1);
+        border-radius: 6px;
+        padding: 0.15rem 0.75rem;
+        transition: all 0.2s;
+        box-shadow: var(--vp-shadow-input);
+    }
+
+    .input-wrapper-custom:focus-within {
+        border-color: var(--vp-red);
+        box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.05);
+    }
+
+    .input-field-custom {
+        flex: 1;
+        border: none;
+        background: transparent;
+        padding: 0.6rem 0;
+        font-size: 0.9rem;
+        font-weight: 550;
+        color: var(--vp-text-dark);
+        outline: none;
+        width: 100%;
+    }
+
+    .input-field-custom::placeholder {
+        color: var(--text-light, #94A3B8);
+        font-weight: 500;
+    }
+
+    /* Select wrappers */
+    .select-custom-wrapper {
+        background: var(--card-bg, white);
+        border: 1.5px solid var(--border-color, #CBD5E1);
+        border-radius: 6px;
+        padding: 0.15rem 0.75rem;
+        box-shadow: var(--vp-shadow-input);
+        position: relative;
+    }
+
+    .select-custom-wrapper select {
+        width: 100%;
+        border: none;
+        background: transparent;
+        font-size: 0.875rem;
+        font-weight: 550;
+        color: var(--vp-text-dark);
+        outline: none;
+        cursor: pointer;
+        padding: 0.6rem 0;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    .select-custom-wrapper select option {
+        background: var(--card-bg, white);
+        color: var(--vp-text-dark);
+    }
+
+    .select-custom-wrapper::after {
+        content: '\f078';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        right: 0.9rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--vp-text-muted);
+        font-size: 0.75rem;
+        pointer-events: none;
+    }
+
+    /* Address Select dropdowns row */
+    .dropdown-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    /* Multi-column grid for checkbox selections */
+    .checkbox-grid-3col {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .checkbox-label-custom {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: var(--vp-text-dark);
+        cursor: pointer;
+    }
+
+    .checkbox-label-custom input[type="checkbox"] {
+        accent-color: var(--vp-red);
+        width: 15px;
+        height: 15px;
+    }
+
+    /* Inline Goods Add Form */
+    .goods-form-card {
+        background: var(--bg-secondary, #F8FAFC);
+        border: 1.5px dashed var(--border-color, #CBD5E1);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .goods-inline-row {
+        display: grid;
+        grid-template-columns: 80px 1.2fr 1fr;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .btn-add-goods {
+        width: 100%;
+        background: var(--card-bg, white);
+        border: 1.5px solid var(--vp-red);
+        color: var(--vp-red);
+        border-radius: 6px;
+        padding: 0.6rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        margin-top: 0.75rem;
+    }
+
+    .btn-add-goods:hover {
+        background: rgba(37, 99, 235, 0.05);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+    }
+
+    .added-product-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.85rem;
+        border-radius: 6px;
+        background: var(--bg-secondary, #F8FAFC);
+        border: 1px solid var(--vp-border);
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    .prod-details h4 {
+        margin: 0 0 0.15rem 0;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .prod-details p {
+        margin: 0;
+        color: var(--vp-text-muted);
+        font-weight: 550;
+    }
+
+    .qty-counter {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--card-bg, white);
+        border: 1px solid var(--vp-border);
+        border-radius: 4px;
+        padding: 0.15rem 0.35rem;
+    }
+
+    .counter-btn {
+        background: transparent;
+        border: none;
+        font-weight: 800;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+    }
+
+    .counter-btn:hover {
+        color: var(--vp-red);
+    }
+
+    .counter-val {
+        font-weight: 700;
+        min-width: 15px;
+        text-align: center;
+    }
+
+    /* Fixed Sticky Bottom Bar matching exactly the screenshot style */
+    .sticky-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--navbar-bg, rgba(255, 255, 255, 0.95));
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1.5px solid var(--border-color, var(--vp-border));
+        padding: 0.75rem 2rem;
+        z-index: 1000;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .sticky-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .sticky-summary-block {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .sticky-summary-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+    }
+
+    .sticky-summary-lbl {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--vp-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .sticky-summary-val {
+        font-size: 1.25rem;
+        font-weight: 850;
+        color: var(--vp-red);
+    }
+
+    .sticky-actions-block {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .checkbox-agreement {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.825rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .checkbox-agreement input {
+        accent-color: var(--vp-red);
+        width: 15px;
+        height: 15px;
+    }
+
+    .btn-create-order {
+        background: var(--vp-red);
+        color: white;
+        border: none;
+        padding: 0.75rem 2.25rem;
+        border-radius: 6px;
+        font-weight: 750;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(227, 6, 19, 0.2);
+        transition: all 0.2s;
+    }
+
+    .btn-create-order:hover {
+        background: var(--vp-red-hover);
+        transform: translateY(-1px);
+    }
+
+    .btn-draft-custom {
+        background: #64748B;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.75rem;
+        border-radius: 6px;
+        font-weight: 750;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-draft-custom:hover {
+        background: #475569;
+    }
+
+    .btn-reset-custom {
+        background: #E2E8F0;
+        color: #334155;
+        border: none;
+        padding: 0.75rem 1.50rem;
+        border-radius: 6px;
+        font-weight: 750;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-reset-custom:hover {
+        background: #CBD5E1;
+    }
+
+    /* Premium Catalog Modal Styling */
+    .modal-overlay-custom {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.4);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+
+    .modal-content-custom {
+        background: var(--card-bg, white);
+        border-radius: 10px;
+        width: 100%;
+        max-width: 600px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
+        border: 1px solid var(--vp-border);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-height: 80vh;
+        animation: modalFadeIn 0.25s ease;
+    }
+
+    @@keyframes modalFadeIn {
+        from { transform: scale(0.96); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header-custom {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1.5px solid var(--border-color, #F1F5F9);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title-custom {
+        font-size: 1rem;
+        font-weight: 850;
+        color: var(--vp-text-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-title-custom i {
+        color: var(--vp-red);
+    }
+
+    .modal-close-btn {
+        background: transparent;
+        border: none;
+        font-size: 1.25rem;
+        color: var(--text-light, #94A3B8);
+        cursor: pointer;
+        transition: color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close-btn:hover {
+        color: var(--vp-red);
+    }
+
+    .modal-body-custom {
+        padding: 1.25rem 1.5rem;
+        overflow-y: auto;
+        flex: 1;
+        background: var(--bg-secondary, #F8FAFC);
+    }
+
+    .modal-search-wrapper {
+        margin-bottom: 1.25rem;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: var(--bg-secondary, #F8FAFC);
+        padding-bottom: 0.5rem;
+    }
+
+    .catalog-goods-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .catalog-item-card {
+        background: var(--card-bg, white);
+        border: 1.5px solid var(--vp-border);
+        border-radius: 8px;
+        padding: 1rem;
+        transition: all 0.2s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .catalog-item-card:hover {
+        border-color: var(--vp-red);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+        transform: translateY(-1px);
+    }
+
+    .catalog-item-info {
+        flex: 1;
+    }
+
+    .catalog-item-info h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 0.9rem;
+        font-weight: 750;
+        color: var(--vp-text-dark);
+    }
+
+    .catalog-item-info p {
+        margin: 0 0 0.2rem 0;
+        font-size: 0.8rem;
+        color: var(--vp-text-muted);
+        font-weight: 550;
+    }
+
+    .catalog-item-info .catalog-tag {
+        display: inline-block;
+        background: var(--bg-secondary, #F1F5F9);
+        color: var(--text-muted, #475569);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+        text-transform: uppercase;
+    }
+
+    .catalog-item-actions {
+        display: flex;
+        gap: 0.4rem;
+    }
+
+    .btn-catalog-select {
+        background: var(--card-bg, white);
+        border: 1.5px solid var(--border-color, #CBD5E1);
+        color: var(--text-muted, #475569);
+        padding: 0.45rem 0.85rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.775rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-catalog-select:hover {
+        border-color: var(--vp-red);
+        color: var(--vp-red);
+        background: rgba(37, 99, 235, 0.04);
+    }
+
+    .btn-catalog-add {
+        background: var(--vp-red);
+        border: none;
+        color: white;
+        padding: 0.45rem 0.85rem;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.775rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-catalog-add:hover {
+        background: var(--vp-red-hover);
+        box-shadow: 0 2px 8px rgba(227, 6, 19, 0.15);
+    }
+</style>
+
+<div class="order-container">
+    <!-- Header -->
+    <div class="order-header-bar">
+        <a asp-action="Orders" class="back-btn">
+            <i class="fas fa-chevron-left" style="font-size: 0.9rem;"></i> Tạo đơn
+        </a>
+        <div style="font-size: 0.8rem; font-weight: 600; color: var(--vp-text-muted);">
+            Lưu ý: (*) Là các trường bắt buộc nhập
+        </div>
+    </div>
+
+    <!-- Main Redesigned Form matching screenshot -->
+    <form id="create-order-form" asp-action="CreateOrder" method="post">
+        @Html.AntiForgeryToken()
+        
+        <!-- Address elements combined in background -->
+        <input type="hidden" asp-for="DiaChiNguoiNhan" id="full-address-hidden" />
+        <input type="hidden" asp-for="TongKhoiLuong" id="total-weight-hidden" />
+        <input type="hidden" asp-for="HinhThucThanhToan" id="payment-method-hidden" value="COD" />
+
+        <div class="form-grid">
+            
+            <!-- LEFT COLUMN: SENDER & RECIPIENT -->
+            <div>
+                <!-- CARD 1: NGƯỜI GỬI -->
+                <div class="premium-card">
+                    <div class="card-title">
+                        <div class="card-title-left">
+                            <i class="fas fa-circle-chevron-right"></i> Người gửi
+                        </div>
+                        <a href="javascript:void(0)" onclick="alert('Quản lý thông tin địa chỉ người gửi hàng')" style="font-size: 0.8rem; color: var(--vp-red); font-weight: 700; text-decoration: none; text-transform: none;">
+                            Quản lý thông tin người gửi &rarr;
+                        </a>
+                    </div>
+
+                    <!-- Tùy chọn nơi gửi -->
+                    <div class="form-group-custom">
+                        <div class="form-label-custom">Tùy chọn nơi gửi*</div>
+                        <div class="radio-group-custom">
+                            <label class="radio-label-custom">
+                                <input type="radio" name="sender-place" value="detail" checked /> Theo địa chỉ KH gửi
+                            </label>
+                            <label class="radio-label-custom">
+                                <input type="radio" name="sender-place" value="smart-box" /> Gửi tại tủ Smart Box
+                            </label>
+                            <label class="radio-label-custom">
+                                <input type="radio" name="sender-place" value="post-office" /> Gửi tại bưu cục
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Chọn thông tin người gửi -->
+                    <div class="form-group-custom">
+                        <div class="select-custom-wrapper">
+                            <select id="sender-info-select">
+                                <option value="" disabled selected>Chọn thông tin người gửi</option>
+                                <option value="primary">Cửa hàng chính (123 Nguyễn Huệ, Q1, TP. HCM)</option>
+                                <option value="secondary">Chi nhánh 2 (456 Lê Văn Sỹ, Q3, TP. HCM)</option>
+                            </select>
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--vp-red); font-weight: 600; margin-top: 0.25rem;">
+                            Người gửi không được để trống
+                        </div>
+                    </div>
+
+                    <!-- Thời gian hẹn lấy -->
+                    <div class="form-group-custom">
+                        <div class="form-label-custom">Thời gian hẹn lấy</div>
+                        <div class="select-custom-wrapper">
+                            <select id="sender-pickup-time">
+                                <option value="" disabled selected>Chọn thời gian</option>
+                                <option value="ca-sang">Ca Sáng (08:00 - 12:00)</option>
+                                <option value="ca-chieu">Ca Chiều (13:30 - 17:30)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2: NGƯỜI NHẬN -->
+                <div class="premium-card">
+                    <div class="card-title">
+                        <div class="card-title-left">
+                            <i class="fas fa-circle-chevron-right"></i> Người nhận
+                        </div>
+                        <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 700; text-transform: none; cursor: pointer;">
+                            <input type="checkbox" style="accent-color: var(--vp-red);" /> Sử dụng địa danh mới
+                        </label>
+                    </div>
+
+                    <!-- Tùy chọn nơi nhận -->
+                    <div class="form-group-custom">
+                        <div class="form-label-custom">Tùy chọn nơi nhận*</div>
+                        <div class="radio-group-custom">
+                            <label class="radio-label-custom">
+                                <input type="radio" name="recipient-place" value="detail" checked onchange="selectAddressType('detail')" /> Theo địa chỉ KH nhận
+                            </label>
+                            <label class="radio-label-custom">
+                                <input type="radio" name="recipient-place" value="smart-box" onchange="selectAddressType('smart-box')" /> Nhận tại tủ Smart Box
+                            </label>
+                            <label class="radio-label-custom">
+                                <input type="radio" name="recipient-place" value="post-office" onchange="selectAddressType('post-office')" /> Nhận tại bưu cục
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Điện thoại -->
+                    <div class="form-group-custom">
+                        <div class="form-label-custom">Điện thoại*</div>
+                        <div class="input-wrapper-custom">
+                            <input type="tel" asp-for="SoDienThoaiNguoiNhan" class="input-field-custom" placeholder="Nhập số điện thoại để tự điền thông tin người nhận" required />
+                        </div>
+                    </div>
+
+                    <!-- Họ tên -->
+                    <div class="form-group-custom">
+                        <div class="form-label-custom">Họ tên*</div>
+                        <div class="input-wrapper-custom">
+                            <input type="text" asp-for="TenNguoiNhan" class="input-field-custom" placeholder="Nhập tên người nhận" required />
+                        </div>
+                    </div>
+
+                    <!-- Địa chỉ -->
+                    <div class="form-group-custom">
+                        <div class="form-label-custom">Địa chỉ*</div>
+                        <div class="input-wrapper-custom" style="margin-bottom: 0.75rem;">
+                            <input type="text" id="addr-house" class="input-field-custom" placeholder="Nhập địa chỉ (Số nhà, Tòa nhà, Hẻm, Ngách, Ngõ)" required oninput="updateCombinedAddress()" />
+                        </div>
+
+                        <!-- Dropdown selects matching exactly 2x2 row -->
+                        <div class="dropdown-grid">
+                            <div class="select-custom-wrapper">
+                                <select id="addr-province" required onchange="onProvinceChange()">
+                                    <option value="" disabled selected>Tỉnh/Thành phố *</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="Bình Dương">Bình Dương</option>
+                                </select>
+                            </div>
+                            <div class="select-custom-wrapper">
+                                <select id="addr-district" required disabled onchange="onDistrictChange()">
+                                    <option value="" disabled selected>Huyện/Quận *</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="dropdown-grid">
+                            <div class="select-custom-wrapper">
+                                <select id="addr-ward" required disabled onchange="updateCombinedAddress()">
+                                    <option value="" disabled selected>Xã/Phường *</option>
+                                </select>
+                            </div>
+                            <div class="select-custom-wrapper">
+                                <select id="addr-street" onchange="updateCombinedAddress()">
+                                    <option value="" selected>Đường/Thôn/Xóm</option>
+                                    <option value="Đường Trục Chính">Đường Trục Chính</option>
+                                    <option value="Khu Dân Cư Mới">Khu Dân Cư Mới</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thời gian hẹn giao -->
+                    <div class="form-group-custom">
+                        <div class="form-label-custom">Thời gian hẹn giao</div>
+                        <div class="select-custom-wrapper">
+                            <select id="recipient-delivery-time">
+                                <option value="ca-ngay" selected>Cả ngày</option>
+                                <option value="gio-hanh-chinh">Giờ hành chính</option>
+                                <option value="buoi-toi">Buổi tối</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 3: CHỌN DỊCH VỤ -->
+                <div class="premium-card">
+                    <div class="card-title">
+                        <div class="card-title-left">
+                            <i class="fas fa-circle-chevron-right"></i> Chọn dịch vụ
+                        </div>
+                    </div>
+
+                    <!-- Dịch vụ chính -->
+                    <div class="form-group-custom">
+                        <div class="form-label-custom">Dịch vụ chính</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #FFF1F2; padding: 0.85rem 1rem; border-radius: 6px; border: 1.5px solid rgba(227, 6, 19, 0.3);">
+                            <div style="display:flex; align-items:center; gap: 0.5rem;">
+                                <i class="fas fa-truck-fast" style="color: var(--vp-red); font-size: 1.1rem;"></i>
+                                <span style="font-weight: 700; font-size: 0.9rem;">SmartExpress (Giao siêu tốc nội tỉnh & liên tỉnh)</span>
+                            </div>
+                            <div style="font-size: 1rem; font-weight: 850; color: var(--vp-red);" id="pricing-express-fee">20.000 đ</div>
+                        </div>
+                    </div>
+
+                    <!-- Khuyến mại đã loại bỏ theo yêu cầu của người dùng -->
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: GOODS INFORMATION -->
+            <div>
+                <!-- CARD 4: THÔNG TIN HÀNG HÓA -->
+                <div class="premium-card">
+                    <div class="card-title">
+                        <div class="card-title-left">
+                            <i class="fas fa-circle-chevron-right"></i> Thông tin hàng hóa
+                        </div>
+                        <a href="javascript:void(0)" onclick="openCatalogModal()" style="font-size: 0.8rem; color: var(--vp-red); font-weight: 700; text-decoration: none; text-transform: none;">
+                            Quản lý danh sách hàng hóa &rarr;
+                        </a>
+                    </div>
+
+                    <!-- Loại hàng hóa -->
+                    <div class="form-group-custom" style="margin-bottom: 1rem;">
+                        <div class="form-label-custom">Loại hàng hóa*</div>
+                        <div class="radio-group-custom">
+                            <label class="radio-label-custom">
+                                <input type="radio" name="cargo-type" value="parcel" checked /> Bưu kiện
+                            </label>
+                            <label class="radio-label-custom">
+                                <input type="radio" name="cargo-type" value="document" /> Tài liệu
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Inline Goods Add Form -->
+                    <div class="goods-form-card">
+                        <div class="form-group-custom" style="margin-bottom: 0.5rem;">
+                            <div class="form-label-custom">Tên hàng 1*</div>
+                            <div class="input-wrapper-custom">
+                                <input type="text" id="new-item-name" class="input-field-custom" placeholder="Nhập tên hàng hóa" />
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--vp-red); font-weight: 600; margin-top: 0.25rem; display:none;" id="err-goods-name">
+                                Tên hàng hóa không được để trống
+                            </div>
+                        </div>
+
+                        <!-- Qty, weight, price inputs in row -->
+                        <div class="goods-inline-row">
+                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
+                                <input type="number" id="new-item-qty" class="input-field-custom" value="1" min="1" style="text-align: center;" />
+                            </div>
+                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
+                                <input type="number" id="new-item-weight" class="input-field-custom" placeholder="Trọng lượng" min="1" style="text-align: right;" />
+                                <span style="font-size: 0.8rem; font-weight: 700; color: var(--vp-text-muted); margin-left: 0.2rem;">g</span>
+                            </div>
+                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
+                                <input type="text" id="new-item-price" class="input-field-custom" placeholder="Giá trị hàng" style="text-align: right;" oninput="formatCurrencyInput(this)" />
+                                <span style="font-size: 0.8rem; font-weight: 700; color: var(--vp-text-muted); margin-left: 0.2rem;">đ</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--vp-red); font-weight: 600; margin-top: 0.25rem;">
+                            <div></div>
+                            <div id="err-goods-weight" style="display:none;">Trọng lượng không được để trống</div>
+                            <div></div>
+                        </div>
+
+                        <button type="button" class="btn-add-goods" onclick="addManualItem()">
+                            <i class="fas fa-plus"></i> Thêm hàng hóa
+                        </button>
+                    </div>
+
+                    <!-- Active Added Products List -->
+                    <div id="added-products-list" style="margin-top: 1rem; min-height: 20px;">
+                        <!-- JS injects rows here dynamically -->
+                        <div id="empty-products-placeholder" style="text-align: center; color: var(--vp-text-muted); padding: 1rem 0; font-size: 0.825rem; font-weight: 600;">
+                            Chưa có mặt hàng nào. Hãy thêm hàng hóa ở trên.
+                        </div>
+                    </div>
+
+                    <!-- Hidden inputs for POST form binding -->
+                    <div id="post-products-data-container" style="display:none;"></div>
+
+                    <!-- Totals calculated labels -->
+                    <div style="border-top: 1px dashed var(--vp-border); padding-top: 1rem; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; font-weight: 700;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--vp-text-muted);">Tổng khối lượng</span>
+                            <span id="label-summary-weight" style="color: var(--vp-red);">0 g</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--vp-text-muted);">Tổng giá trị</span>
+                            <span id="label-summary-price" style="color: var(--vp-red);">0 đ</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD 5: TÍNH CHẤT HÀNG HÓA ĐẶC BIỆT -->
+                    <div style="margin-top: 1.5rem; border-top: 1.5px solid #F1F5F9; padding-top: 1.25rem;">
+                        <div class="form-label-custom" style="display: flex; align-items: center; gap: 0.25rem;">
+                            <i class="fas fa-circle-info" style="color: var(--vp-red);"></i> Tính chất hàng hóa đặc biệt
+                        </div>
+                        
+                        <!-- Checkboxes list -->
+                        <div class="checkbox-grid-3col">
+                            <label class="checkbox-label-custom">
+                                <input type="checkbox" /> Giá trị cao
+                            </label>
+                            <label class="checkbox-label-custom">
+                                <input type="checkbox" /> Dễ vỡ
+                            </label>
+                            <label class="checkbox-label-custom">
+                                <input type="checkbox" /> Nguyên khối
+                            </label>
+                            <label class="checkbox-label-custom">
+                                <input type="checkbox" /> Quá khổ
+                            </label>
+                            <label class="checkbox-label-custom">
+                                <input type="checkbox" /> Chất lỏng
+                            </label>
+                            <label class="checkbox-label-custom">
+                                <input type="checkbox" /> Từ tính, Pin
+                            </label>
+                        </div>
+
+                        <!-- Dimensions row -->
+                        <div class="form-label-custom">Kích thước (DxRxC)</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
+                                <input type="number" id="dim-l" placeholder="Dài (cm)" class="input-field-custom" style="text-align: center;" oninput="calculateVolumetricWeight()" />
+                            </div>
+                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
+                                <input type="number" id="dim-w" placeholder="Rộng (cm)" class="input-field-custom" style="text-align: center;" oninput="calculateVolumetricWeight()" />
+                            </div>
+                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
+                                <input type="number" id="dim-h" placeholder="Cao (cm)" class="input-field-custom" style="text-align: center;" oninput="calculateVolumetricWeight()" />
+                            </div>
+                        </div>
+
+                        <!-- Volumetric Weight -->
+                        <div class="form-group-custom">
+                            <div class="form-label-custom">Quy đổi</div>
+                            <div class="input-wrapper-custom" style="background: #F1F5F9; border-color: #E2E8F0;">
+                                <input type="text" id="volumetric-weight" class="input-field-custom" placeholder="Khối lượng quy đổi từ kích thước hàng hóa" readonly style="font-weight: 700; color: var(--vp-text-muted);" />
+                                <span style="font-size: 0.8rem; font-weight: 700; color: var(--vp-text-muted); margin-left: 0.2rem;">g</span>
+                            </div>
+                        </div>
+
+                        <!-- Custom Order ID -->
+                        <div class="form-group-custom">
+                            <div class="form-label-custom">Mã đơn hàng</div>
+                            <div class="input-wrapper-custom">
+                                <input type="text" class="input-field-custom" placeholder="Nhập mã đơn hàng tự tạo" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CARD 6: TIỀN THU HỘ -->
+                    <div style="margin-top: 1.5rem; background: #FFF1F2; border: 1.2px solid rgba(227, 6, 19, 0.15); border-radius: 8px; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.825rem; font-weight: 800; color: var(--vp-text-dark);">TIỀN THU HỘ (COD)</span>
+                            <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.825rem; font-weight: 700; cursor: pointer;">
+                                <input type="checkbox" id="cod-sync-checkbox" style="accent-color: var(--vp-red);" onchange="toggleCodSync(this.checked)" /> Thu hộ bằng giá trị hàng
+                            </label>
+                        </div>
+                        <div class="input-wrapper-custom" id="cod-input-container" style="background: white; border-color: rgba(227, 6, 19, 0.15);">
+                            <input type="text" id="cod-amount-input" class="input-field-custom" value="0" style="text-align: right;" oninput="onCodAmountInput(this)" />
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--vp-text-muted); margin-left: 0.25rem;">đ</span>
+                        </div>
+                    </div>
+
+                    <!-- CARD 7: NGƯỜI TRẢ CƯỚC -->
+                    <div style="margin-top: 1.25rem; background: white; border: 1px solid var(--vp-border); border-radius: 8px; padding: 1rem;">
+                        <div class="form-label-custom">Người trả cước</div>
+                        <div class="radio-group-custom" style="margin-bottom: 0;">
+                            <label class="radio-label-custom">
+                                <input type="radio" name="payer-radio" value="COD" checked onchange="updatePaymentSide('COD')" /> Người gửi
+                            </label>
+                            <label class="radio-label-custom">
+                                <input type="radio" name="payer-radio" value="ReceiverPay" onchange="updatePaymentSide('ReceiverPay')" /> Người nhận
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- CARD 8: GHI CHÚ -->
+                    <div style="margin-top: 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                            <span class="form-label-custom" style="margin-bottom: 0;">Ghi chú</span>
+                            <a href="javascript:void(0)" onclick="alert('Đã sẵn sàng các mẫu ghi chú')" style="font-size: 0.8rem; color: var(--vp-red); font-weight: 700; text-decoration: none;">
+                                Ghi chú mẫu
+                            </a>
+                        </div>
+                        <div class="input-wrapper-custom" style="padding: 0.5rem 0.75rem;">
+                            <textarea id="order-notes" class="input-field-custom" rows="3" placeholder="Nhập ghi chú" style="resize: none; font-family: inherit; font-size: 0.875rem;"></textarea>
+                        </div>
+                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.825rem; font-weight: 600; margin-top: 0.75rem; cursor: pointer;">
+                            <input type="checkbox" style="accent-color: var(--vp-red);" /> Lưu thông tin đơn hàng
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STICKY BOTTOM ACTIONS BAR matching screenshot perfectly -->
+        <div class="sticky-bottom-bar">
+            <div class="sticky-content">
+                <!-- Left: summaries -->
+                <div class="sticky-summary-block">
+                    <div class="sticky-summary-item">
+                        <span class="sticky-summary-lbl">Tổng cước</span>
+                        <span class="sticky-summary-val" id="sticky-val-total">20.000 đ</span>
+                    </div>
+                    <div class="sticky-summary-item" style="border-left: 1.5px solid var(--vp-border); padding-left: 1.5rem;">
+                        <span class="sticky-summary-lbl">Tiền thu hộ</span>
+                        <span class="sticky-summary-val" id="sticky-val-cod" style="color: var(--vp-text-dark);">0 đ</span>
+                    </div>
+                </div>
+
+                <!-- Middle: delivery estimation -->
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--vp-text-muted);">
+                    Thời gian dự kiến: <span style="color: var(--vp-text-dark); font-weight: 700;">1 - 2 ngày (Nội tỉnh)</span>
+                </div>
+
+                <!-- Right: actions & agreement -->
+                <div class="sticky-actions-block">
+                    <label class="checkbox-agreement">
+                        <input type="checkbox" id="agreement-checkbox" checked /> Tôi đã đọc và đồng ý với <a href="javascript:void(0)" onclick="alert('Xem điều khoản')" style="color: var(--vp-red); text-decoration: none;">Điều khoản quy định</a>
+                    </label>
+                    
+                    <button type="button" class="btn-reset-custom" onclick="resetFormCustom()">Làm mới</button>
+                    <button type="button" class="btn-draft-custom" onclick="alert('Đã lưu nháp bưu gửi thành công!')">Lưu nháp</button>
+                    <button type="button" class="btn-create-order" onclick="submitCreateOrderForm()">Gửi ngay</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- DANH MỤC HÀNG HÓA MẪU MODAL (Quản lý danh sách hàng hóa) -->
+<div class="modal-overlay-custom" id="catalog-modal-overlay" onclick="closeCatalogModalOutside(event)">
+    <div class="modal-content-custom">
+        <div class="modal-header-custom">
+            <div class="modal-title-custom">
+                <i class="fas fa-boxes-packing"></i> Danh mục hàng hóa mẫu
+            </div>
+            <button type="button" class="modal-close-btn" onclick="closeCatalogModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body-custom">
+            <div class="modal-search-wrapper">
+                <div class="input-wrapper-custom">
+                    <i class="fas fa-search" style="color: var(--vp-text-muted); margin-right: 0.5rem;"></i>
+                    <input type="text" id="catalog-search-input" class="input-field-custom" placeholder="Tìm kiếm hàng hóa mẫu theo tên hoặc mô tả..." oninput="filterCatalogGoods()" />
+                </div>
+            </div>
+            <div id="catalog-goods-container">
+                <!-- Javascript will inject catalog cards here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Seeded catalog goods from database
+    const dbCatalogGoods = [
+        @if (ViewBag.HangHoas != null)
+        {
+            foreach (var item in (List<SDMS.Models.HangHoa>)ViewBag.HangHoas)
+            {
+                <text>{
+                    id: @Html.Raw(Json.Serialize(item.MaHangHoa)),
+                    name: @Html.Raw(Json.Serialize(item.TenHangHoa)),
+                    weightG: @Html.Raw(Json.Serialize((double)item.KhoiLuong * 1000)),
+                    dimensions: @Html.Raw(Json.Serialize(item.KichThuoc ?? "")),
+                    description: @Html.Raw(Json.Serialize(item.MoTaChiTiet ?? "")),
+                    category: @Html.Raw(Json.Serialize(item.MaNhomHang ?? ""))
+                },</text>
+            }
+        }
+    ];
+
+    // Catalog modal control functions
+    function openCatalogModal() {
+        document.getElementById("catalog-modal-overlay").style.display = "flex";
+        document.getElementById("catalog-search-input").value = "";
+        renderCatalogGoods(dbCatalogGoods);
+    }
+
+    function closeCatalogModal() {
+        document.getElementById("catalog-modal-overlay").style.display = "none";
+    }
+
+    function closeCatalogModalOutside(event) {
+        if (event.target === document.getElementById("catalog-modal-overlay")) {
+            closeCatalogModal();
+        }
+    }
+
+    function renderCatalogGoods(goodsList) {
+        const container = document.getElementById("catalog-goods-container");
+        container.innerHTML = "";
+
+        if (goodsList.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; color: var(--vp-text-muted); padding: 2rem 0; font-size: 0.875rem; font-weight: 600;">
+                    Không tìm thấy hàng hóa mẫu nào phù hợp.
+                </div>
+            `;
+            return;
+        }
+
+        const grid = document.createElement("div");
+        grid.className = "catalog-goods-grid";
+
+        goodsList.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "catalog-item-card";
+            card.innerHTML = `
+                <div class="catalog-item-info">
+                    <h4>${item.name}</h4>
+                    <p>Khối lượng: ${item.weightG.toLocaleString('vi-VN')} g &nbsp;|&nbsp; Kích thước: ${item.dimensions || "Chưa rõ"}</p>
+                    <span class="catalog-tag">${item.category}</span>
+                    ${item.description ? `<p style="margin-top:0.35rem; font-style:italic; font-size:0.775rem;">${item.description}</p>` : ''}
+                </div>
+                <div class="catalog-item-actions">
+                    <button type="button" class="btn-catalog-select" onclick="selectCatalogItem('${item.id}')" title="Chọn để chỉnh sửa thông tin hàng">Chọn</button>
+                    <button type="button" class="btn-catalog-add" onclick="quickAddCatalogItem('${item.id}')" title="Thêm trực tiếp vào đơn hàng">Thêm nhanh</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+        container.appendChild(grid);
+    }
+
+    function filterCatalogGoods() {
+        const query = document.getElementById("catalog-search-input").value.trim().toLowerCase();
+        if (!query) {
+            renderCatalogGoods(dbCatalogGoods);
+            return;
+        }
+
+        const filtered = dbCatalogGoods.filter(item => 
+            item.name.toLowerCase().includes(query) || 
+            item.description.toLowerCase().includes(query) ||
+            item.category.toLowerCase().includes(query)
+        );
+        renderCatalogGoods(filtered);
+    }
+
+    function selectCatalogItem(itemId) {
+        const item = dbCatalogGoods.find(i => i.id === itemId);
+        if (!item) return;
+
+        // Auto-fill manual inputs
+        document.getElementById("new-item-name").value = item.name;
+        document.getElementById("new-item-weight").value = item.weightG;
+        document.getElementById("new-item-qty").value = "1";
+        document.getElementById("new-item-price").value = ""; // Let them type price
+
+        // Pre-fill dimensions if available
+        if (item.dimensions) {
+            const parts = item.dimensions.toLowerCase().replace(/[^0-9x]/g, "").split("x");
+            if (parts.length === 3) {
+                document.getElementById("dim-l").value = parts[0];
+                document.getElementById("dim-w").value = parts[1];
+                document.getElementById("dim-h").value = parts[2];
+                calculateVolumetricWeight();
+            }
+        }
+
+        closeCatalogModal();
+        document.getElementById("new-item-name").focus();
+        
+        // Highlight inputs briefly
+        const fields = ["new-item-name", "new-item-weight", "new-item-qty"];
+        fields.forEach(id => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.style.backgroundColor = "#FFF1F2";
+                setTimeout(() => {
+                    input.style.backgroundColor = "";
+                }, 800);
+            }
+        });
+    }
+
+    function quickAddCatalogItem(itemId) {
+        const item = dbCatalogGoods.find(i => i.id === itemId);
+        if (!item) return;
+
+        // Check if item is already added to manualItems
+        const existing = manualItems.find(i => i.name === item.name);
+        if (existing) {
+            existing.qty++;
+        } else {
+            manualItemCounter++;
+            manualItems.push({
+                id: manualItemCounter,
+                name: item.name,
+                weightG: item.weightG,
+                qty: 1,
+                price: 0
+            });
+        }
+
+        renderAddedProducts();
+        calculateAllTotals();
+        closeCatalogModal();
+        alert(`Đã thêm nhanh mặt hàng "${item.name}" vào danh sách!`);
+    }
+
+    // Array of manually added items: [{ id, name, weightG, qty, price }]
+    let manualItems = [];
+    let manualItemCounter = 0;
+
+    // Standard Address Data mapping
+    const addressData = {
+        "Hà Nội": {
+            "Cầu Giấy": ["Dịch Vọng", "Dịch Vọng Hậu", "Yên Hòa", "Mai Dịch", "Quan Hoa"],
+            "Ba Đình": ["Trúc Bạch", "Vĩnh Phúc", "Cống Vị", "Kim Mã", "Giảng Võ"],
+            "Đống Đa": ["Láng Thượng", "Láng Hạ", "Cát Linh", "Quốc Tử Giám", "Khương Thượng"]
+        },
+        "TP. Hồ Chí Minh": {
+            "Quận 1": ["Bến Nghé", "Bến Thành", "Đa Kao", "Tân Định", "Phạm Ngũ Lão"],
+            "Quận 3": ["Võ Thị Sáu", "Phường 1", "Phường 2", "Phường 5", "Phường 9"],
+            "Quận 10": ["Phường 1", "Phường 2", "Phường 12", "Phường 14", "Phường 15"]
+        },
+        "Đà Nẵng": {
+            "Hải Châu": ["Thạch Thang", "Thanh Bình", "Thuận Phước", "Hòa Cường Bắc", "Hòa Cường Nam"],
+            "Thanh Khê": ["Vĩnh Trung", "Tân Chính", "Thạc Gián", "Chính Gián", "Hòa Khê"]
+        },
+        "Bình Dương": {
+            "Thủ Dầu Một": ["Phú Cường", "Hiệp Thành", "Chánh Nghĩa", "Phú Hòa", "Phú Lợi"],
+            "Thuận An": ["Lái Thiêu", "An Thạnh", "Vĩnh Phú", "Bình Hòa", "Thuận Giao"]
+        }
+    };
+
+    let currentAddressType = 'detail';
+
+    // Dropdown change handlers
+    function onProvinceChange() {
+        const province = document.getElementById("addr-province").value;
+        const districtSelect = document.getElementById("addr-district");
+        const wardSelect = document.getElementById("addr-ward");
+
+        districtSelect.innerHTML = '<option value="" disabled selected>Huyện/Quận *</option>';
+        wardSelect.innerHTML = '<option value="" disabled selected>Xã/Phường *</option>';
+        wardSelect.disabled = true;
+
+        if (addressData[province]) {
+            districtSelect.disabled = false;
+            for (const district in addressData[province]) {
+                const opt = document.createElement("option");
+                opt.value = district;
+                opt.innerText = district;
+                districtSelect.appendChild(opt);
+            }
+        } else {
+            districtSelect.disabled = true;
+        }
+        updateCombinedAddress();
+    }
+
+    function onDistrictChange() {
+        const province = document.getElementById("addr-province").value;
+        const district = document.getElementById("addr-district").value;
+        const wardSelect = document.getElementById("addr-ward");
+
+        wardSelect.innerHTML = '<option value="" disabled selected>Xã/Phường *</option>';
+
+        if (addressData[province] && addressData[province][district]) {
+            wardSelect.disabled = false;
+            addressData[province][district].forEach(ward => {
+                const opt = document.createElement("option");
+                opt.value = ward;
+                opt.innerText = ward;
+                wardSelect.appendChild(opt);
+            });
+        } else {
+            wardSelect.disabled = true;
+        }
+        updateCombinedAddress();
+    }
+
+    function updateCombinedAddress() {
+        const house = document.getElementById("addr-house").value.trim();
+        const street = document.getElementById("addr-street").value;
+        const ward = document.getElementById("addr-ward").value;
+        const district = document.getElementById("addr-district").value;
+        const province = document.getElementById("addr-province").value;
+
+        let parts = [];
+        if (house) parts.push(house);
+        if (street && street !== "") parts.push(street);
+        if (ward && ward !== "Xã/Phường *") parts.push(ward);
+        if (district && district !== "Huyện/Quận *") parts.push(district);
+        if (province && province !== "Tỉnh/Thành phố *") parts.push(province);
+
+        if (currentAddressType === 'smart-box') {
+            parts.unshift("[Tủ Smart Box]");
+        } else if (currentAddressType === 'post-office') {
+            parts.unshift("[Bưu Cục]");
+        }
+
+        const combined = parts.join(", ");
+        document.getElementById("full-address-hidden").value = combined;
+    }
+
+    function selectAddressType(type) {
+        currentAddressType = type;
+        updateCombinedAddress();
+    }
+
+    // Format currency display helper
+    function formatCurrencyInput(input) {
+        let val = input.value.replace(/[^0-9]/g, "");
+        if (val) {
+            input.value = parseInt(val).toLocaleString('vi-VN');
+        } else {
+            input.value = "";
+        }
+    }
+
+    // Add manually entered item to the list
+    function addManualItem() {
+        const nameInput = document.getElementById("new-item-name");
+        const weightInput = document.getElementById("new-item-weight");
+        const qtyInput = document.getElementById("new-item-qty");
+        const priceInput = document.getElementById("new-item-price");
+
+        const errName = document.getElementById("err-goods-name");
+        const errWeight = document.getElementById("err-goods-weight");
+
+        const name = nameInput.value.trim();
+        const weightG = parseFloat(weightInput.value) || 0;
+        const qty = parseInt(qtyInput.value) || 1;
+        
+        const priceText = priceInput.value.replace(/[^0-9]/g, "") || "0";
+        const price = parseInt(priceText);
+
+        let hasError = false;
+        if (!name) {
+            nameInput.style.borderColor = 'var(--vp-red)';
+            errName.style.display = 'block';
+            hasError = true;
+        } else {
+            nameInput.style.borderColor = '';
+            errName.style.display = 'none';
+        }
+
+        if (weightG <= 0) {
+            weightInput.style.borderColor = 'var(--vp-red)';
+            errWeight.style.display = 'block';
+            hasError = true;
+        } else {
+            weightInput.style.borderColor = '';
+            errWeight.style.display = 'none';
+        }
+
+        if (hasError) return;
+
+        manualItemCounter++;
+        manualItems.push({ id: manualItemCounter, name, weightG, qty, price });
+
+        // Reset inputs
+        nameInput.value = '';
+        weightInput.value = '';
+        qtyInput.value = '1';
+        priceInput.value = '';
+        nameInput.focus();
+
+        renderAddedProducts();
+        calculateAllTotals();
+    }
+
+    // Render HTML list for manually added items
+    function renderAddedProducts() {
+        const list = document.getElementById("added-products-list");
+        const placeholder = document.getElementById("empty-products-placeholder");
+
+        // Clear existing product rows
+        list.querySelectorAll('.added-product-row').forEach(r => r.remove());
+
+        if (manualItems.length === 0) {
+            placeholder.style.display = "block";
+            return;
+        }
+
+        placeholder.style.display = "none";
+
+        manualItems.forEach(item => {
+            const row = document.createElement("div");
+            row.className = "added-product-row";
+            row.innerHTML = `
+                <div class="prod-details">
+                    <h4>${item.name}</h4>
+                    <p>KL: ${item.weightG.toLocaleString('vi-VN')} g &nbsp;|&nbsp; Trị giá: ${item.price.toLocaleString('vi-VN')} đ</p>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <div class="qty-counter">
+                        <button type="button" class="counter-btn" onclick="adjustManualItemQty(${item.id}, -1)">-</button>
+                        <span class="counter-val">${item.qty}</span>
+                        <button type="button" class="counter-btn" onclick="adjustManualItemQty(${item.id}, 1)">+</button>
+                    </div>
+                    <button type="button" onclick="removeManualItem(${item.id})" style="background:transparent; border:none; color:#94A3B8; cursor:pointer; font-size:1.1rem; padding:0.25rem;" title="Xóa">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+            `;
+            list.appendChild(row);
+        });
+
+        syncInputsForSubmit();
+    }
+
+    // Adjust quantity of a manual item
+    function adjustManualItemQty(id, delta) {
+        const item = manualItems.find(i => i.id === id);
+        if (!item) return;
+        item.qty = Math.max(1, item.qty + delta);
+        renderAddedProducts();
+        calculateAllTotals();
+    }
+
+    // Remove a manual item
+    // Sync manual items to hidden inputs for form POST
+    function removeManualItem(id) {
+        manualItems = manualItems.filter(i => i.id !== id);
+        renderAddedProducts();
+        calculateAllTotals();
+    }
+
+    function syncInputsForSubmit() {
+        const container = document.getElementById("post-products-data-container");
+        container.innerHTML = "";
+
+        manualItems.forEach((item, idx) => {
+            const nameInput = document.createElement("input");
+            nameInput.type = "hidden";
+            nameInput.name = `manualItems[${idx}].TenHangHoa`;
+            nameInput.value = item.name;
+            container.appendChild(nameInput);
+
+            const weightInput = document.createElement("input");
+            weightInput.type = "hidden";
+            weightInput.name = `manualItems[${idx}].KhoiLuong`;
+            weightInput.value = (item.weightG / 1000).toFixed(3);
+            container.appendChild(weightInput);
+
+            const qtyInput = document.createElement("input");
+            qtyInput.type = "hidden";
+            qtyInput.name = `manualItems[${idx}].SoLuong`;
+            qtyInput.value = item.qty;
+            container.appendChild(qtyInput);
+        });
+    }
+
+    // Volumetric Weight Calculation from Dimensions (D x R x C)
+    function calculateVolumetricWeight() {
+        const dimL = parseFloat(document.getElementById("dim-l").value) || 0;
+        const dimW = parseFloat(document.getElementById("dim-w").value) || 0;
+        const dimH = parseFloat(document.getElementById("dim-h").value) || 0;
+
+        // Logistics volumetric divisor: standard is L * W * H / 5000 in grams
+        if (dimL > 0 && dimW > 0 && dimH > 0) {
+            const volWeightG = Math.round((dimL * dimW * dimH) / 5 * 1000) / 1000; 
+            document.getElementById("volumetric-weight").value = volWeightG.toLocaleString('vi-VN');
+        } else {
+            document.getElementById("volumetric-weight").value = "";
+        }
+        calculateAllTotals();
+    }
+
+    // Manual inputs overrides
+    function onManualWeightInput(input) {
+        calculateAllTotals();
+    }
+
+    function onManualPriceInput(input) {
+        formatCurrencyInput(input);
+        if (document.getElementById("cod-sync-checkbox").checked) {
+            document.getElementById("cod-amount-input").value = input.value;
+            document.getElementById("sticky-val-cod").innerText = input.value + " đ";
+        }
+        calculateAllTotals();
+    }
+
+    function onCodAmountInput(input) {
+        formatCurrencyInput(input);
+        document.getElementById("sticky-val-cod").innerText = input.value ? input.value + " đ" : "0 đ";
+    }
+
+    function toggleCodSync(isChecked) {
+        const codInput = document.getElementById("cod-amount-input");
+        if (isChecked) {
+            let totalValue = 0;
+            manualItems.forEach(item => {
+                totalValue += item.price * item.qty;
+            });
+            const formatted = totalValue > 0 ? totalValue.toLocaleString('vi-VN') : "0";
+            codInput.value = formatted;
+            document.getElementById("sticky-val-cod").innerText = formatted + " đ";
+        }
+    }
+
+    // Centralised calculator for all weights, costs and sums
+    function calculateAllTotals() {
+        let totalWeightKg = 0;
+        let totalValue = 0;
+
+        if (manualItems.length > 0) {
+            manualItems.forEach(item => {
+                totalWeightKg += (item.weightG / 1000) * item.qty;
+                totalValue += item.price * item.qty;
+            });
+        }
+
+        // Add volumetric weight if exists
+        const volWeightText = document.getElementById("volumetric-weight").value.replace(/[^0-9]/g, "") || "0";
+        const volWeightG = parseFloat(volWeightText) || 0;
+        totalWeightKg += volWeightG / 1000;
+
+        // Set hidden forms fields for ASP.NET MVC binding
+        document.getElementById("total-weight-hidden").value = totalWeightKg.toFixed(3);
+
+        // Core business fee formula from CustomerController: Base 20k + 5k/kg
+        const shippingFee = 20000 + (totalWeightKg * 5000);
+
+        const formatter = new Intl.NumberFormat('vi-VN');
+
+        // Update UI displays
+        document.getElementById("label-summary-weight").innerText = (totalWeightKg * 1000).toLocaleString('vi-VN') + " g";
+        document.getElementById("label-summary-price").innerText = totalValue.toLocaleString('vi-VN') + " đ";
+        
+        document.getElementById("pricing-express-fee").innerText = formatter.format(shippingFee) + " đ";
+        document.getElementById("sticky-val-total").innerText = formatter.format(shippingFee) + " đ";
+
+        // Update COD if sync is checked
+        if (document.getElementById("cod-sync-checkbox").checked) {
+            const formatted = totalValue > 0 ? totalValue.toLocaleString('vi-VN') : "0";
+            document.getElementById("cod-amount-input").value = formatted;
+            document.getElementById("sticky-val-cod").innerText = formatted + " đ";
+        }
+    }
+
+    function updatePaymentSide(method) {
+        document.getElementById("payment-method-hidden").value = method;
+    }
+
+    // Reset Form completely
+    function resetFormCustom() {
+        document.getElementById("create-order-form").reset();
+        manualItems = [];
+        renderAddedProducts();
+        calculateAllTotals();
+        alert("Đã làm mới form thông tin đơn hàng!");
+    }
+
+    // Submit validator & execution
+    function submitCreateOrderForm() {
+        const form = document.getElementById("create-order-form");
+
+        // Validate agreement checkbox
+        const agreement = document.getElementById("agreement-checkbox");
+        if (!agreement.checked) {
+            alert("Bạn cần phải đồng ý với Điều khoản quy định trước khi gửi!");
+            return;
+        }
+
+        // Validate basic inputs
+        const tel = document.getElementById("SoDienThoaiNguoiNhan").value.trim();
+        const name = document.getElementById("TenNguoiNhan").value.trim();
+        const house = document.getElementById("addr-house").value.trim();
+        const province = document.getElementById("addr-province").value;
+        const district = document.getElementById("addr-district").value;
+        const ward = document.getElementById("addr-ward").value;
+
+        if (!tel || !name || !house || !province || !district || !ward) {
+            alert("Vui lòng điền đầy đủ các thông tin người nhận bắt buộc (*)!");
+            return;
+        }
+
+        const totalWeight = parseFloat(document.getElementById("total-weight-hidden").value) || 0;
+        if (totalWeight <= 0) {
+            alert("Vui lòng nhập hoặc thêm ít nhất một mặt hàng để tính khối lượng!");
+            return;
+        }
+
+        form.submit();
+    }
+
+    // Initialize triggers
+    document.addEventListener("DOMContentLoaded", () => {
+        calculateAllTotals();
+    });
+</script>

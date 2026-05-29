@@ -1,0 +1,205 @@
+@model IEnumerable<SDMS.Models.KhoHang>
+@{
+    ViewData["Title"] = "Quản lý Kho bãi";
+}
+
+<!-- Tab Navigation Header -->
+<div style="display: flex; gap: 0.75rem; margin-bottom: 2.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+    <a asp-action="Staff" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-users-cog"></i> Nhân sự
+    </a>
+    <a asp-action="Warehouses" class="nav-item active" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-warehouse"></i> Kho bãi
+    </a>
+    <a asp-action="Categories" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-tags"></i> Nhóm hàng
+    </a>
+    <a asp-action="Routes" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-route"></i> Tuyến đường
+    </a>
+    <a asp-action="Shifts" class="nav-item" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-calendar-alt"></i> Ca làm việc
+    </a>
+</div>
+
+<!-- Alert Notifications -->
+@if (TempData["Success"] != null)
+{
+    <div class="glass" style="padding: 1rem 1.5rem; margin-bottom: 2rem; background: rgba(22, 163, 74, 0.08); border-color: rgba(22, 163, 74, 0.2); color: #166534; display: flex; align-items: center; gap: 0.75rem; border-radius: 10px;">
+        <i class="fas fa-check-circle" style="font-size: 1.25rem; color: #16a34a;"></i>
+        <span style="font-weight: 600;">@TempData["Success"]</span>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="glass" style="padding: 1rem 1.5rem; margin-bottom: 2rem; background: rgba(239, 68, 68, 0.08); border-color: rgba(239, 68, 68, 0.2); color: #991b1b; display: flex; align-items: center; gap: 0.75rem; border-radius: 10px;">
+        <i class="fas fa-exclamation-circle" style="font-size: 1.25rem; color: #ef4444;"></i>
+        <span style="font-weight: 600;">@TempData["Error"]</span>
+    </div>
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+        <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main);">Danh sách Kho bãi</h2>
+        <p style="margin: 0.25rem 0 0 0; color: var(--text-muted); font-size: 0.9375rem;">Quản lý toàn bộ vị trí lưu kho và thông số vận hành</p>
+    </div>
+    <button class="btn-premium" onclick="document.getElementById('add-warehouse-modal').style.display='flex'">
+        <i class="fas fa-plus"></i> Thêm Kho hàng mới
+    </button>
+</div>
+
+<div class="glass" style="padding: 1.5rem; overflow-x: auto;">
+    <table class="premium-table">
+        <thead>
+            <tr>
+                <th>Mã Kho</th>
+                <th>Tên Kho</th>
+                <th>Địa chỉ</th>
+                <th>Diện tích</th>
+                <th>Sức chứa tối đa</th>
+                <th>Trạng thái hoạt động</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 3rem 0;">
+                        <i class="fas fa-box-open" style="font-size: 2.5rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        Chưa có kho hàng nào được đăng ký.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var warehouse in Model)
+                {
+                    <tr>
+                        <td style="font-family: monospace; font-weight: 700; color: var(--accent-primary);">@warehouse.MaKhoHang</td>
+                        <td style="font-weight: 700;">@warehouse.TenKho</td>
+                        <td style="color: #475569; font-size: 0.9375rem;">@warehouse.DiaChiKho</td>
+                        <td style="font-weight: 600;">@string.Format("{0:N1} m²", warehouse.DienTichKho)</td>
+                        <td style="font-weight: 600; color: var(--text-main);">@string.Format("{0:N0} kiện", warehouse.SucChuaKho)</td>
+                        <td>
+                            @{
+                                var statusBg = "rgba(22, 163, 74, 0.1)";
+                                var statusTextColor = "#16a34a";
+                                if (warehouse.TrangThai == "Bảo trì")
+                                {
+                                    statusBg = "rgba(249, 115, 22, 0.1)";
+                                    statusTextColor = "#ea580c";
+                                }
+                                else if (warehouse.TrangThai == "Tạm đóng")
+                                {
+                                    statusBg = "rgba(239, 68, 68, 0.1)";
+                                    statusTextColor = "#ef4444";
+                                }
+                            }
+                            <span class="badge" style="background: @statusBg; color: @statusTextColor;">@warehouse.TrangThai</span>
+                        </td>
+                        <td>
+                            <button class="glass" onclick="openEditWarehouseModal('@warehouse.MaKhoHang', '@warehouse.TenKho', '@warehouse.DiaChiKho', '@warehouse.DienTichKho.ToString("G", System.Globalization.CultureInfo.InvariantCulture)', '@warehouse.SucChuaKho', '@warehouse.TrangThai')" style="padding: 0.625rem; border: 1px solid #e2e8f0; color: #3b82f6; cursor: pointer; border-radius: 8px;" title="Sửa thông tin">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Thêm Kho Hàng -->
+<div id="add-warehouse-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="glass" style="width: 500px; padding: 2.5rem; position: relative; background: var(--card-bg, white); border-radius: 16px;">
+        <button onclick="document.getElementById('add-warehouse-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #64748b; cursor: pointer; font-size: 1.5rem; outline: none;">&times;</button>
+        <h3 style="margin-top: 0; margin-bottom: 1.75rem; font-weight: 800; font-size: 1.5rem; color: var(--text-color, #0f172a);">Thêm Kho hàng mới</h3>
+        <form asp-action="CreateWarehouse" method="post">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Mã Kho hàng (Ví dụ: KHO_QN)</label>
+                <input name="maKhoHang" placeholder="Nhập mã định danh kho duy nhất" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 600; outline: none; box-sizing: border-box;" required maxlength="20" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Tên Kho hàng</label>
+                <input name="tenKho" placeholder="Nhập tên kho hàng" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required maxlength="100" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Địa chỉ Kho hàng</label>
+                <input name="diaChiKho" placeholder="Nhập số nhà, đường, quận, thành phố" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required maxlength="255" />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Diện tích (m²)</label>
+                    <input name="dienTichKho" type="number" step="0.01" min="1" placeholder="100.00" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required />
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Sức chứa (kiện hàng)</label>
+                    <input name="sucChuaKho" type="number" min="1" placeholder="1000" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required />
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 2.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Trạng thái hoạt động</label>
+                <select name="trangThai" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; outline: none;">
+                    <option value="Hoạt động">Hoạt động (Active)</option>
+                    <option value="Bảo trì">Bảo trì (Maintenance)</option>
+                    <option value="Tạm đóng">Tạm đóng (Temporarily Closed)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1rem; font-size: 1rem;">Lưu thông tin kho</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Sửa Kho Hàng -->
+<div id="edit-warehouse-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div class="glass animate-fade-in" style="width: 500px; padding: 2.5rem; position: relative; background: var(--card-bg, white); border-radius: 16px;">
+        <button onclick="document.getElementById('edit-warehouse-modal').style.display='none'" style="position: absolute; top: 1.5rem; right: 1.5rem; background: none; border: none; color: #64748b; cursor: pointer; font-size: 1.5rem; outline: none;">&times;</button>
+        <h3 style="margin-top: 0; margin-bottom: 1.75rem; font-weight: 800; font-size: 1.5rem; color: var(--text-color, #0f172a);">Sửa Kho hàng</h3>
+        <form asp-action="EditWarehouse" method="post">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Mã Kho hàng (Không thể sửa)</label>
+                <input name="maKhoHang" id="edit-warehouse-id" readonly class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; font-weight: 600; outline: none; box-sizing: border-box; background: var(--bg-muted, #f1f5f9); cursor: not-allowed;" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Tên Kho hàng</label>
+                <input name="tenKho" id="edit-warehouse-name" placeholder="Nhập tên kho hàng" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required maxlength="100" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Địa chỉ Kho hàng</label>
+                <input name="diaChiKho" id="edit-warehouse-address" placeholder="Nhập số nhà, đường, quận, thành phố" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required maxlength="255" />
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Diện tích (m²)</label>
+                    <input name="dienTichKho" id="edit-warehouse-area" type="number" step="0.01" min="1" placeholder="100.00" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required />
+                </div>
+                <div class="form-group">
+                    <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Sức chứa (kiện hàng)</label>
+                    <input name="sucChuaKho" id="edit-warehouse-capacity" type="number" min="1" placeholder="1000" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; box-sizing: border-box;" required />
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 2.25rem;">
+                <label style="display: block; font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">Trạng thái hoạt động</label>
+                <select name="trangThai" id="edit-warehouse-status" class="glass" style="width: 100%; padding: 0.875rem; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; outline: none;">
+                    <option value="Hoạt động">Hoạt động (Active)</option>
+                    <option value="Bảo trì">Bảo trì (Maintenance)</option>
+                    <option value="Tạm đóng">Tạm đóng (Temporarily Closed)</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1rem; font-size: 1rem;">Cập nhật kho hàng</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openEditWarehouseModal(id, name, address, area, capacity, status) {
+        document.getElementById('edit-warehouse-id').value = id;
+        document.getElementById('edit-warehouse-name').value = name;
+        document.getElementById('edit-warehouse-address').value = address;
+        document.getElementById('edit-warehouse-area').value = area;
+        document.getElementById('edit-warehouse-capacity').value = capacity;
+        document.getElementById('edit-warehouse-status').value = status || 'Hoạt động';
+        document.getElementById('edit-warehouse-modal').style.display = 'flex';
+    }
+</script>

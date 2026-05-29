@@ -1,0 +1,61 @@
+@model IEnumerable<SDMS.Models.DonHang>
+@{
+    ViewData["Title"] = "Lịch sử gửi hàng";
+}
+
+<div class="glass" style="padding: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--text-main);">Theo dõi vận đơn</h2>
+        <a asp-action="CreateOrder" class="btn-premium">
+            <i class="fas fa-plus"></i> Gửi yêu cầu mới
+        </a>
+    </div>
+
+    <table class="premium-table">
+        <thead>
+            <tr>
+                <th>Mã đơn hàng</th>
+                <th>Người nhận</th>
+                <th>Ngày tạo</th>
+                <th>Khối lượng</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td style="font-weight: 700; color: var(--accent-primary);">@item.MaDonHang</td>
+                    <td>
+                        <div style="font-weight: 600;">@item.TenNguoiNhan</div>
+                        <div style="font-size: 0.8125rem; color: var(--text-muted);">@item.SoDienThoaiNguoiNhan</div>
+                    </td>
+                    <td>@item.ThoiGianTao.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@item.TongKhoiLuong kg</td>
+                    <td>
+                        @{
+                            var badgeClass = item.TrangThaiDonHang == "Giao hàng thành công" ? "badge-success" : 
+                                            (item.TrangThaiDonHang == "Giao hàng thất bại" ? "badge-error" : "badge-warning");
+                        }
+                        <span class="badge @badgeClass">@item.TrangThaiDonHang</span>
+                    </td>
+                    <td>
+                        <a asp-action="Track" asp-route-id="@item.MaDonHang" class="glass" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); color: var(--accent-primary); cursor: pointer; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-search-location"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Any())
+            {
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                        <i class="fas fa-box-open" style="font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.2;"></i>
+                        Bạn chưa có đơn hàng nào. Hãy tạo đơn đầu tiên ngay!
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
