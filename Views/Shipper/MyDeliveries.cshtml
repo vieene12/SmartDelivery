@@ -88,13 +88,13 @@
 
 <!-- Camera Scanner Modal Overlay -->
 <div id="scanner-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
-    <div class="glass" style="width: 90%; max-width: 500px; padding: 1.5rem; position: relative; border-radius: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);">
+    <div style="width: 90%; max-width: 500px; padding: 1.5rem; position: relative; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(15, 23, 42, 0.96); color: #fff; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
         <!-- Header -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-qrcode" style="color: #3b82f6; animation: pulse-glow 1.5s infinite;"></i> Trình Quét Mã Vận Đơn
             </h3>
-            <button id="btn-close-scanner" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+            <button id="btn-close-scanner" style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); color: #94a3b8; border-radius: 50%; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.color='#fff'; this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.color='#94a3b8'; this.style.background='rgba(255,255,255,0.08)'">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -130,20 +130,23 @@
         <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
             <!-- Camera select and flip toggle -->
             <div style="display: flex; gap: 0.5rem;">
-                <select id="camera-select" class="glass" style="flex: 1; padding: 0.5rem; border-radius: 0.5rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem;"></select>
-                <button id="btn-toggle-torch" class="glass" style="padding: 0.5rem 1rem; border-radius: 0.5rem; color: white; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); font-size: 0.85rem;" title="Bật/Tắt Đèn pin">
+                <select id="camera-select" style="flex: 1; padding: 0.6rem; border-radius: 0.5rem; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); font-size: 0.85rem; outline: none;">
+                    <option style="background: #0f172a; color: #fff;">Đang tìm camera...</option>
+                </select>
+                <button id="btn-toggle-torch" style="padding: 0.6rem 1.2rem; border-radius: 0.5rem; color: #fff; border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'" title="Bật/Tắt Đèn pin">
                     <i class="fas fa-lightbulb"></i>
                 </button>
             </div>
 
             <!-- Manual input fallback -->
             <div style="display: flex; gap: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem;">
-                <input type="text" id="manual-code-input" class="glass" style="flex: 1; padding: 0.5rem 1rem; border-radius: 0.5rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;" placeholder="Nhập tay mã đơn hàng..." />
-                <button id="btn-submit-manual" class="btn-premium" style="padding: 0.5rem 1.2rem; font-size: 0.875rem; border-radius: 0.5rem;">Gửi</button>
+                <input type="text" id="manual-code-input" style="flex: 1; padding: 0.6rem 1rem; border-radius: 0.5rem; background: rgba(0, 0, 0, 0.4); color: #fff; border: 1px solid rgba(255,255,255,0.15); font-size: 0.9rem;" placeholder="Nhập tay mã đơn hàng..." />
+                <button id="btn-submit-manual" class="btn-premium" style="padding: 0.6rem 1.5rem; font-size: 0.875rem; border-radius: 0.5rem; background: #3b82f6; color: #fff; border: none; font-weight: 700; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">Gửi</button>
             </div>
         </div>
     </div>
 </div>
+
 
 <!-- Quick Update Delivery Status Modal -->
 <div id="quick-update-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
