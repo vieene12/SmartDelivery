@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+@{
+    bool isStaffOrAdmin = User.Identity.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("WarehouseStaff") || User.IsInRole("Shipper"));
+}
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
@@ -9,77 +12,280 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        (function () {
-            const savedTheme = localStorage.getItem('theme');
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
-                document.documentElement.classList.add('dark-mode');
-                document.addEventListener('DOMContentLoaded', () => {
-                    document.body.classList.add('dark-mode');
-                });
+    <style>
+        /* Premium Sidebar styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 260px;
+            background: var(--card-bg, rgba(255, 255, 255, 0.95));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            z-index: 1010;
+            display: flex;
+            flex-direction: column;
+            padding: 1.5rem 1rem;
+            box-shadow: 4px 0 25px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+            text-decoration: none;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.75rem 1.1rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-item:hover {
+            color: var(--primary);
+            background: var(--accent-secondary);
+            transform: translateX(4px);
+        }
+
+        .sidebar-item.active {
+            color: var(--primary);
+            background: rgba(37, 99, 235, 0.08);
+            font-weight: 700;
+            border-left: 4px solid var(--primary);
+        }
+
+        .sidebar-footer {
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        /* Content Area Shifts for Staff/Admin Layout */
+        body.staff-layout {
+            padding-left: 260px;
+        }
+
+        body.staff-layout .navbar {
+            position: fixed !important;
+            top: 0;
+            left: 260px;
+            width: calc(100% - 260px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+            background: var(--navbar-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1000;
+        }
+
+        body.staff-layout .main-container {
+            margin-top: 6rem;
+            max-width: 100%;
+            padding: 0 2.5rem;
+        }
+
+        body.staff-layout .footer-section {
+            margin-top: 4rem;
+            padding-left: 2.5rem;
+            padding-right: 2.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Mobile Responsive Sidebar */
+        @@media (max-width: 991px) {
+            body.staff-layout {
+                padding-left: 0;
             }
-        })();
-    </script>
+            .sidebar {
+                transform: translateX(-260px);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            body.staff-layout .navbar {
+                left: 0;
+                width: 100%;
+                position: sticky !important;
+            }
+            body.staff-layout .main-container {
+                margin-top: 2rem;
+                padding: 0 1.5rem;
+            }
+            #sidebar-toggle {
+                display: flex !important;
+            }
+        }
+    </style>
 </head>
-<body>
-    <header class="navbar">
-        <div style="display: flex; align-items: center; gap: 2.5rem;">
-            <a asp-controller="Home" asp-action="Index" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
-                <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px; filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.25));">
+<body class="@(isStaffOrAdmin ? "staff-layout" : "")">
+    @if (isStaffOrAdmin)
+    {
+        <div class="sidebar">
+            <a asp-controller="Home" asp-action="Index" class="sidebar-brand">
+                <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 32px; height: 32px; filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.25));">
                     <path d="M16 2L3 9.5v13L16 30l13-7.5v-13L16 2z" fill="var(--primary)" fill-opacity="0.15" stroke="var(--primary)" stroke-width="2" stroke-linejoin="round" />
                     <path d="M16 2L3 9.5M16 2l13 7.5M16 2v28M3 9.5l13 7.5M29 9.5l-13 7.5" stroke="var(--primary)" stroke-width="1.5" stroke-linejoin="round" opacity="0.6" />
                     <path d="M11 12.5h5.5l-3.5 3.5h5L14 20" stroke="var(--secondary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-                <span class="brand-name" style="font-size: 1.45rem; font-weight: 850; color: var(--primary); letter-spacing: -0.04em;">SmartDelivery</span>
+                <span class="brand-name" style="font-size: 1.3rem; font-weight: 850; color: var(--primary); letter-spacing: -0.04em;">SmartDelivery</span>
             </a>
 
-            <nav class="nav-links">
-                <a asp-controller="Home" asp-action="Index" class="nav-item active">Trang Chủ</a>
-                <div class="dropdown">
-                    <a class="nav-item dropdown-toggle" id="pricingDropdown" style="display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer;">
-                        Bảng giá <i class="fas fa-caret-down" style="font-size: 0.8rem; margin-left: 0.2rem;"></i>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" asp-controller="Home" asp-action="Pricing" asp-route-tab="hcm-hn">
-                            🏢 Hà Nội – Thành phố Hồ Chí Minh
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" asp-controller="Home" asp-action="Pricing" asp-route-tab="others">
-                            🗺️ Tỉnh – Thành phố còn lại
-                        </a>
-                    </div>
-                </div>
+            <div class="sidebar-nav">
+                <div style="font-size: 0.725rem; color: var(--text-light); text-transform: uppercase; font-weight: 750; padding: 0 1.1rem 0.5rem; letter-spacing: 0.05em;">Hệ Thống</div>
+                
+                <a class="sidebar-item" asp-controller="Home" asp-action="Index">
+                    <i class="fas fa-home" style="width: 20px; font-size: 0.95rem;"></i> Trang Chủ
+                </a>
+
+                <a class="sidebar-item" asp-controller="Home" asp-action="Profile">
+                    <i class="fas fa-user-circle" style="width: 20px; font-size: 0.95rem;"></i> Thông tin cá nhân
+                </a>
 
                 @if (User.IsInRole("Admin"))
                 {
-                    <a class="nav-item" asp-controller="Admin" asp-action="Staff">Nhân sự</a>
-                    <a class="nav-item" asp-controller="Admin" asp-action="Warehouses">Kho bãi</a>
-                    <a class="nav-item" asp-controller="Admin" asp-action="AuditLogs">Nhật ký</a>
-                    <a class="nav-item" asp-controller="Admin" asp-action="OrderReport"><i class="fas fa-chart-bar" style="margin-right:0.25rem;font-size:0.85rem;"></i>Báo cáo</a>
+                    <div style="font-size: 0.725rem; color: var(--text-light); text-transform: uppercase; font-weight: 750; padding: 1.25rem 1.1rem 0.5rem; letter-spacing: 0.05em;">Quản trị viên</div>
+                    
+                    <a class="sidebar-item" asp-controller="Admin" asp-action="Staff">
+                        <i class="fas fa-users" style="width: 20px; font-size: 0.95rem;"></i> Nhân sự
+                    </a>
+                    <a class="sidebar-item" asp-controller="Admin" asp-action="Warehouses">
+                        <i class="fas fa-warehouse" style="width: 20px; font-size: 0.95rem;"></i> Kho bãi
+                    </a>
+                    <a class="sidebar-item" asp-controller="Admin" asp-action="AuditLogs">
+                        <i class="fas fa-history" style="width: 20px; font-size: 0.95rem;"></i> Nhật ký
+                    </a>
+                    <a class="sidebar-item" asp-controller="Admin" asp-action="OrderReport">
+                        <i class="fas fa-chart-bar" style="width: 20px; font-size: 0.95rem;"></i> Báo cáo
+                    </a>
                 }
 
                 @if (User.IsInRole("WarehouseStaff") || User.IsInRole("Admin"))
                 {
-                    <a class="nav-item" asp-controller="Warehouse" asp-action="Inventory">Kho hàng</a>
+                    <div style="font-size: 0.725rem; color: var(--text-light); text-transform: uppercase; font-weight: 750; padding: 1.25rem 1.1rem 0.5rem; letter-spacing: 0.05em;">Thủ kho</div>
+                    
+                    <a class="sidebar-item" asp-controller="Warehouse" asp-action="Inventory">
+                        <i class="fas fa-boxes" style="width: 20px; font-size: 0.95rem;"></i> Kho hàng
+                    </a>
                 }
 
                 @if (User.IsInRole("Shipper") || User.IsInRole("Admin"))
                 {
-                    <a class="nav-item" asp-controller="Shipper" asp-action="MyDeliveries">Vận chuyển</a>
+                    <div style="font-size: 0.725rem; color: var(--text-light); text-transform: uppercase; font-weight: 750; padding: 1.25rem 1.1rem 0.5rem; letter-spacing: 0.05em;">Nhân viên giao hàng</div>
+                    
+                    <a class="sidebar-item" asp-controller="Shipper" asp-action="MyDeliveries">
+                        <i class="fas fa-truck-loading" style="width: 20px; font-size: 0.95rem;"></i> Vận chuyển
+                    </a>
+                }
+            </div>
+
+            <div class="sidebar-footer">
+                <a asp-controller="Home" asp-action="Profile" style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; background: rgba(37, 99, 235, 0.05); padding: 0.75rem 1rem; border-radius: var(--radius-sm); border: 1px solid rgba(37, 99, 235, 0.1); text-decoration: none; width: 100%; transition: background-color 0.2s;" title="Thông tin cá nhân">
+                    <i class="fas fa-user-circle" style="font-size: 1.25rem; color: var(--primary);"></i>
+                    <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; font-size: 0.825rem; flex: 1;">
+                        @User.Identity.Name
+                    </div>
+                    <i class="fas fa-cog" style="font-size: 0.85rem; opacity: 0.6; color: var(--text-light);"></i>
+                </a>
+            </div>
+        </div>
+    }
+
+    <header class="navbar">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            @if (isStaffOrAdmin)
+            {
+                <button id="sidebar-toggle" style="background: var(--accent-secondary); border: 1px solid var(--border-color); font-size: 1.15rem; cursor: pointer; display: none; color: var(--text-main); align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 8px; transition: all 0.2s;" title="Mở danh mục">
+                    <i class="fas fa-bars"></i>
+                </button>
+            }
+
+            @if (!isStaffOrAdmin)
+            {
+                @if (User.Identity.IsAuthenticated && User.IsInRole("Customer"))
+                {
+                    <a asp-controller="Customer" asp-action="Index" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
+                        <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px; filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.25));">
+                            <path d="M16 2L3 9.5v13L16 30l13-7.5v-13L16 2z" fill="var(--primary)" fill-opacity="0.15" stroke="var(--primary)" stroke-width="2" stroke-linejoin="round" />
+                            <path d="M16 2L3 9.5M16 2l13 7.5M16 2v28M3 9.5l13 7.5M29 9.5l-13 7.5" stroke="var(--primary)" stroke-width="1.5" stroke-linejoin="round" opacity="0.6" />
+                            <path d="M11 12.5h5.5l-3.5 3.5h5L14 20" stroke="var(--secondary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span class="brand-name" style="font-size: 1.45rem; font-weight: 850; color: var(--primary); letter-spacing: -0.04em;">SmartDelivery</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="Index" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
+                        <svg class="logo-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px; filter: drop-shadow(0 2px 8px rgba(37, 99, 235, 0.25));">
+                            <path d="M16 2L3 9.5v13L16 30l13-7.5v-13L16 2z" fill="var(--primary)" fill-opacity="0.15" stroke="var(--primary)" stroke-width="2" stroke-linejoin="round" />
+                            <path d="M16 2L3 9.5M16 2l13 7.5M16 2v28M3 9.5l13 7.5M29 9.5l-13 7.5" stroke="var(--primary)" stroke-width="1.5" stroke-linejoin="round" opacity="0.6" />
+                            <path d="M11 12.5h5.5l-3.5 3.5h5L14 20" stroke="var(--secondary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span class="brand-name" style="font-size: 1.45rem; font-weight: 850; color: var(--primary); letter-spacing: -0.04em;">SmartDelivery</span>
+                    </a>
                 }
 
-                @if (User.IsInRole("Customer") || User.IsInRole("Admin"))
-                {
-                    <a class="nav-item" asp-controller="Customer" asp-action="Orders">Đơn hàng của tôi</a>
-                }
-            </nav>
+                <nav class="nav-links">
+                    @if (User.Identity.IsAuthenticated && User.IsInRole("Customer"))
+                    {
+                        <a asp-controller="Customer" asp-action="Index" class="nav-item active">Trang Chủ</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Home" asp-action="Index" class="nav-item active">Trang Chủ</a>
+                    }
+                    <div class="dropdown">
+                        <a class="nav-item dropdown-toggle" id="pricingDropdown" style="display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                            Bảng giá <i class="fas fa-caret-down" style="font-size: 0.8rem; margin-left: 0.2rem;"></i>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" asp-controller="Home" asp-action="Pricing" asp-route-tab="hcm-hn">
+                                🏢 Hà Nội – Thành phố Hồ Chí Minh
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" asp-controller="Home" asp-action="Pricing" asp-route-tab="others">
+                                🗺️ Tỉnh – Thành phố còn lại
+                            </a>
+                        </div>
+                    </div>
+
+                    @if (User.IsInRole("Customer") || User.IsInRole("Admin"))
+                    {
+                        <a class="nav-item" asp-controller="Customer" asp-action="Orders">Đơn hàng của tôi</a>
+                    }
+                </nav>
+            }
+            else
+            {
+                <!-- Clean Page title for Administrative consoles -->
+                <span class="brand-name" style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.02em;">
+                    Trang Quản Trị Hệ Thống
+                </span>
+            }
         </div>
 
         <div style="display: flex; align-items: center; gap: 1.25rem;">
-            <button id="theme-toggle" class="theme-toggle-btn" title="Chuyển chế độ tối/sáng">
-                <i class="fas fa-moon"></i>
-            </button>
             <partial name="_LoginPartial" />
             <a asp-controller="Customer" asp-action="CreateOrder" class="btn-premium">
                 <i class="fas fa-plus"></i> Tạo đơn mới
@@ -146,6 +352,35 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Sidebar responsive drawer control
+        document.getElementById('sidebar-toggle')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.querySelector('.sidebar')?.classList.toggle('open');
+        });
+
+        // Click outside side navigation to auto-close drawer on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target.id !== 'sidebar-toggle') {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Highlight active link in vertical sidebar
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            
+            sidebarItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href && currentPath === href) {
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

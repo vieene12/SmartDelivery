@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +16,45 @@ public class CustomerController : Controller
     public CustomerController(ApplicationDbContext context)
     {
         _context = context;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.UserId == userId);
+
+        if (khachHang == null)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            khachHang = new KhachHang
+            {
+                MaKhachHang = "KH" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
+                HoTen = user?.FullName ?? User.Identity?.Name ?? "Customer",
+                SoDienThoai = user?.PhoneNumber ?? "0123456789",
+                UserId = userId
+            };
+            _context.KhachHangs.Add(khachHang);
+            await _context.SaveChangesAsync();
+        }
+        else if (khachHang.HoTen != null && khachHang.HoTen.Contains("@"))
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null && !string.IsNullOrEmpty(user.FullName))
+            {
+                khachHang.HoTen = user.FullName;
+                _context.Update(khachHang);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        var orders = await _context.DonHangs
+            .Include(d => d.ChiTietDonHangs)
+                .ThenInclude(c => c.HangHoa)
+            .Where(d => d.MaKhachHang == khachHang.MaKhachHang)
+            .OrderByDescending(d => d.ThoiGianTao)
+            .ToListAsync();
+
+        return View(orders);
     }
 
     public async Task<IActionResult> Orders()
@@ -44,15 +83,26 @@ public class CustomerController : Controller
 
         if (khachHang == null)
         {
+            var user = await _context.Users.FindAsync(userId);
             khachHang = new KhachHang
             {
                 MaKhachHang = "KH" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper(),
-                HoTen = User.Identity?.Name ?? "Customer",
-                SoDienThoai = "0123456789",
+                HoTen = user?.FullName ?? User.Identity?.Name ?? "Customer",
+                SoDienThoai = user?.PhoneNumber ?? "0123456789",
                 UserId = userId
             };
             _context.KhachHangs.Add(khachHang);
             await _context.SaveChangesAsync();
+        }
+        else if (khachHang.HoTen != null && khachHang.HoTen.Contains("@"))
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user != null && !string.IsNullOrEmpty(user.FullName))
+            {
+                khachHang.HoTen = user.FullName;
+                _context.Update(khachHang);
+                await _context.SaveChangesAsync();
+            }
         }
 
         order.MaDonHang = "DH" + DateTime.Now.Ticks.ToString().Substring(10);
@@ -117,12 +167,27 @@ public class CustomerController : Controller
     {
         var order = await _context.DonHangs
             .Include(d => d.KhachHang)
+            .Include(d => d.ChiTietDonHangs)
+                .ThenInclude(c => c.HangHoa)
             .Include(d => d.NhapKhos)
                 .ThenInclude(n => n.KhoHang)
             .Include(d => d.NhapKhos)
                 .ThenInclude(n => n.NhanVien)
             .Include(d => d.HanhTrinhDonHangs)
                 .ThenInclude(h => h.NhanVien)
+            .FirstOrDefaultAsync(d => d.MaDonHang == id);
+
+        if (order == null) return NotFound();
+
+        return View(order);
+    }
+
+    public async Task<IActionResult> PrintLabel(string id)
+    {
+        var order = await _context.DonHangs
+            .Include(d => d.KhachHang)
+            .Include(d => d.ChiTietDonHangs)
+                .ThenInclude(c => c.HangHoa)
             .FirstOrDefaultAsync(d => d.MaDonHang == id);
 
         if (order == null) return NotFound();

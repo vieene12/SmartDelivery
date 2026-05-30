@@ -1,4 +1,4 @@
-﻿@model IEnumerable<SDMS.Models.HanhTrinhDonHang>
+@model IEnumerable<SDMS.Models.HanhTrinhDonHang>
 @{
     ViewData["Title"] = "Nhiệm vụ Giao hàng";
 }
@@ -16,11 +16,18 @@
     </div>
 }
 
-<div class="glass" style="padding: 2rem; margin-bottom: 2rem;">
-    <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.75rem;">
-        <i class="fas fa-barcode" style="color: var(--accent-primary);"></i> Tiếp nhận tại Kho
-    </h2>
-    <p style="color: var(--text-muted); font-size: 0.9375rem; margin-top: 0.5rem;">Vui lòng quét mã đơn hàng tại khu vực phân loại của bạn để bắt đầu giao.</p>
+<div class="glass" style="padding: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+    <div>
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.75rem;">
+            <i class="fas fa-barcode" style="color: var(--accent-primary); font-size: 1.65rem;"></i> Tiếp nhận tại Kho
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.9375rem; margin-top: 0.5rem;">Tiến đến kệ hàng được phân công. Quét mã vận đơn để tiếp nhận giao hàng.</p>
+    </div>
+    <div>
+        <button id="btn-start-scan" class="btn-premium" style="background-color: #2563eb !important; background: linear-gradient(135deg, #2563eb, #3b82f6) !important; color: #ffffff !important; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35); display: flex; align-items: center; gap: 0.65rem; font-size: 1rem; padding: 0.85rem 1.65rem; border-radius: 0.75rem; border: none; cursor: pointer; transition: all 0.2s; font-weight: 700;">
+            <i class="fas fa-camera" style="font-size: 1.1rem; animation: pulse 2s infinite;"></i> Quét đơn hàng qua Camera
+        </button>
+    </div>
 </div>
 
 <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
@@ -39,7 +46,7 @@
                 </div>
                 <form asp-action="ScanToPickUp" method="post">
                     <input type="hidden" name="maHanhTrinh" value="@item.MaHanhTrinh" />
-                    <button type="submit" class="btn-premium">
+                    <button type="submit" class="btn-premium" style="color: #ffffff !important;">
                         <i class="fas fa-qrcode"></i> Quét nhận hàng
                     </button>
                 </form>
@@ -75,3 +82,517 @@
         </div>
     }
 </div>
+
+<!-- Toast container for notifications -->
+<div id="toast-container" style="position: fixed; bottom: 2rem; right: 2rem; z-index: 10000; display: flex; flex-direction: column; gap: 0.75rem; pointer-events: none;"></div>
+
+<!-- Camera Scanner Modal Overlay -->
+<div id="scanner-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div class="glass" style="width: 90%; max-width: 500px; padding: 1.5rem; position: relative; border-radius: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1);">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: white; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-qrcode" style="color: #3b82f6; animation: pulse-glow 1.5s infinite;"></i> Trình Quét Mã Vận Đơn
+            </h3>
+            <button id="btn-close-scanner" style="background: rgba(255, 255, 255, 0.1); border: none; color: white; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Camera Viewport Container -->
+        <div style="position: relative; width: 100%; border-radius: 1rem; overflow: hidden; background: #000; aspect-ratio: 1/1; border: 2px solid rgba(255, 255, 255, 0.15);">
+            <!-- html5-qrcode element -->
+            <div id="reader" style="width: 100%; height: 100%;"></div>
+
+            <!-- Laser & Target HUD overlay -->
+            <div id="scanner-hud" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">
+                <div style="width: 70%; height: 70%; border: 2px dashed #3b82f6; border-radius: 1rem; position: relative; box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4);">
+                    <!-- Glowing Corner Marks -->
+                    <div style="position: absolute; top: -2px; left: -2px; width: 20px; height: 20px; border-top: 4px solid #3b82f6; border-left: 4px solid #3b82f6; border-top-left-radius: 0.5rem;"></div>
+                    <div style="position: absolute; top: -2px; right: -2px; width: 20px; height: 20px; border-top: 4px solid #3b82f6; border-right: 4px solid #3b82f6; border-top-right-radius: 0.5rem;"></div>
+                    <div style="position: absolute; bottom: -2px; left: -2px; width: 20px; height: 20px; border-bottom: 4px solid #3b82f6; border-left: 4px solid #3b82f6; border-bottom-left-radius: 0.5rem;"></div>
+                    <div style="position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-bottom: 4px solid #3b82f6; border-right: 4px solid #3b82f6; border-bottom-right-radius: 0.5rem;"></div>
+
+                    <!-- Glowing Scanning Laser Line -->
+                    <div id="laser-line" style="position: absolute; left: 5%; width: 90%; height: 3px; background: linear-gradient(90deg, transparent, #3b82f6, transparent); box-shadow: 0 0 10px #3b82f6; animation: scanLaser 2s linear infinite;"></div>
+                </div>
+            </div>
+
+            <!-- Red Error Countdown Overlay -->
+            <div id="scanner-countdown" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(220, 38, 38, 0.95); z-index: 10; flex-direction: column; align-items: center; justify-content: center; color: white; font-weight: 700; text-align: center; padding: 1.5rem;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem; animation: shake-hud 0.5s ease infinite;"></i>
+                <div id="countdown-message" style="font-size: 1.1rem; margin-bottom: 0.5rem; text-transform: uppercase;">LỖI TUYẾN ĐƯỜNG</div>
+                <div style="font-size: 0.9rem; opacity: 0.8; font-weight: 400;">Đang phục hồi camera sau <span id="countdown-number" style="font-size: 1.2rem; font-weight: 800;">3</span>s...</div>
+            </div>
+        </div>
+
+        <!-- Camera Actions / Manual Input -->
+        <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+            <!-- Camera select and flip toggle -->
+            <div style="display: flex; gap: 0.5rem;">
+                <select id="camera-select" class="glass" style="flex: 1; padding: 0.5rem; border-radius: 0.5rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem;"></select>
+                <button id="btn-toggle-torch" class="glass" style="padding: 0.5rem 1rem; border-radius: 0.5rem; color: white; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); font-size: 0.85rem;" title="Bật/Tắt Đèn pin">
+                    <i class="fas fa-lightbulb"></i>
+                </button>
+            </div>
+
+            <!-- Manual input fallback -->
+            <div style="display: flex; gap: 0.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 0.75rem;">
+                <input type="text" id="manual-code-input" class="glass" style="flex: 1; padding: 0.5rem 1rem; border-radius: 0.5rem; background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); font-size: 0.9rem;" placeholder="Nhập tay mã đơn hàng..." />
+                <button id="btn-submit-manual" class="btn-premium" style="padding: 0.5rem 1.2rem; font-size: 0.875rem; border-radius: 0.5rem;">Gửi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Update Delivery Status Modal -->
+<div id="quick-update-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); z-index: 9999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div class="glass" style="width: 90%; max-width: 550px; padding: 2rem; position: relative; border-radius: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); overflow-y: auto; max-height: 90vh;">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+            <h3 style="margin: 0; font-size: 1.35rem; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-truck-loading" style="color: var(--accent-primary);"></i> Cập nhật Giao hàng nhanh
+            </h3>
+            <button id="btn-close-update-modal" style="background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <form id="quick-confirm-form" action="/Shipper/ConfirmDelivery" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="maHanhTrinh" id="modal-maHanhTrinh" />
+            
+            <div style="background: rgba(37, 99, 235, 0.08); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1.5rem;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Đơn hàng đang xử lý</div>
+                <div style="font-size: 1.35rem; font-weight: 850; color: var(--primary);" id="modal-display-maDonHang">DH0000</div>
+                <div style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-main);">
+                    <i class="fas fa-user" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> Người nhận: <strong id="modal-display-tenNguoiNhan">Nguyễn Văn A</strong>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-main); margin-top: 0.25rem;">
+                    <i class="fas fa-phone" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> SĐT: <span id="modal-display-soDienThoai">098888888</span>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-main); margin-top: 0.25rem;">
+                    <i class="fas fa-map-marker-alt" style="color: var(--accent-primary); margin-right: 0.5rem;"></i> Địa chỉ: <span id="modal-display-diaChi">Quận 1, TP. HCM</span>
+                </div>
+            </div>
+
+            <!-- Success/Fail radio buttons -->
+            <div style="display: flex; gap: 1.25rem; margin-bottom: 1.5rem;">
+                <label class="glass" style="flex: 1; padding: 1rem; text-align: center; cursor: pointer; border: 2px solid var(--border-color); transition: all 0.2s; border-radius: 0.75rem;" id="modal-label-success">
+                    <input type="radio" name="isSuccess" value="true" checked style="display: none;" onchange="modalToggleStatus(true)" />
+                    <i class="fas fa-check-circle" style="color: #16a34a; font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                    <span style="font-weight: 700; font-size: 0.95rem;">Thành công</span>
+                </label>
+                <label class="glass" style="flex: 1; padding: 1rem; text-align: center; cursor: pointer; border: 2px solid var(--border-color); transition: all 0.2s; border-radius: 0.75rem;" id="modal-label-fail">
+                    <input type="radio" name="isSuccess" value="false" style="display: none;" onchange="modalToggleStatus(false)" />
+                    <i class="fas fa-times-circle" style="color: #dc2626; font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+                    <span style="font-weight: 700; font-size: 0.95rem;">Thất bại</span>
+                </label>
+            </div>
+
+            <!-- COD Amount -->
+            <div id="modal-cod-section" class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.25rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Số tiền thu hộ (COD) - VNĐ</label>
+                <input type="number" name="codAmount" id="modal-codAmount" class="glass" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); font-size: 1.1rem; font-weight: 700;" value="0" />
+            </div>
+
+            <!-- GPS location -->
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.25rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Vị trí thực tế giao hàng</label>
+                <input type="text" name="viTriHienTai" id="modal-viTriHienTai" class="glass" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); font-size: 0.9rem;" value="" required />
+            </div>
+
+            <!-- Proof Image -->
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="display: block; margin-bottom: 0.25rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Đường dẫn Ảnh minh chứng thực tế</label>
+                <input type="text" name="hinhAnhThucTe" id="modal-hinhAnhThucTe" class="glass" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); font-size: 0.9rem;" value="" />
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Tự động tạo đường dẫn giả lập theo mã đơn hàng</span>
+            </div>
+
+            <!-- Notes -->
+            <div id="modal-note-section" class="form-group" style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.25rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 600;">Ghi chú / Lý do giao không thành</label>
+                <textarea name="note" id="modal-note" class="glass" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); min-height: 80px; font-size: 0.9rem;" placeholder="Nhập lý do thất bại hoặc thông tin giao nhận..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-premium" style="width: 100%; padding: 1rem; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <i class="fas fa-check"></i> Xác nhận Hoàn tất Đơn hàng
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    @@keyframes scanLaser {
+        0% { top: 5%; }
+        50% { top: 95%; }
+        100% { top: 5%; }
+    }
+    @@keyframes pulse-glow {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    @@keyframes shake-hud {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-6px); }
+        75% { transform: translateX(6px); }
+    }
+    .modal-active {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    .modal-active-success {
+        border-color: #16a34a !important;
+        background: rgba(22, 163, 74, 0.08) !important;
+    }
+    .modal-active-fail {
+        border-color: #dc2626 !important;
+        background: rgba(220, 38, 38, 0.08) !important;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        // Web Audio Synthesizer to create digital alert sounds dynamically
+        const playSound = (type) => {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                if (type === 'success') {
+                    const osc1 = audioCtx.createOscillator();
+                    const osc2 = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc1.type = 'sine';
+                    osc2.type = 'sine';
+                    
+                    osc1.frequency.setValueAtTime(1174.66, audioCtx.currentTime); // D6
+                    osc2.frequency.setValueAtTime(1760.00, audioCtx.currentTime + 0.12); // A6
+                    
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.45);
+                    
+                    osc1.connect(gain);
+                    osc2.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc1.start();
+                    osc2.start(audioCtx.currentTime + 0.12);
+                    
+                    osc1.stop(audioCtx.currentTime + 0.15);
+                    osc2.stop(audioCtx.currentTime + 0.5);
+                } else if (type === 'fail') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(160, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.35);
+                    
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'open') {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime); // E5
+                    osc.frequency.exponentialRampToValueAtTime(880.00, audioCtx.currentTime + 0.15); // A5
+                    
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                }
+            } catch (e) {
+                console.warn("Audio Context not allowed or initialized yet:", e);
+            }
+        };
+
+        // Toast message notification helper
+        const showToast = (message, isSuccess = true) => {
+            const toast = document.createElement('div');
+            toast.className = 'glass';
+            toast.style.cssText = `
+                padding: 1rem 1.5rem;
+                border-radius: 0.75rem;
+                background: ${isSuccess ? 'rgba(22, 163, 74, 0.95)' : 'rgba(220, 38, 38, 0.95)'};
+                color: white;
+                font-weight: 600;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                opacity: 0;
+                transform: translateY(20px);
+                transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+                pointer-events: auto;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            `;
+            
+            const icon = document.createElement('i');
+            icon.className = isSuccess ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+            icon.style.fontSize = '1.25rem';
+            
+            const text = document.createElement('span');
+            text.innerText = message;
+            
+            toast.appendChild(icon);
+            toast.appendChild(text);
+            document.getElementById('toast-container').appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateY(0)';
+            }, 50);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        };
+
+        // Camera Scanning Management
+        let html5QrcodeScanner = null;
+        let isProcessingScan = false;
+
+        const startScanning = async () => {
+            playSound('open');
+            const modal = document.getElementById('scanner-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('modal-active'), 50);
+            
+            try {
+                const devices = await Html5Qrcode.getCameras();
+                const cameraSelect = document.getElementById('camera-select');
+                cameraSelect.innerHTML = '';
+                
+                if (devices && devices.length > 0) {
+                    devices.forEach((device, index) => {
+                        const option = document.createElement('option');
+                        option.value = device.id;
+                        option.text = device.label || `Camera ${index + 1}`;
+                        if (device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('sau')) {
+                            option.selected = true;
+                        }
+                        cameraSelect.appendChild(option);
+                    });
+                    
+                    // Trigger scanning
+                    initCameraScanner(cameraSelect.value);
+                } else {
+                    showToast("Không tìm thấy camera nào khả dụng.", false);
+                }
+            } catch (err) {
+                console.error("Camera access failed:", err);
+                showToast("Không thể khởi động camera. Hãy cấp quyền camera cho ứng dụng.", false);
+            }
+        };
+
+        const initCameraScanner = (cameraId) => {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    launchScanner(cameraId);
+                }).catch(err => {
+                    console.error("Failed to stop scanner cleanly, forcing re-start:", err);
+                    launchScanner(cameraId);
+                });
+            } else {
+                launchScanner(cameraId);
+            }
+        };
+
+        const launchScanner = (cameraId) => {
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            html5QrcodeScanner.start(
+                cameraId,
+                {
+                    fps: 15,
+                    qrbox: (width, height) => {
+                        const size = Math.min(width, height) * 0.7;
+                        return { width: size, height: size };
+                    },
+                    aspectRatio: 1.0
+                },
+                onScanSuccess,
+                onScanError
+            ).catch(err => {
+                console.error("html5-qrcode startup error:", err);
+            });
+        };
+
+        const stopScanning = () => {
+            const modal = document.getElementById('scanner-modal');
+            modal.classList.remove('modal-active');
+            setTimeout(() => modal.style.display = 'none', 300);
+            
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    html5QrcodeScanner = null;
+                }).catch(err => {
+                    console.error("Error stopping scanner session:", err);
+                });
+            }
+            isProcessingScan = false;
+        };
+
+        const onScanSuccess = (decodedText, decodedResult) => {
+            if (isProcessingScan) return;
+            isProcessingScan = true;
+            
+            submitOrderCode(decodedText);
+        };
+
+        const onScanError = (err) => {
+            // Silently ignore framerate errors since html5-qrcode loops continuously
+        };
+
+        const showScannerCountdown = (errorMessage) => {
+            const countdownOverlay = document.getElementById('scanner-countdown');
+            const countdownNumber = document.getElementById('countdown-number');
+            const countdownMsg = document.getElementById('countdown-message');
+            
+            countdownMsg.innerText = errorMessage;
+            countdownOverlay.style.display = 'flex';
+            
+            let secondsLeft = 3;
+            countdownNumber.innerText = secondsLeft;
+            
+            const interval = setInterval(() => {
+                secondsLeft--;
+                countdownNumber.innerText = secondsLeft;
+                if (secondsLeft <= 0) {
+                    clearInterval(interval);
+                    countdownOverlay.style.display = 'none';
+                    isProcessingScan = false; // Release lock for next scan
+                }
+            }, 1000);
+        };
+
+        const submitOrderCode = (code) => {
+            $.ajax({
+                url: '/Shipper/ScanOrderCode',
+                type: 'POST',
+                data: {
+                    maDonHang: code
+                },
+                success: function(response) {
+                    if (response.success) {
+                        if (response.action === "addedToDelivery") {
+                            playSound('success');
+                            showToast(response.message, true);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500);
+                        } else if (response.action === "openUpdateModal") {
+                            playSound('success');
+                            showToast("Đơn hàng đang giao. Đang mở hộp thoại cập nhật...", true);
+                            stopScanning();
+                            setTimeout(() => {
+                                openQuickUpdateModal(response);
+                            }, 400);
+                        }
+                    } else {
+                        playSound('fail');
+                        showToast(response.message, false);
+                        showScannerCountdown(response.message);
+                    }
+                },
+                error: function() {
+                    playSound('fail');
+                    showToast("Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại.", false);
+                    showScannerCountdown("LỖI KẾT NỐI MÁY CHỦ");
+                }
+            });
+        };
+
+        // Quick Update Modal Handlers
+        const openQuickUpdateModal = (data) => {
+            playSound('open');
+            document.getElementById('modal-maHanhTrinh').value = data.maHanhTrinh;
+            document.getElementById('modal-display-maDonHang').innerText = data.maDonHang;
+            document.getElementById('modal-display-tenNguoiNhan').innerText = data.tenNguoiNhan;
+            document.getElementById('modal-display-soDienThoai').innerText = data.soDienThoai;
+            document.getElementById('modal-display-diaChi').innerText = data.diaChi;
+            
+            document.getElementById('modal-codAmount').value = data.phiGiaoHang;
+            document.getElementById('modal-viTriHienTai').value = data.diaChi;
+            document.getElementById('modal-hinhAnhThucTe').value = `/images/proof_${data.maDonHang}.jpg`;
+            document.getElementById('modal-note').value = '';
+            
+            const modal = document.getElementById('quick-update-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('modal-active'), 50);
+            
+            modalToggleStatus(true);
+        };
+
+        const closeQuickUpdateModal = () => {
+            const modal = document.getElementById('quick-update-modal');
+            modal.classList.remove('modal-active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                isProcessingScan = false;
+            }, 300);
+        };
+
+        function modalToggleStatus(success) {
+            const successLabel = document.getElementById('modal-label-success');
+            const failLabel = document.getElementById('modal-label-fail');
+            const codSection = document.getElementById('modal-cod-section');
+            
+            if (success) {
+                successLabel.classList.add('modal-active-success');
+                failLabel.classList.remove('modal-active-fail');
+                codSection.style.display = 'block';
+            } else {
+                failLabel.classList.add('modal-active-fail');
+                successLabel.classList.remove('modal-active-success');
+                codSection.style.display = 'none';
+            }
+        }
+
+        // Attach event listeners
+        document.getElementById('btn-start-scan').addEventListener('click', startScanning);
+        document.getElementById('btn-close-scanner').addEventListener('click', stopScanning);
+        document.getElementById('btn-close-update-modal').addEventListener('click', closeQuickUpdateModal);
+        
+        document.getElementById('camera-select').addEventListener('change', function(e) {
+            initCameraScanner(e.target.value);
+        });
+
+        document.getElementById('btn-submit-manual').addEventListener('click', function() {
+            const codeInput = document.getElementById('manual-code-input');
+            const code = codeInput.value.trim();
+            if (code) {
+                submitOrderCode(code);
+                codeInput.value = '';
+            } else {
+                showToast("Vui lòng nhập mã đơn hàng.", false);
+            }
+        });
+
+        // Toggle torch (if device and html5QrcodeScanner support it)
+        document.getElementById('btn-toggle-torch').addEventListener('click', function() {
+            if (html5QrcodeScanner) {
+                const state = html5QrcodeScanner.getTorchState();
+                html5QrcodeScanner.setTorch(!state).catch(err => {
+                    console.log("Torch control not supported on this device/browser:", err);
+                });
+            }
+        });
+    </script>
+}

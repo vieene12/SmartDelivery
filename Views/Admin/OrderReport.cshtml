@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Báo cáo Thống kê Đơn hàng";
     var byStatus = ViewBag.ByStatus as List<dynamic> ?? new List<dynamic>();
     var byMonth  = ViewBag.ByMonth  as List<dynamic> ?? new List<dynamic>();
@@ -7,15 +7,19 @@
     // Màu sắc theo trạng thái
     var statusColors = new Dictionary<string, string>
     {
-        {"Mới tạo",                  "#6366f1"},
-        {"Đã nhập kho",              "#f59e0b"},
-        {"Chờ shipper lấy hàng",     "#3b82f6"},
-        {"Đang giao hàng",           "#8b5cf6"},
-        {"Giao hàng thành công",     "#10b981"},
-        {"Giao hàng thất bại",       "#ef4444"},
-        {"Đã hoàn kho",              "#6b7280"},
+        {"Mới tạo",                  "#2563eb"}, // Vibrant Blue
+        {"Đã phân công",             "#a855f7"}, // Vibrant Purple
+        {"Đã nhập kho",              "#eab308"}, // Vibrant Amber/Yellow
+        {"Đang giao",                "#f97316"}, // Vibrant Orange
+        {"Đang giao hàng",           "#f97316"}, // Fallback
+        {"Đã hoàn thành",            "#10b981"}, // Vibrant Emerald Green
+        {"Giao hàng thành công",     "#10b981"}, // Fallback
+        {"Giao hàng thất bại",       "#ef4444"}, // Vibrant Red
+        {"Đã hoàn kho",              "#4b5563"}, // Dark Charcoal Grey
     };
     string GetColor(string s) => statusColors.TryGetValue(s, out var c) ? c : "#94a3b8";
+
+
 }
 
 <style>

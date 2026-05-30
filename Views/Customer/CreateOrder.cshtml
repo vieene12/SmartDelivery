@@ -12,18 +12,18 @@
         --vp-text-dark: var(--text-main, #0f172a);
         --vp-text-muted: var(--text-muted, #64748b);
         --vp-border: var(--border-color, rgba(226, 232, 240, 0.8));
-        --vp-shadow-card: var(--shadow-md);
-        --vp-shadow-input: var(--shadow-sm);
+        --vp-shadow-card: 0 10px 30px -10px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+        --vp-shadow-input: 0 1px 2px rgba(0, 0, 0, 0.02);
     }
 
     .order-container {
         max-width: 1450px;
         margin: 0 auto;
-        padding: 1rem 1.5rem;
-        padding-bottom: 150px; /* Space for sticky bar */
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        padding: 1.25rem 1.75rem;
+        padding-bottom: 140px; /* Space for sticky bar */
+        font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
         color: var(--vp-text-dark);
-        background-color: var(--bg-color, #F1F5F9);
+        background-color: var(--bg-color, #F8FAFC);
     }
 
     /* Back Header */
@@ -31,10 +31,12 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 1rem;
-        background: var(--card-bg, white);
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
+        margin-bottom: 1.25rem;
+        background: var(--card-bg, rgba(255, 255, 255, 0.85));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 0.85rem 1.5rem;
+        border-radius: 12px;
         box-shadow: var(--vp-shadow-card);
         border: 1px solid var(--vp-border);
     }
@@ -43,14 +45,14 @@
         background: transparent;
         border: none;
         color: var(--vp-text-dark);
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         cursor: pointer;
         display: flex;
         align-items: center;
         gap: 0.5rem;
         text-decoration: none;
-        font-weight: 700;
-        transition: transform 0.2s;
+        font-weight: 800;
+        transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .back-btn:hover {
@@ -61,28 +63,38 @@
     /* Form Layout Grid */
     .form-grid {
         display: grid;
-        grid-template-columns: 1.2fr 1fr;
-        gap: 1.25rem;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 1.5rem;
     }
 
     @@media (max-width: 1024px) {
         .form-grid {
             grid-template-columns: 1fr;
+            gap: 1.25rem;
         }
     }
 
-    /* Card Panels */
+    /* Card Panels - Upgraded to Premium Glassmorphism */
     .premium-card {
-        background: var(--card-bg, white);
-        border-radius: 8px;
+        background: var(--card-bg, rgba(255, 255, 255, 0.85));
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 12px;
         padding: 1.5rem;
         box-shadow: var(--vp-shadow-card);
         border: 1px solid var(--vp-border);
         margin-bottom: 1.25rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .premium-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px -15px rgba(37, 99, 235, 0.05), 0 1px 3px rgba(37, 99, 235, 0.02);
+        border-color: rgba(37, 99, 235, 0.2);
     }
 
     .card-title {
-        font-size: 0.95rem;
+        font-size: 0.925rem;
         font-weight: 800;
         margin-top: 0;
         margin-bottom: 1.25rem;
@@ -93,7 +105,7 @@
         border-bottom: 1.5px solid var(--border-color, #F1F5F9);
         padding-bottom: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.75px;
     }
 
     .card-title-left {
@@ -103,33 +115,79 @@
     }
 
     .card-title-left i {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         color: var(--vp-red);
     }
 
-    /* Custom Radio styling */
+    /* Premium Segmented Radio selectors style */
     .radio-group-custom {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
         margin-bottom: 1rem;
         align-items: center;
+        width: 100%;
     }
 
     .radio-label-custom {
+        flex: 1;
         display: flex;
         align-items: center;
-        gap: 0.35rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: var(--vp-text-dark);
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.825rem;
+        font-weight: 700;
+        color: #475569;
+        background: rgba(248, 250, 252, 0.6);
+        border: 1.5px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 0.65rem 0.85rem;
         cursor: pointer;
         user-select: none;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: center;
+    }
+
+    .radio-label-custom:hover {
+        background: #F1F5F9;
+        border-color: #CBD5E1;
+        color: #1E293B;
     }
 
     .radio-label-custom input[type="radio"] {
-        accent-color: var(--vp-red);
-        width: 16px;
-        height: 16px;
+        appearance: none;
+        -webkit-appearance: none;
+        background-color: #fff;
+        margin: 0;
+        font: inherit;
+        color: var(--vp-red);
+        width: 1.15em;
+        height: 1.15em;
+        border: 1.5px solid #CBD5E1;
+        border-radius: 50%;
+        transform: translateY(-0.05em);
+        display: grid;
+        place-content: center;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .radio-label-custom input[type="radio"]::before {
+        content: "";
+        width: 0.55em;
+        height: 0.55em;
+        border-radius: 50%;
+        transform: scale(0);
+        transition: 120ms transform ease-in-out;
+        background-color: currentColor;
+    }
+
+    .radio-label-custom input[type="radio"]:checked::before {
+        transform: scale(1);
+    }
+
+    .radio-label-custom:has(input[type="radio"]:checked) {
+        background: rgba(59, 130, 246, 0.07);
+        border-color: var(--vp-red);
+        color: var(--vp-red);
     }
 
     /* Standard Label and Inputs */
@@ -139,35 +197,36 @@
 
     .form-label-custom {
         display: block;
-        font-size: 0.825rem;
-        font-weight: 700;
+        font-size: 0.8rem;
+        font-weight: 750;
         color: var(--vp-text-dark);
-        margin-bottom: 0.4rem;
+        margin-bottom: 0.45rem;
+        letter-spacing: 0.2px;
     }
 
     .input-wrapper-custom {
         display: flex;
         align-items: center;
         background: var(--card-bg, white);
-        border: 1.5px solid var(--border-color, #CBD5E1);
-        border-radius: 6px;
+        border: 1.5px solid var(--border-color, #E2E8F0);
+        border-radius: 8px;
         padding: 0.15rem 0.75rem;
-        transition: all 0.2s;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: var(--vp-shadow-input);
     }
 
     .input-wrapper-custom:focus-within {
         border-color: var(--vp-red);
-        box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.05);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
     }
 
     .input-field-custom {
         flex: 1;
         border: none;
         background: transparent;
-        padding: 0.6rem 0;
-        font-size: 0.9rem;
-        font-weight: 550;
+        padding: 0.625rem 0;
+        font-size: 0.875rem;
+        font-weight: 600;
         color: var(--vp-text-dark);
         outline: none;
         width: 100%;
@@ -181,11 +240,17 @@
     /* Select wrappers */
     .select-custom-wrapper {
         background: var(--card-bg, white);
-        border: 1.5px solid var(--border-color, #CBD5E1);
-        border-radius: 6px;
+        border: 1.5px solid var(--border-color, #E2E8F0);
+        border-radius: 8px;
         padding: 0.15rem 0.75rem;
         box-shadow: var(--vp-shadow-input);
         position: relative;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .select-custom-wrapper:focus-within {
+        border-color: var(--vp-red);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
     }
 
     .select-custom-wrapper select {
@@ -193,11 +258,11 @@
         border: none;
         background: transparent;
         font-size: 0.875rem;
-        font-weight: 550;
+        font-weight: 600;
         color: var(--vp-text-dark);
         outline: none;
         cursor: pointer;
-        padding: 0.6rem 0;
+        padding: 0.625rem 0;
         -webkit-appearance: none;
         -moz-appearance: none;
         appearance: none;
@@ -229,37 +294,92 @@
         margin-bottom: 0.75rem;
     }
 
-    /* Multi-column grid for checkbox selections */
+    /* Premium Checkbox Chips style */
     .checkbox-grid-3col {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.75rem;
-        margin-bottom: 1.25rem;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
     }
 
     .checkbox-label-custom {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-        font-size: 0.825rem;
-        font-weight: 600;
-        color: var(--vp-text-dark);
+        justify-content: center;
+        gap: 0.45rem;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #475569;
+        background: rgba(248, 250, 252, 0.6);
+        border: 1.5px solid #E2E8F0;
+        border-radius: 8px;
+        padding: 0.55rem 0.25rem;
         cursor: pointer;
+        user-select: none;
+        transition: all 0.2s ease;
+        text-align: center;
+    }
+
+    .checkbox-label-custom:hover {
+        background: #F1F5F9;
+        border-color: #CBD5E1;
+        color: #1E293B;
     }
 
     .checkbox-label-custom input[type="checkbox"] {
-        accent-color: var(--vp-red);
-        width: 15px;
-        height: 15px;
+        appearance: none;
+        -webkit-appearance: none;
+        background-color: #fff;
+        margin: 0;
+        font: inherit;
+        color: var(--vp-red);
+        width: 1.15em;
+        height: 1.15em;
+        border: 1.5px solid #CBD5E1;
+        border-radius: 4px;
+        display: grid;
+        place-content: center;
+        transition: all 0.2s ease;
+    }
+
+    .checkbox-label-custom input[type="checkbox"]::before {
+        content: "\f00c";
+        font-family: "Font Awesome 6 Free";
+        font-weight: 900;
+        font-size: 0.65rem;
+        color: white;
+        transform: scale(0);
+        transition: 120ms transform ease-in-out;
+    }
+
+    .checkbox-label-custom input[type="checkbox"]:checked {
+        background-color: var(--vp-red);
+        border-color: var(--vp-red);
+    }
+
+    .checkbox-label-custom input[type="checkbox"]:checked::before {
+        transform: scale(1);
+    }
+
+    .checkbox-label-custom:has(input[type="checkbox"]:checked) {
+        background: rgba(59, 130, 246, 0.05);
+        border-color: var(--vp-red);
+        color: var(--vp-red);
     }
 
     /* Inline Goods Add Form */
     .goods-form-card {
-        background: var(--bg-secondary, #F8FAFC);
-        border: 1.5px dashed var(--border-color, #CBD5E1);
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
+        background: rgba(248, 250, 252, 0.6);
+        border: 1.5px dashed rgba(59, 130, 246, 0.25);
+        border-radius: 10px;
+        padding: 1.25rem;
+        margin-bottom: 1.25rem;
+        transition: all 0.3s ease;
+    }
+
+    .goods-form-card:hover {
+        border-color: rgba(59, 130, 246, 0.5);
+        background: rgba(248, 250, 252, 0.9);
     }
 
     .goods-inline-row {
@@ -274,12 +394,12 @@
         background: var(--card-bg, white);
         border: 1.5px solid var(--vp-red);
         color: var(--vp-red);
-        border-radius: 6px;
-        padding: 0.6rem;
-        font-weight: 700;
+        border-radius: 8px;
+        padding: 0.65rem;
+        font-weight: 800;
         font-size: 0.85rem;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -288,8 +408,9 @@
     }
 
     .btn-add-goods:hover {
-        background: rgba(37, 99, 235, 0.05);
-        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+        background: rgba(37, 99, 235, 0.06);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+        transform: translateY(-1px);
     }
 
     .added-product-row {
@@ -297,11 +418,16 @@
         align-items: center;
         justify-content: space-between;
         padding: 0.85rem;
-        border-radius: 6px;
-        background: var(--bg-secondary, #F8FAFC);
+        border-radius: 8px;
+        background: rgba(248, 250, 252, 0.7);
         border: 1px solid var(--vp-border);
         margin-bottom: 0.5rem;
         font-size: 0.85rem;
+        transition: border-color 0.2s ease;
+    }
+
+    .added-product-row:hover {
+        border-color: #3b82f6;
     }
 
     .prod-details h4 {
@@ -322,8 +448,8 @@
         gap: 0.5rem;
         background: var(--card-bg, white);
         border: 1px solid var(--vp-border);
-        border-radius: 4px;
-        padding: 0.15rem 0.35rem;
+        border-radius: 6px;
+        padding: 0.2rem 0.5rem;
     }
 
     .counter-btn {
@@ -349,24 +475,31 @@
         text-align: center;
     }
 
-    /* Fixed Sticky Bottom Bar matching exactly the screenshot style */
+    /* Fixed Sticky Floating Bottom Bar - Upgraded to Premium Float Style */
     .sticky-bottom-bar {
         position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--navbar-bg, rgba(255, 255, 255, 0.95));
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border-top: 1.5px solid var(--border-color, var(--vp-border));
-        padding: 0.75rem 2rem;
+        bottom: 1.25rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 3.5rem);
+        max-width: 1400px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1.5px solid var(--border-color, var(--vp-border));
+        border-radius: 16px;
+        padding: 0.9rem 2.25rem;
         z-index: 1000;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.12), 0 1px 3px rgba(15, 23, 42, 0.04);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sticky-bottom-bar:hover {
+        box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.18);
+        border-color: rgba(37, 99, 235, 0.25);
     }
 
     .sticky-content {
-        max-width: 1400px;
-        margin: 0 auto;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -388,25 +521,26 @@
         font-weight: 700;
         color: var(--vp-text-muted);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.75px;
     }
 
     .sticky-summary-val {
-        font-size: 1.25rem;
-        font-weight: 850;
+        font-size: 1.35rem;
+        font-weight: 900;
         color: var(--vp-red);
+        letter-spacing: -0.2px;
     }
 
     .sticky-actions-block {
         display: flex;
         align-items: center;
-        gap: 1.25rem;
+        gap: 1.5rem;
     }
 
     .checkbox-agreement {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.45rem;
         font-size: 0.825rem;
         font-weight: 600;
         cursor: pointer;
@@ -414,58 +548,67 @@
 
     .checkbox-agreement input {
         accent-color: var(--vp-red);
-        width: 15px;
-        height: 15px;
+        width: 16px;
+        height: 16px;
     }
 
     .btn-create-order {
         background: var(--vp-red);
         color: white;
         border: none;
-        padding: 0.75rem 2.25rem;
-        border-radius: 6px;
-        font-weight: 750;
-        font-size: 0.9rem;
+        padding: 0.8rem 2.5rem;
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 0.925rem;
         cursor: pointer;
-        box-shadow: 0 4px 10px rgba(227, 6, 19, 0.2);
-        transition: all 0.2s;
+        box-shadow: 0 8px 20px -6px rgba(37, 99, 235, 0.4);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
     }
 
     .btn-create-order:hover {
         background: var(--vp-red-hover);
-        transform: translateY(-1px);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px -6px rgba(37, 99, 235, 0.6);
+    }
+
+    .btn-create-order:active {
+        transform: translateY(0);
     }
 
     .btn-draft-custom {
         background: #64748B;
         color: white;
         border: none;
-        padding: 0.75rem 1.75rem;
-        border-radius: 6px;
-        font-weight: 750;
-        font-size: 0.9rem;
+        padding: 0.8rem 1.75rem;
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 0.925rem;
         cursor: pointer;
-        transition: background 0.2s;
+        transition: all 0.2s;
     }
 
     .btn-draft-custom:hover {
         background: #475569;
+        transform: translateY(-1px);
     }
 
     .btn-reset-custom {
         background: #E2E8F0;
         color: #334155;
         border: none;
-        padding: 0.75rem 1.50rem;
-        border-radius: 6px;
-        font-weight: 750;
-        font-size: 0.9rem;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 800;
+        font-size: 0.925rem;
         cursor: pointer;
         transition: all 0.2s;
     }
 
     .btn-reset-custom:hover {
         background: #CBD5E1;
+        transform: translateY(-1px);
     }
 
     /* Premium Catalog Modal Styling */
@@ -475,7 +618,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(15, 23, 42, 0.4);
+        background: rgba(15, 23, 42, 0.45);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
         z-index: 2000;
@@ -486,17 +629,19 @@
     }
 
     .modal-content-custom {
-        background: var(--card-bg, white);
-        border-radius: 10px;
+        background: var(--card-bg, rgba(255, 255, 255, 0.9));
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 16px;
         width: 100%;
-        max-width: 600px;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.08);
+        max-width: 620px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         border: 1px solid var(--vp-border);
         overflow: hidden;
         display: flex;
         flex-direction: column;
         max-height: 80vh;
-        animation: modalFadeIn 0.25s ease;
+        animation: modalFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     @@keyframes modalFadeIn {
@@ -595,7 +740,7 @@
     }
 
     .catalog-item-info p {
-        margin: 0 0 0.2rem 0;
+        margin: 0 0 0.25rem 0;
         font-size: 0.8rem;
         color: var(--vp-text-muted);
         font-weight: 550;
@@ -737,9 +882,6 @@
                         <div class="card-title-left">
                             <i class="fas fa-circle-chevron-right"></i> Người nhận
                         </div>
-                        <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 700; text-transform: none; cursor: pointer;">
-                            <input type="checkbox" style="accent-color: var(--vp-red);" /> Sử dụng địa danh mới
-                        </label>
                     </div>
 
                     <!-- Tùy chọn nơi nhận -->
@@ -786,10 +928,69 @@
                             <div class="select-custom-wrapper">
                                 <select id="addr-province" required onchange="onProvinceChange()">
                                     <option value="" disabled selected>Tỉnh/Thành phố *</option>
-                                    <option value="Hà Nội">Hà Nội</option>
-                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="An Giang">An Giang</option>
+                                    <option value="Bà Rịa - Vũng Tàu">Bà Rịa - Vũng Tàu</option>
+                                    <option value="Bạc Liêu">Bạc Liêu</option>
+                                    <option value="Bắc Giang">Bắc Giang</option>
+                                    <option value="Bắc Kạn">Bắc Kạn</option>
+                                    <option value="Bắc Ninh">Bắc Ninh</option>
+                                    <option value="Bến Tre">Bến Tre</option>
                                     <option value="Bình Dương">Bình Dương</option>
+                                    <option value="Bình Định">Bình Định</option>
+                                    <option value="Bình Phước">Bình Phước</option>
+                                    <option value="Bình Thuận">Bình Thuận</option>
+                                    <option value="Cà Mau">Cà Mau</option>
+                                    <option value="Cao Bằng">Cao Bằng</option>
+                                    <option value="Cần Thơ">Cần Thơ</option>
+                                    <option value="Đà Nẵng">Đà Nẵng</option>
+                                    <option value="Đắk Lắk">Đắk Lắk</option>
+                                    <option value="Đắk Nông">Đắk Nông</option>
+                                    <option value="Điện Biên">Điện Biên</option>
+                                    <option value="Đồng Nai">Đồng Nai</option>
+                                    <option value="Đồng Tháp">Đồng Tháp</option>
+                                    <option value="Gia Lai">Gia Lai</option>
+                                    <option value="Hà Giang">Hà Giang</option>
+                                    <option value="Hà Nam">Hà Nam</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="Hà Tĩnh">Hà Tĩnh</option>
+                                    <option value="Hải Dương">Hải Dương</option>
+                                    <option value="Hải Phòng">Hải Phòng</option>
+                                    <option value="Hậu Giang">Hậu Giang</option>
+                                    <option value="Hòa Bình">Hòa Bình</option>
+                                    <option value="Hưng Yên">Hưng Yên</option>
+                                    <option value="Khánh Hòa">Khánh Hòa</option>
+                                    <option value="Kiên Giang">Kiên Giang</option>
+                                    <option value="Kon Tum">Kon Tum</option>
+                                    <option value="Lai Châu">Lai Châu</option>
+                                    <option value="Lạng Sơn">Lạng Sơn</option>
+                                    <option value="Lào Cai">Lào Cai</option>
+                                    <option value="Lâm Đồng">Lâm Đồng</option>
+                                    <option value="Long An">Long An</option>
+                                    <option value="Nam Định">Nam Định</option>
+                                    <option value="Nghệ An">Nghệ An</option>
+                                    <option value="Ninh Bình">Ninh Bình</option>
+                                    <option value="Ninh Thuận">Ninh Thuận</option>
+                                    <option value="Phú Thọ">Phú Thọ</option>
+                                    <option value="Phú Yên">Phú Yên</option>
+                                    <option value="Quảng Bình">Quảng Bình</option>
+                                    <option value="Quảng Nam">Quảng Nam</option>
+                                    <option value="Quảng Ngãi">Quảng Ngãi</option>
+                                    <option value="Quảng Ninh">Quảng Ninh</option>
+                                    <option value="Quảng Trị">Quảng Trị</option>
+                                    <option value="Sóc Trăng">Sóc Trăng</option>
+                                    <option value="Sơn La">Sơn La</option>
+                                    <option value="Tây Ninh">Tây Ninh</option>
+                                    <option value="Thái Bình">Thái Bình</option>
+                                    <option value="Thái Nguyên">Thái Nguyên</option>
+                                    <option value="Thanh Hóa">Thanh Hóa</option>
+                                    <option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
+                                    <option value="Tiền Giang">Tiền Giang</option>
+                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                                    <option value="Trà Vinh">Trà Vinh</option>
+                                    <option value="Tuyên Quang">Tuyên Quang</option>
+                                    <option value="Vĩnh Long">Vĩnh Long</option>
+                                    <option value="Vĩnh Phước">Vĩnh Phúc</option>
+                                    <option value="Yên Bái">Yên Bái</option>
                                 </select>
                             </div>
                             <div class="select-custom-wrapper">
@@ -799,9 +1000,16 @@
                             </div>
                         </div>
 
+                        <!-- Custom District input if "Khác (Tự nhập)" selected -->
+                        <div id="custom-district-wrapper" style="display: none; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+                            <div class="input-wrapper-custom" style="border-color: #3b82f6;">
+                                <input type="text" id="addr-district-custom" class="input-field-custom" placeholder="Nhập tên Huyện/Quận thủ công *" oninput="updateCombinedAddress()" />
+                            </div>
+                        </div>
+
                         <div class="dropdown-grid">
                             <div class="select-custom-wrapper">
-                                <select id="addr-ward" required disabled onchange="updateCombinedAddress()">
+                                <select id="addr-ward" required disabled onchange="onWardChange()">
                                     <option value="" disabled selected>Xã/Phường *</option>
                                 </select>
                             </div>
@@ -811,6 +1019,13 @@
                                     <option value="Đường Trục Chính">Đường Trục Chính</option>
                                     <option value="Khu Dân Cư Mới">Khu Dân Cư Mới</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <!-- Custom Ward input if "Khác (Tự nhập)" selected -->
+                        <div id="custom-ward-wrapper" style="display: none; margin-top: 0.5rem; margin-bottom: 0.75rem;">
+                            <div class="input-wrapper-custom" style="border-color: #3b82f6;">
+                                <input type="text" id="addr-ward-custom" class="input-field-custom" placeholder="Nhập tên Xã/Phường thủ công *" oninput="updateCombinedAddress()" />
                             </div>
                         </div>
                     </div>
@@ -852,13 +1067,13 @@
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: GOODS INFORMATION -->
+            <!-- RIGHT COLUMN: GOODS INFORMATION & SETTINGS -->
             <div>
-                <!-- CARD 4: THÔNG TIN HÀNG HÓA -->
+                <!-- CARD 4: THÔNG TIN HÀNG HÓA & KÍCH THƯỚC -->
                 <div class="premium-card">
                     <div class="card-title">
                         <div class="card-title-left">
-                            <i class="fas fa-circle-chevron-right"></i> Thông tin hàng hóa
+                            <i class="fas fa-box-open"></i> Thông tin hàng hóa
                         </div>
                         <a href="javascript:void(0)" onclick="openCatalogModal()" style="font-size: 0.8rem; color: var(--vp-red); font-weight: 700; text-decoration: none; text-transform: none;">
                             Quản lý danh sách hàng hóa &rarr;
@@ -866,7 +1081,7 @@
                     </div>
 
                     <!-- Loại hàng hóa -->
-                    <div class="form-group-custom" style="margin-bottom: 1rem;">
+                    <div class="form-group-custom" style="margin-bottom: 1.25rem;">
                         <div class="form-label-custom">Loại hàng hóa*</div>
                         <div class="radio-group-custom">
                             <label class="radio-label-custom">
@@ -883,7 +1098,7 @@
                         <div class="form-group-custom" style="margin-bottom: 0.5rem;">
                             <div class="form-label-custom">Tên hàng 1*</div>
                             <div class="input-wrapper-custom">
-                                <input type="text" id="new-item-name" class="input-field-custom" placeholder="Nhập tên hàng hóa" />
+                                <input type="text" id="new-item-name" class="input-field-custom" placeholder="Nhập tên hàng hóa" oninput="calculateAllTotals()" />
                             </div>
                             <div style="font-size: 0.75rem; color: var(--vp-red); font-weight: 600; margin-top: 0.25rem; display:none;" id="err-goods-name">
                                 Tên hàng hóa không được để trống
@@ -893,14 +1108,14 @@
                         <!-- Qty, weight, price inputs in row -->
                         <div class="goods-inline-row">
                             <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
-                                <input type="number" id="new-item-qty" class="input-field-custom" value="1" min="1" style="text-align: center;" />
+                                <input type="number" id="new-item-qty" class="input-field-custom" value="1" min="1" style="text-align: center;" oninput="calculateAllTotals()" onchange="calculateAllTotals()" />
                             </div>
                             <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
-                                <input type="number" id="new-item-weight" class="input-field-custom" placeholder="Trọng lượng" min="1" style="text-align: right;" />
+                                <input type="number" id="new-item-weight" class="input-field-custom" placeholder="Trọng lượng" min="1" style="text-align: right;" oninput="calculateAllTotals()" />
                                 <span style="font-size: 0.8rem; font-weight: 700; color: var(--vp-text-muted); margin-left: 0.2rem;">g</span>
                             </div>
                             <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
-                                <input type="text" id="new-item-price" class="input-field-custom" placeholder="Giá trị hàng" style="text-align: right;" oninput="formatCurrencyInput(this)" />
+                                <input type="text" id="new-item-price" class="input-field-custom" placeholder="Giá trị hàng" style="text-align: right;" oninput="onManualPriceInput(this)" />
                                 <span style="font-size: 0.8rem; font-weight: 700; color: var(--vp-text-muted); margin-left: 0.2rem;">đ</span>
                             </div>
                         </div>
@@ -926,25 +1141,83 @@
                     <!-- Hidden inputs for POST form binding -->
                     <div id="post-products-data-container" style="display:none;"></div>
 
+                    <!-- Dimensions (DxRxC) -->
+                    <div style="margin-top: 1.25rem; border-top: 1.5px solid var(--border-color, #F1F5F9); padding-top: 1.25rem;">
+                        <div class="form-label-custom">Kích thước bưu gửi (DxRxC)</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0;">
+                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
+                                <input type="number" id="dim-l" placeholder="Dài (cm)" class="input-field-custom" style="text-align: center;" />
+                            </div>
+                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
+                                <input type="number" id="dim-w" placeholder="Rộng (cm)" class="input-field-custom" style="text-align: center;" />
+                            </div>
+                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
+                                <input type="number" id="dim-h" placeholder="Cao (cm)" class="input-field-custom" style="text-align: center;" />
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Totals calculated labels -->
-                    <div style="border-top: 1px dashed var(--vp-border); padding-top: 1rem; margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; font-weight: 700;">
+                    <div style="border-top: 1px dashed var(--vp-border); padding-top: 1rem; margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; font-weight: 700;">
                         <div style="display: flex; justify-content: space-between;">
                             <span style="color: var(--vp-text-muted);">Tổng khối lượng</span>
                             <span id="label-summary-weight" style="color: var(--vp-red);">0 g</span>
                         </div>
                         <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--vp-text-muted);">Tổng giá trị</span>
+                            <span style="color: var(--vp-text-muted);">Tổng giá trị hàng</span>
                             <span id="label-summary-price" style="color: var(--vp-red);">0 đ</span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- CARD 5: TÍNH CHẤT HÀNG HÓA ĐẶC BIỆT -->
-                    <div style="margin-top: 1.5rem; border-top: 1.5px solid #F1F5F9; padding-top: 1.25rem;">
-                        <div class="form-label-custom" style="display: flex; align-items: center; gap: 0.25rem;">
-                            <i class="fas fa-circle-info" style="color: var(--vp-red);"></i> Tính chất hàng hóa đặc biệt
+                <!-- CARD 5: CẤU HÌNH TÀI CHÍNH (COD & NGƯỜI TRẢ CƯỚC) -->
+                <div class="premium-card">
+                    <div class="card-title">
+                        <div class="card-title-left">
+                            <i class="fas fa-hand-holding-dollar"></i> Cấu hình thanh toán
                         </div>
-                        
-                        <!-- Checkboxes list -->
+                    </div>
+
+                    <!-- TIỀN THU HỘ (COD) -->
+                    <div class="form-group-custom" style="margin-bottom: 1.25rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.825rem; font-weight: 800; color: var(--vp-text-dark);">TIỀN THU HỘ (COD)</span>
+                            <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.825rem; font-weight: 700; cursor: pointer;">
+                                <input type="checkbox" id="cod-sync-checkbox" style="accent-color: var(--vp-red);" onchange="toggleCodSync(this.checked)" /> Thu hộ bằng giá trị hàng
+                            </label>
+                        </div>
+                        <div class="input-wrapper-custom" id="cod-input-container" style="background: white; border-color: #E2E8F0;">
+                            <input type="text" id="cod-amount-input" class="input-field-custom" value="0" style="text-align: right;" oninput="onCodAmountInput(this)" />
+                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--vp-text-muted); margin-left: 0.25rem;">đ</span>
+                        </div>
+                    </div>
+
+                    <!-- NGƯỜI TRẢ CƯỚC -->
+                    <div class="form-group-custom" style="margin-bottom: 0;">
+                        <div class="form-label-custom">Người trả cước vận chuyển*</div>
+                        <div class="radio-group-custom" style="margin-bottom: 0;">
+                            <label class="radio-label-custom">
+                                <input type="radio" name="payer-radio" value="COD" checked onchange="updatePaymentSide('COD')" /> Người gửi trả
+                            </label>
+                            <label class="radio-label-custom">
+                                <input type="radio" name="payer-radio" value="ReceiverPay" onchange="updatePaymentSide('ReceiverPay')" /> Người nhận trả
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 6: GHI CHÚ & TÍNH CHẤT ĐẶC BIỆT -->
+                <div class="premium-card">
+                    <div class="card-title">
+                        <div class="card-title-left">
+                            <i class="fas fa-circle-info"></i> Ghi chú & Tính chất
+                        </div>
+                    </div>
+
+                    <!-- TÍNH CHẤT HÀNG HÓA ĐẶC BIỆT -->
+                    <div class="form-group-custom" style="margin-bottom: 1.25rem;">
+                        <div class="form-label-custom">Tính chất hàng hóa đặc biệt</div>
+                        <!-- Checkboxes list styled as toggle chips -->
                         <div class="checkbox-grid-3col">
                             <label class="checkbox-label-custom">
                                 <input type="checkbox" /> Giá trị cao
@@ -962,84 +1235,28 @@
                                 <input type="checkbox" /> Chất lỏng
                             </label>
                             <label class="checkbox-label-custom">
-                                <input type="checkbox" /> Từ tính, Pin
-                            </label>
-                        </div>
-
-                        <!-- Dimensions row -->
-                        <div class="form-label-custom">Kích thước (DxRxC)</div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
-                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
-                                <input type="number" id="dim-l" placeholder="Dài (cm)" class="input-field-custom" style="text-align: center;" oninput="calculateVolumetricWeight()" />
-                            </div>
-                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
-                                <input type="number" id="dim-w" placeholder="Rộng (cm)" class="input-field-custom" style="text-align: center;" oninput="calculateVolumetricWeight()" />
-                            </div>
-                            <div class="input-wrapper-custom" style="padding: 0.1rem 0.5rem;">
-                                <input type="number" id="dim-h" placeholder="Cao (cm)" class="input-field-custom" style="text-align: center;" oninput="calculateVolumetricWeight()" />
-                            </div>
-                        </div>
-
-                        <!-- Volumetric Weight -->
-                        <div class="form-group-custom">
-                            <div class="form-label-custom">Quy đổi</div>
-                            <div class="input-wrapper-custom" style="background: #F1F5F9; border-color: #E2E8F0;">
-                                <input type="text" id="volumetric-weight" class="input-field-custom" placeholder="Khối lượng quy đổi từ kích thước hàng hóa" readonly style="font-weight: 700; color: var(--vp-text-muted);" />
-                                <span style="font-size: 0.8rem; font-weight: 700; color: var(--vp-text-muted); margin-left: 0.2rem;">g</span>
-                            </div>
-                        </div>
-
-                        <!-- Custom Order ID -->
-                        <div class="form-group-custom">
-                            <div class="form-label-custom">Mã đơn hàng</div>
-                            <div class="input-wrapper-custom">
-                                <input type="text" class="input-field-custom" placeholder="Nhập mã đơn hàng tự tạo" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CARD 6: TIỀN THU HỘ -->
-                    <div style="margin-top: 1.5rem; background: #FFF1F2; border: 1.2px solid rgba(227, 6, 19, 0.15); border-radius: 8px; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 0.825rem; font-weight: 800; color: var(--vp-text-dark);">TIỀN THU HỘ (COD)</span>
-                            <label style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.825rem; font-weight: 700; cursor: pointer;">
-                                <input type="checkbox" id="cod-sync-checkbox" style="accent-color: var(--vp-red);" onchange="toggleCodSync(this.checked)" /> Thu hộ bằng giá trị hàng
-                            </label>
-                        </div>
-                        <div class="input-wrapper-custom" id="cod-input-container" style="background: white; border-color: rgba(227, 6, 19, 0.15);">
-                            <input type="text" id="cod-amount-input" class="input-field-custom" value="0" style="text-align: right;" oninput="onCodAmountInput(this)" />
-                            <span style="font-size: 0.85rem; font-weight: 700; color: var(--vp-text-muted); margin-left: 0.25rem;">đ</span>
-                        </div>
-                    </div>
-
-                    <!-- CARD 7: NGƯỜI TRẢ CƯỚC -->
-                    <div style="margin-top: 1.25rem; background: white; border: 1px solid var(--vp-border); border-radius: 8px; padding: 1rem;">
-                        <div class="form-label-custom">Người trả cước</div>
-                        <div class="radio-group-custom" style="margin-bottom: 0;">
-                            <label class="radio-label-custom">
-                                <input type="radio" name="payer-radio" value="COD" checked onchange="updatePaymentSide('COD')" /> Người gửi
-                            </label>
-                            <label class="radio-label-custom">
-                                <input type="radio" name="payer-radio" value="ReceiverPay" onchange="updatePaymentSide('ReceiverPay')" /> Người nhận
+                                <input type="checkbox" /> Pin, Từ tính
                             </label>
                         </div>
                     </div>
 
-                    <!-- CARD 8: GHI CHÚ -->
-                    <div style="margin-top: 1.25rem;">
+                    <!-- GHI CHÚ -->
+                    <div class="form-group-custom" style="margin-bottom: 1rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                            <span class="form-label-custom" style="margin-bottom: 0;">Ghi chú</span>
+                            <span class="form-label-custom" style="margin-bottom: 0;">Ghi chú giao hàng</span>
                             <a href="javascript:void(0)" onclick="alert('Đã sẵn sàng các mẫu ghi chú')" style="font-size: 0.8rem; color: var(--vp-red); font-weight: 700; text-decoration: none;">
-                                Ghi chú mẫu
+                                Ghi chú mẫu &rarr;
                             </a>
                         </div>
                         <div class="input-wrapper-custom" style="padding: 0.5rem 0.75rem;">
-                            <textarea id="order-notes" class="input-field-custom" rows="3" placeholder="Nhập ghi chú" style="resize: none; font-family: inherit; font-size: 0.875rem;"></textarea>
+                            <textarea id="order-notes" class="input-field-custom" rows="3" placeholder="Nhập hướng dẫn giao hàng, số điện thoại phụ,..." style="resize: none; font-family: inherit; font-size: 0.875rem;"></textarea>
                         </div>
-                        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.825rem; font-weight: 600; margin-top: 0.75rem; cursor: pointer;">
-                            <input type="checkbox" style="accent-color: var(--vp-red);" /> Lưu thông tin đơn hàng
-                        </label>
                     </div>
+
+                    <!-- TÙY CHỌN LƯU -->
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.825rem; font-weight: 600; margin-top: 0.75rem; cursor: pointer; color: var(--vp-text-muted);">
+                        <input type="checkbox" style="accent-color: var(--vp-red);" /> Lưu thông tin đơn hàng vào danh mục mẫu
+                    </label>
                 </div>
             </div>
         </div>
@@ -1200,16 +1417,13 @@
         document.getElementById("new-item-name").value = item.name;
         document.getElementById("new-item-weight").value = item.weightG;
         document.getElementById("new-item-qty").value = "1";
-        document.getElementById("new-item-price").value = ""; // Let them type price
-
         // Pre-fill dimensions if available
         if (item.dimensions) {
             const parts = item.dimensions.toLowerCase().replace(/[^0-9x]/g, "").split("x");
             if (parts.length === 3) {
-                document.getElementById("dim-l").value = parts[0];
-                document.getElementById("dim-w").value = parts[1];
-                document.getElementById("dim-h").value = parts[2];
-                calculateVolumetricWeight();
+                if (document.getElementById("dim-l")) document.getElementById("dim-l").value = parts[0];
+                if (document.getElementById("dim-w")) document.getElementById("dim-w").value = parts[1];
+                if (document.getElementById("dim-h")) document.getElementById("dim-h").value = parts[2];
             }
         }
 
@@ -1258,25 +1472,362 @@
     let manualItems = [];
     let manualItemCounter = 0;
 
-    // Standard Address Data mapping
+    // Standard Address Data mapping with all 63 provinces in Vietnam
     const addressData = {
-        "Hà Nội": {
-            "Cầu Giấy": ["Dịch Vọng", "Dịch Vọng Hậu", "Yên Hòa", "Mai Dịch", "Quan Hoa"],
-            "Ba Đình": ["Trúc Bạch", "Vĩnh Phúc", "Cống Vị", "Kim Mã", "Giảng Võ"],
-            "Đống Đa": ["Láng Thượng", "Láng Hạ", "Cát Linh", "Quốc Tử Giám", "Khương Thượng"]
+        "An Giang": {
+            "Thành phố Long Xuyên": ["Phường Mỹ Bình", "Phường Mỹ Long", "Phường Mỹ Phước", "Phường Mỹ Thạnh", "Khác (Tự nhập)"],
+            "Thành phố Châu Đốc": ["Phường Châu Phú A", "Phường Châu Phú B", "Phường Vĩnh Mỹ", "Khác (Tự nhập)"],
+            "Huyện Thoại Sơn": ["Thị trấn Núi Sập", "Xã Thoại Giang", "Xã Định Mỹ", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
         },
-        "TP. Hồ Chí Minh": {
-            "Quận 1": ["Bến Nghé", "Bến Thành", "Đa Kao", "Tân Định", "Phạm Ngũ Lão"],
-            "Quận 3": ["Võ Thị Sáu", "Phường 1", "Phường 2", "Phường 5", "Phường 9"],
-            "Quận 10": ["Phường 1", "Phường 2", "Phường 12", "Phường 14", "Phường 15"]
+        "Bà Rịa - Vũng Tàu": {
+            "Thành phố Vũng Tàu": ["Phường 1", "Phường 2", "Phường Thắng Tam", "Phường Nguyễn An Ninh", "Khác (Tự nhập)"],
+            "Thành phố Bà Rịa": ["Phường Phước Trung", "Phường Phước Hiệp", "Phường Long Hương", "Khác (Tự nhập)"],
+            "Huyện Long Điền": ["Thị trấn Long Điền", "Thị trấn Long Hải", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
         },
-        "Đà Nẵng": {
-            "Hải Châu": ["Thạch Thang", "Thanh Bình", "Thuận Phước", "Hòa Cường Bắc", "Hòa Cường Nam"],
-            "Thanh Khê": ["Vĩnh Trung", "Tân Chính", "Thạc Gián", "Chính Gián", "Hòa Khê"]
+        "Bạc Liêu": {
+            "Thành phố Bạc Liêu": ["Phường 1", "Phường 3", "Phường 5", "Phường Nhà Mát", "Khác (Tự nhập)"],
+            "Huyện Hòa Bình": ["Thị trấn Hòa Bình", "Xã Vĩnh Mỹ B", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Bắc Giang": {
+            "Thành phố Bắc Giang": ["Phường Trần Nguyên Hãn", "Phường Lê Lợi", "Phường Hoàng Văn Thụ", "Khác (Tự nhập)"],
+            "Huyện Việt Yên": ["Thị trấn Bích Động", "Thị trấn Nếnh", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Bắc Kạn": {
+            "Thành phố Bắc Kạn": ["Phường Nguyễn Thị Minh Khai", "Phường Phùng Chí Kiên", "Khác (Tự nhập)"],
+            "Huyện Chợ Đồn": ["Thị trấn Bằng Lũng", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Bắc Ninh": {
+            "Thành phố Bắc Ninh": ["Phường Ninh Xá", "Phường Tiền An", "Phường Vệ An", "Phường Võ Cường", "Khác (Tự nhập)"],
+            "Thành phố Từ Sơn": ["Phường Đông Ngàn", "Phường Đồng Kỵ", "Phường Trang Hạ", "Khác (Tự nhập)"],
+            "Huyện Yên Phong": ["Thị trấn Chờ", "Xã Long Châu", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Bến Tre": {
+            "Thành phố Bến Tre": ["Phường 1", "Phường 3", "Phường Phú Khương", "Phường Phú Tân", "Khác (Tự nhập)"],
+            "Huyện Châu Thành": ["Thị trấn Châu Thành", "Xã Tam Phước", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
         },
         "Bình Dương": {
-            "Thủ Dầu Một": ["Phú Cường", "Hiệp Thành", "Chánh Nghĩa", "Phú Hòa", "Phú Lợi"],
-            "Thuận An": ["Lái Thiêu", "An Thạnh", "Vĩnh Phú", "Bình Hòa", "Thuận Giao"]
+            "Thủ Dầu Một": ["Phú Cường", "Hiệp Thành", "Chánh Nghĩa", "Phú Hòa", "Phú Lợi", "Khác (Tự nhập)"],
+            "Thuận An": ["Lái Thiêu", "An Thạnh", "Vĩnh Phú", "Bình Hòa", "Thuận Giao", "Khác (Tự nhập)"],
+            "Dĩ An": ["Dĩ An", "An Bình", "Bình An", "Bình Thắng", "Đông Hòa", "Tân Đông Hiệp", "Khác (Tự nhập)"],
+            "Tân Uyên": ["Uyên Hưng", "Hội Nghĩa", "Khánh Bình", "Khác (Tự nhập)"],
+            "Bến Cát": ["Mỹ Phước", "Thới Hòa", "Chánh Phú Hòa", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Bình Định": {
+            "Thành phố Quy Nhơn": ["Phường Nguyễn Văn Cừ", "Phường Ngô Mây", "Phường Ghềnh Ráng", "Khác (Tự nhập)"],
+            "Thị xã An Nhơn": ["Phường Bình Định", "Phường Đập Đá", "Khác (Tự nhập)"],
+            "Huyện Tuy Phước": ["Thị trấn Tuy Phước", "Thị trấn Diêu Trì", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Bình Phước": {
+            "Thành phố Đồng Xoài": ["Phường Tân Bình", "Phường Tân Xuân", "Phường Tân Phú", "Khác (Tự nhập)"],
+            "Thị xã Bình Long": ["Phường An Lộc", "Phường Hưng Chiến", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Bình Thuận": {
+            "Thành phố Phan Thiết": ["Phường Mũi Né", "Phường Hàm Tiến", "Phường Phú Thủy", "Khác (Tự nhập)"],
+            "Thị xã La Gi": ["Phường Phước Hội", "Phường Phước Lộc", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Cà Mau": {
+            "Thành phố Cà Mau": ["Phường 1", "Phường 5", "Phường 8", "Phường Tân Xuyên", "Khác (Tự nhập)"],
+            "Huyện Trần Văn Thời": ["Thị trấn Trần Văn Thời", "Thị trấn Sông Đốc", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Cao Bằng": {
+            "Thành phố Cao Bằng": ["Phường Hợp Giang", "Phường Sông Hiến", "Phường Đề Thám", "Khác (Tự nhập)"],
+            "Huyện Quảng Hòa": ["Thị trấn Quảng Uyên", "Thị trấn Hòa Thuận", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Cần Thơ": {
+            "Quận Ninh Kiều": ["Phường An Khánh", "Phường An Bình", "Phường Xuân Khánh", "Phường Tân An", "Khác (Tự nhập)"],
+            "Quận Cái Răng": ["Phường Lê Bình", "Phường Hưng Thạnh", "Khác (Tự nhập)"],
+            "Quận Bình Thủy": ["Phường Bình Thủy", "Phường An Thới", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Đà Nẵng": {
+            "Hải Châu": ["Thạch Thang", "Thanh Bình", "Thuận Phước", "Hòa Cường Bắc", "Hòa Cường Nam", "Khác (Tự nhập)"],
+            "Thanh Khê": ["Vĩnh Trung", "Tân Chính", "Thạc Gián", "Chính Gián", "Hòa Khê", "Khác (Tự nhập)"],
+            "Liên Chiểu": ["Hòa Khánh Bắc", "Hòa Khánh Nam", "Hòa Minh", "Khác (Tự nhập)"],
+            "Sơn Trà": ["An Hải Bắc", "An Hải Tây", "Mân Thái", "Thọ Quang", "Khác (Tự nhập)"],
+            "Ngũ Hành Sơn": ["Mỹ An", "Khuê Mỹ", "Hòa Hải", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Đắk Lắk": {
+            "Thành phố Buôn Ma Thuột": ["Phường Thắng Lợi", "Phường Tân Lợi", "Phường Tân An", "Khác (Tự nhập)"],
+            "Thị xã Buôn Hồ": ["Phường An Lạc", "Phường Đạt Hiếu", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Đắk Nông": {
+            "Thành phố Gia Nghĩa": ["Phường Nghĩa Đức", "Phường Nghĩa Trung", "Phường Nghĩa Tân", "Khác (Tự nhập)"],
+            "Huyện Đắk Mil": ["Thị trấn Đắk Mil", "Xã Thuận An", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Điện Biên": {
+            "Thành phố Điện Biên Phủ": ["Phường Mường Thanh", "Phường Tân Thanh", "Phường Thanh Trường", "Khác (Tự nhập)"],
+            "Thị xã Mường Lay": ["Phường Na Lay", "Phường Sông Đà", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Đồng Nai": {
+            "Thành phố Biên Hòa": ["Phường Quyết Thắng", "Phường Thanh Bình", "Phường Trảng Dài", "Phường Tân Phong", "Khác (Tự nhập)"],
+            "Thành phố Long Khánh": ["Phường Xuân An", "Phường Xuân Bình", "Phường Phú Bình", "Khác (Tự nhập)"],
+            "Huyện Nhơn Trạch": ["Xã Hiệp Phước", "Xã Phước Thiền", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Đồng Tháp": {
+            "Thành phố Cao Lãnh": ["Phường 1", "Phường 2", "Phường Mỹ Phú", "Phường Hòa Thuận", "Khác (Tự nhập)"],
+            "Thành phố Sa Đéc": ["Phường 1", "Phường 2", "Phường An Hòa", "Khác (Tự nhập)"],
+            "Thành phố Hồng Ngự": ["Phường An Thạnh", "Phường An Lạc", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Gia Lai": {
+            "Thành phố Pleiku": ["Phường Diên Hồng", "Phường Tây Sơn", "Phường Yên Đỗ", "Khác (Tự nhập)"],
+            "Thị xã An Khê": ["Phường Tây Sơn", "Phường An Bình", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Hà Giang": {
+            "Thành phố Hà Giang": ["Phường Trần Phú", "Phường Minh Khai", "Phường Nguyễn Trãi", "Khác (Tự nhập)"],
+            "Huyện Đồng Văn": ["Thị trấn Đồng Văn", "Xã Lũng Cú", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Hà Nam": {
+            "Thành phố Phủ Lý": ["Phường Lương Khánh Thiện", "Phường Minh Khai", "Phường Liêm Chính", "Khác (Tự nhập)"],
+            "Thị xã Duy Tiên": ["Phường Hòa Mạc", "Phường Đồng Văn", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Hà Nội": {
+            "Cầu Giấy": ["Dịch Vọng", "Dịch Vọng Hậu", "Yên Hòa", "Mai Dịch", "Quan Hoa", "Khác (Tự nhập)"],
+            "Ba Đình": ["Trúc Bạch", "Vĩnh Phúc", "Cống Vị", "Kim Mã", "Giảng Võ", "Khác (Tự nhập)"],
+            "Đống Đa": ["Láng Thượng", "Láng Hạ", "Cát Linh", "Quốc Tử Giám", "Khương Thượng", "Khác (Tự nhập)"],
+            "Hoàn Kiếm": ["Hàng Đào", "Hàng Bạc", "Tràng Tiền", "Đồng Xuân", "Cửa Đông", "Khác (Tự nhập)"],
+            "Hai Bà Trưng": ["Bách Khoa", "Đồng Tâm", "Bạch Mai", "Trương Định", "Minh Khai", "Khác (Tự nhập)"],
+            "Tây Hồ": ["Quảng An", "Xuân La", "Bưởi", "Thụy Khuê", "Phú Thượng", "Khác (Tự nhập)"],
+            "Thanh Xuân": ["Khương Mai", "Khương Trung", "Nhân Chính", "Thanh Xuân Bắc", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Hà Tĩnh": {
+            "Thành phố Hà Tĩnh": ["Phường Trần Phú", "Phường Nam Hà", "Phường Bắc Hà", "Khác (Tự nhập)"],
+            "Thị xã Kỳ Anh": ["Phường Sông Trí", "Phường Kỳ Thịnh", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Hải Dương": {
+            "Thành phố Hải Dương": ["Phường Trần Hưng Đạo", "Phường Quang Trung", "Phường Ngọc Châu", "Khác (Tự nhập)"],
+            "Chí Linh": ["Phường Sao Đỏ", "Phường Cộng Hòa", "Khác (Tự nhập)"],
+            "Kinh Môn": ["Phường An Lưu", "Phường Hiệp An", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Hải Phòng": {
+            "Quận Hồng Bàng": ["Phường Hoàng Văn Thụ", "Phường Minh Khai", "Phường Thượng Lý", "Khác (Tự nhập)"],
+            "Quận Lê Chân": ["Phường An Biên", "Phường Cát Dài", "Phường Kênh Dương", "Khác (Tự nhập)"],
+            "Quận Ngô Quyền": ["Phường Máy Tơ", "Phường Lạch Tray", "Phường Gia Viên", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Hậu Giang": {
+            "Thành phố Vị Thanh": ["Phường 1", "Phường 3", "Phường 5", "Khác (Tự nhập)"],
+            "Thành phố Ngã Bảy": ["Phường Ngã Bảy", "Phường Lái Hiếu", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Hòa Bình": {
+            "Thành phố Hòa Bình": ["Phường Phương Lâm", "Phường Đồng Tiến", "Phường Hữu Nghị", "Khác (Tự nhập)"],
+            "Huyện Lương Sơn": ["Thị trấn Lương Sơn", "Xã Hòa Sơn", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Hưng Yên": {
+            "Thành phố Hưng Yên": ["Phường Hiến Nam", "Phường Lê Lợi", "Phường Lam Sơn", "Khác (Tự nhập)"],
+            "Thị xã Mỹ Hào": ["Phường Bần Yên Nhân", "Phường Nhân Hòa", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Khánh Hòa": {
+            "Thành phố Nha Trang": ["Phường Lộc Thọ", "Phường Tân Lập", "Phường Vĩnh Nguyên", "Phường Vĩnh Hải", "Khác (Tự nhập)"],
+            "Thành phố Cam Ranh": ["Phường Ba Ngòi", "Phường Cam Lộc", "Phường Cam Thuận", "Khác (Tự nhập)"],
+            "Thị xã Ninh Hòa": ["Phường Ninh Hiệp", "Phường Ninh Giang", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Kiên Giang": {
+            "Thành phố Rạch Giá": ["Phường Vĩnh Thanh Vân", "Phường Vĩnh Lạc", "Phường An Hòa", "Khác (Tự nhập)"],
+            "Thành phố Hà Tiên": ["Phường Đông Hồ", "Phường Pháo Đài", "Khác (Tự nhập)"],
+            "Thành phố Phú Quốc": ["Phường Dương Đông", "Phường An Thới", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Kon Tum": {
+            "Thành phố Kon Tum": ["Phường Quyết Thắng", "Phường Quang Trung", "Phường Thống Nhất", "Khác (Tự nhập)"],
+            "Huyện Đắk Hà": ["Thị trấn Đắk Hà", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Lai Châu": {
+            "Thành phố Lai Châu": ["Phường Quyết Tiến", "Phường Tân Phong", "Khác (Tự nhập)"],
+            "Huyện Than Uyên": ["Thị trấn Than Uyên", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Lạng Sơn": {
+            "Thành phố Lạng Sơn": ["Phường Hoàng Văn Thụ", "Phường Tam Thanh", "Phường Chi Lăng", "Khác (Tự nhập)"],
+            "Huyện Cao Lộc": ["Thị trấn Cao Lộc", "Thị trấn Đồng Đăng", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Lào Cai": {
+            "Thành phố Lào Cai": ["Phường Cốc Lếu", "Phường Kim Tân", "Phường Bắc Cường", "Khác (Tự nhập)"],
+            "Thị xã Sa Pa": ["Phường Sa Pa", "Phường Hàm Rồng", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Lâm Đồng": {
+            "Thành phố Đà Lạt": ["Phường 1", "Phường 2", "Phường 9", "Phường 10", "Khác (Tự nhập)"],
+            "Thành phố Bảo Lộc": ["Phường 1", "Phường 2", "Phường B'Lao", "Khác (Tự nhập)"],
+            "Huyện Đức Trọng": ["Thị trấn Liên Nghĩa", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Long An": {
+            "Thành phố Tân An": ["Phường 1", "Phường 3", "Phường 4", "Phường Khánh Hậu", "Khác (Tự nhập)"],
+            "Thị xã Kiến Tường": ["Phường 1", "Phường 2", "Khác (Tự nhập)"],
+            "Huyện Đức Hòa": ["Thị trấn Hậu Nghĩa", "Thị trấn Đức Hòa", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Nam Định": {
+            "Thành phố Nam Định": ["Phường Vị Hoàng", "Phường Bà Triệu", "Phường Trần Hưng Đạo", "Khác (Tự nhập)"],
+            "Huyện Hải Hậu": ["Thị trấn Yên Định", "Thị trấn Cồn", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Nghệ An": {
+            "Thành phố Vinh": ["Phường Quang Trung", "Phường Hưng Dũng", "Phường Trường Thi", "Phường Bến Thủy", "Khác (Tự nhập)"],
+            "Thị xã Cửa Lò": ["Phường Thu Thủy", "Phường Nghi Hương", "Khác (Tự nhập)"],
+            "Thị xã Thái Hòa": ["Phường Hòa Hiếu", "Phường Quang Phong", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Ninh Bình": {
+            "Thành phố Ninh Bình": ["Phường Vân Giang", "Phường Thanh Bình", "Phường Đông Thành", "Khác (Tự nhập)"],
+            "Thành phố Tam Điệp": ["Phường Trung Sơn", "Phường Bắc Sơn", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Ninh Thuận": {
+            "Thành phố Phan Rang - Tháp Chàm": ["Phường Mỹ Hương", "Phường Tấn Tài", "Phường Đô Vinh", "Khác (Tự nhập)"],
+            "Huyện Ninh Sơn": ["Thị trấn Tân Sơn", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Phú Thọ": {
+            "Thành phố Việt Trì": ["Phường Gia Cẩm", "Phường Tiên Cát", "Phường Thọ Sơn", "Khác (Tự nhập)"],
+            "Thị xã Phú Thọ": ["Phường Phong Châu", "Phường Âu Cơ", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Phú Yên": {
+            "Thành phố Tuy Hòa": ["Phường 1", "Phường 3", "Phường 5", "Phường Phú Lâm", "Khác (Tự nhập)"],
+            "Thị xã Sông Cầu": ["Phường Xuân Yên", "Phường Xuân Phú", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Quảng Bình": {
+            "Thành phố Đồng Hới": ["Phường Đồng Mỹ", "Phường Hải Đình", "Phường Bắc Lý", "Khác (Tự nhập)"],
+            "Thị xã Ba Đồn": ["Phường Ba Đồn", "Phường Quảng Thọ", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Quảng Nam": {
+            "Thành phố Tam Kỳ": ["Phường An Mỹ", "Phường Tân Thạnh", "Phường Phước Hòa", "Khác (Tự nhập)"],
+            "Thành phố Hội An": ["Phường Minh An", "Phường Sơn Phong", "Phường Cẩm Phô", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Quảng Ngãi": {
+            "Thành phố Quảng Ngãi": ["Phường Chánh Lộ", "Phường Nghĩa Chánh", "Phường Trần Hưng Đạo", "Khác (Tự nhập)"],
+            "Thị xã Đức Phổ": ["Phường Nguyễn Nghiêm", "Phường Phổ Thạnh", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Quảng Ninh": {
+            "Thành phố Hạ Long": ["Phường Hồng Gai", "Phường Bãi Cháy", "Phường Hồng Hà", "Phường Cao Xanh", "Khác (Tự nhập)"],
+            "Thành phố Cẩm Phả": ["Phường Cẩm Tây", "Phường Cẩm Trung", "Phường Cẩm Thủy", "Khác (Tự nhập)"],
+            "Thành phố Móng Cái": ["Phường Hòa Lạc", "Phường Trần Phú", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Quảng Trị": {
+            "Thành phố Đông Hà": ["Phường 1", "Phường 5", "Phường Đông Giang", "Khác (Tự nhập)"],
+            "Thị xã Quảng Trị": ["Phường 1", "Phường An Đôn", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Sóc Trăng": {
+            "Thành phố Sóc Trăng": ["Phường 1", "Phường 3", "Phường 6", "Phường 10", "Khác (Tự nhập)"],
+            "Thị xã Vĩnh Châu": ["Phường 1", "Phường 2", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Sơn La": {
+            "Thành phố Sơn La": ["Phường Tô Hiệu", "Phường Quyết Thắng", "Phường Chiềng Lề", "Khác (Tự nhập)"],
+            "Huyện Mộc Châu": ["Thị trấn Mộc Châu", "Thị trấn Nông trường Mộc Châu", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Tây Ninh": {
+            "Thành phố Tây Ninh": ["Phường 1", "Phường 3", "Phường Hiệp Ninh", "Phường Ninh Sơn", "Khác (Tự nhập)"],
+            "Thị xã Trảng Bàng": ["Phường Trảng Bàng", "Phường An Tịnh", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Thái Bình": {
+            "Thành phố Thái Bình": ["Phường Lê Hồng Phong", "Phường Đề Thám", "Phường Kỳ Bá", "Khác (Tự nhập)"],
+            "Huyện Tiền Hải": ["Thị trấn Tiền Hải", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Thái Nguyên": {
+            "Thành phố Thái Nguyên": ["Phường Phan Đình Phùng", "Phường Quang Trung", "Phường Trưng Vương", "Khác (Tự nhập)"],
+            "Thành phố Sông Công": ["Phường Cải Đan", "Phường Mỏ Chè", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Thanh Hóa": {
+            "Thành phố Thanh Hóa": ["Phường Điện Biên", "Phường Lam Sơn", "Phường Ba Đình", "Phường Đông Thọ", "Khác (Tự nhập)"],
+            "Thành phố Sầm Sơn": ["Phường Trường Sơn", "Phường Bắc Sơn", "Khác (Tự nhập)"],
+            "Thị xã Bỉm Sơn": ["Phường Ngọc Trạo", "Phường Ba Đình", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Thừa Thiên Huế": {
+            "Thành phố Huế": ["Phường Phú Hội", "Phường Vĩnh Ninh", "Phường Thuận Hòa", "Phường Vỹ Dạ", "Khác (Tự nhập)"],
+            "Thị xã Hương Thủy": ["Phường Phú Bài", "Phường Thủy Lương", "Khác (Tự nhập)"],
+            "Thị xã Hương Trà": ["Phường Tứ Hạ", "Phường Hương Văn", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Tiền Giang": {
+            "Thành phố Mỹ Tho": ["Phường 1", "Phường 5", "Phường 7", "Phường Tân Long", "Khác (Tự nhập)"],
+            "Thị xã Gò Công": ["Phường 1", "Phường 2", "Khác (Tự nhập)"],
+            "Thị xã Cai Lậy": ["Phường 1", "Phường 4", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "TP. Hồ Chí Minh": {
+            "Quận 1": ["Bến Nghé", "Bến Thành", "Đa Kao", "Tân Định", "Phạm Ngũ Lão", "Khác (Tự nhập)"],
+            "Quận 3": ["Võ Thị Sáu", "Phường 1", "Phường 2", "Phường 5", "Phường 9", "Khác (Tự nhập)"],
+            "Quận 10": ["Phường 1", "Phường 2", "Phường 12", "Phường 14", "Phường 15", "Khác (Tự nhập)"],
+            "Quận 5": ["Phường 1", "Phường 5", "Phường 8", "Phường 11", "Khác (Tự nhập)"],
+            "Quận 7": ["Tân Phong", "Tân Quy", "Phú Mỹ", "Tân Thuận Đông", "Khác (Tự nhập)"],
+            "Thủ Đức": ["Thảo Điền", "An Phú", "Bình Thọ", "Linh Trung", "Hiệp Bình Chánh", "Khác (Tự nhập)"],
+            "Bình Thạnh": ["Phường 15", "Phường 19", "Phường 21", "Phường 25", "Khác (Tự nhập)"],
+            "Gò Vấp": ["Phường 1", "Phường 5", "Phường 7", "Phường 10", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Trà Vinh": {
+            "Thành phố Trà Vinh": ["Phường 1", "Phường 5", "Phường 8", "Khác (Tự nhập)"],
+            "Thị xã Duyên Hải": ["Phường 1", "Phường 2", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Tuyên Quang": {
+            "Thành phố Tuyên Quang": ["Phường Tân Quang", "Phường Minh Xuân", "Phường Phan Thiết", "Khác (Tự nhập)"],
+            "Huyện Sơn Dương": ["Thị trấn Sơn Dương", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Vĩnh Long": {
+            "Thành phố Vĩnh Long": ["Phường 1", "Phường 4", "Phường 9", "Khác (Tự nhập)"],
+            "Thị xã Bình Minh": ["Phường Cái Vồn", "Phường Đông Thuận", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Vĩnh Long": {
+            "Thành phố Vĩnh Long": ["Phường 1", "Phường 4", "Phường 9", "Khác (Tự nhập)"],
+            "Thị xã Bình Minh": ["Phường Cái Vồn", "Phường Đông Thuận", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Vĩnh Phúc": {
+            "Thành phố Vĩnh Yên": ["Phường Ngô Quyền", "Phường Liên Bảo", "Phường Tích Sơn", "Khác (Tự nhập)"],
+            "Thành phố Phúc Yên": ["Phường Trưng Trắc", "Phường Hùng Vương", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
+        },
+        "Yên Bái": {
+            "Thành phố Yên Bái": ["Phường Hồng Hà", "Phường Đồng Tâm", "Phường Minh Tân", "Khác (Tự nhập)"],
+            "Thị xã Nghĩa Lộ": ["Phường Trung Tâm", "Phường Tân An", "Khác (Tự nhập)"],
+            "Khác (Tự nhập)": ["Khác (Tự nhập)"]
         }
     };
 
@@ -1287,6 +1838,12 @@
         const province = document.getElementById("addr-province").value;
         const districtSelect = document.getElementById("addr-district");
         const wardSelect = document.getElementById("addr-ward");
+
+        // Reset manual custom input wrappers and values
+        document.getElementById("custom-district-wrapper").style.display = "none";
+        document.getElementById("addr-district-custom").value = "";
+        document.getElementById("custom-ward-wrapper").style.display = "none";
+        document.getElementById("addr-ward-custom").value = "";
 
         districtSelect.innerHTML = '<option value="" disabled selected>Huyện/Quận *</option>';
         wardSelect.innerHTML = '<option value="" disabled selected>Xã/Phường *</option>';
@@ -1311,18 +1868,46 @@
         const district = document.getElementById("addr-district").value;
         const wardSelect = document.getElementById("addr-ward");
 
-        wardSelect.innerHTML = '<option value="" disabled selected>Xã/Phường *</option>';
+        // Reset ward custom input wrapper and value
+        document.getElementById("custom-ward-wrapper").style.display = "none";
+        document.getElementById("addr-ward-custom").value = "";
 
-        if (addressData[province] && addressData[province][district]) {
+        if (district === "Khác (Tự nhập)") {
+            document.getElementById("custom-district-wrapper").style.display = "block";
+            document.getElementById("addr-district-custom").focus();
+            
+            wardSelect.innerHTML = '<option value="Khác (Tự nhập)" selected>Khác (Tự nhập)</option>';
             wardSelect.disabled = false;
-            addressData[province][district].forEach(ward => {
-                const opt = document.createElement("option");
-                opt.value = ward;
-                opt.innerText = ward;
-                wardSelect.appendChild(opt);
-            });
+            onWardChange();
         } else {
-            wardSelect.disabled = true;
+            document.getElementById("custom-district-wrapper").style.display = "none";
+            document.getElementById("addr-district-custom").value = "";
+            
+            wardSelect.innerHTML = '<option value="" disabled selected>Xã/Phường *</option>';
+
+            if (addressData[province] && addressData[province][district]) {
+                wardSelect.disabled = false;
+                addressData[province][district].forEach(ward => {
+                    const opt = document.createElement("option");
+                    opt.value = ward;
+                    opt.innerText = ward;
+                    wardSelect.appendChild(opt);
+                });
+            } else {
+                wardSelect.disabled = true;
+            }
+        }
+        updateCombinedAddress();
+    }
+
+    function onWardChange() {
+        const ward = document.getElementById("addr-ward").value;
+        if (ward === "Khác (Tự nhập)") {
+            document.getElementById("custom-ward-wrapper").style.display = "block";
+            document.getElementById("addr-ward-custom").focus();
+        } else {
+            document.getElementById("custom-ward-wrapper").style.display = "none";
+            document.getElementById("addr-ward-custom").value = "";
         }
         updateCombinedAddress();
     }
@@ -1330,16 +1915,30 @@
     function updateCombinedAddress() {
         const house = document.getElementById("addr-house").value.trim();
         const street = document.getElementById("addr-street").value;
-        const ward = document.getElementById("addr-ward").value;
-        const district = document.getElementById("addr-district").value;
-        const province = document.getElementById("addr-province").value;
+
+        let province = document.getElementById("addr-province").value;
+        if (province === "Tỉnh/Thành phố *") province = "";
+
+        let district = document.getElementById("addr-district").value;
+        if (district === "Huyện/Quận *" || district === "") {
+            district = "";
+        } else if (district === "Khác (Tự nhập)") {
+            district = document.getElementById("addr-district-custom").value.trim();
+        }
+
+        let ward = document.getElementById("addr-ward").value;
+        if (ward === "Xã/Phường *" || ward === "") {
+            ward = "";
+        } else if (ward === "Khác (Tự nhập)") {
+            ward = document.getElementById("addr-ward-custom").value.trim();
+        }
 
         let parts = [];
         if (house) parts.push(house);
         if (street && street !== "") parts.push(street);
-        if (ward && ward !== "Xã/Phường *") parts.push(ward);
-        if (district && district !== "Huyện/Quận *") parts.push(district);
-        if (province && province !== "Tỉnh/Thành phố *") parts.push(province);
+        if (ward) parts.push(ward);
+        if (district) parts.push(district);
+        if (province) parts.push(province);
 
         if (currentAddressType === 'smart-box') {
             parts.unshift("[Tủ Smart Box]");
@@ -1500,20 +2099,9 @@
         });
     }
 
-    // Volumetric Weight Calculation from Dimensions (D x R x C)
+    // Volumetric Weight Calculation from Dimensions (D x R x C) - Removed
     function calculateVolumetricWeight() {
-        const dimL = parseFloat(document.getElementById("dim-l").value) || 0;
-        const dimW = parseFloat(document.getElementById("dim-w").value) || 0;
-        const dimH = parseFloat(document.getElementById("dim-h").value) || 0;
-
-        // Logistics volumetric divisor: standard is L * W * H / 5000 in grams
-        if (dimL > 0 && dimW > 0 && dimH > 0) {
-            const volWeightG = Math.round((dimL * dimW * dimH) / 5 * 1000) / 1000; 
-            document.getElementById("volumetric-weight").value = volWeightG.toLocaleString('vi-VN');
-        } else {
-            document.getElementById("volumetric-weight").value = "";
-        }
-        calculateAllTotals();
+        // No longer used
     }
 
     // Manual inputs overrides
@@ -1523,10 +2111,6 @@
 
     function onManualPriceInput(input) {
         formatCurrencyInput(input);
-        if (document.getElementById("cod-sync-checkbox").checked) {
-            document.getElementById("cod-amount-input").value = input.value;
-            document.getElementById("sticky-val-cod").innerText = input.value + " đ";
-        }
         calculateAllTotals();
     }
 
@@ -1536,34 +2120,51 @@
     }
 
     function toggleCodSync(isChecked) {
-        const codInput = document.getElementById("cod-amount-input");
-        if (isChecked) {
-            let totalValue = 0;
-            manualItems.forEach(item => {
-                totalValue += item.price * item.qty;
-            });
-            const formatted = totalValue > 0 ? totalValue.toLocaleString('vi-VN') : "0";
-            codInput.value = formatted;
-            document.getElementById("sticky-val-cod").innerText = formatted + " đ";
+        calculateAllTotals();
+    }
+
+    // Helper to calculate provisional weight and value (both added and active form inputs)
+    function getProvisionalTotals() {
+        let totalWeightKg = 0;
+        let totalValue = 0;
+
+        // Sum added manual items
+        manualItems.forEach(item => {
+            totalWeightKg += (item.weightG / 1000) * item.qty;
+            totalValue += item.price * item.qty;
+        });
+
+        // Get current active inputs from inline form
+        const currentWeightText = document.getElementById("new-item-weight").value || "0";
+        const currentWeightG = parseFloat(currentWeightText) || 0;
+        const currentPriceText = document.getElementById("new-item-price").value.replace(/[^0-9]/g, "") || "0";
+        const currentPrice = parseInt(currentPriceText) || 0;
+        const currentQty = parseInt(document.getElementById("new-item-qty").value) || 1;
+
+        if (manualItems.length === 0) {
+            // If the list is empty, treat the current form input values as provisional totals
+            if (currentWeightG > 0 || currentPrice > 0) {
+                totalWeightKg = (currentWeightG / 1000) * currentQty;
+                totalValue = currentPrice * currentQty;
+            }
+        } else {
+            // If the list has items, add the current in-progress input only if it's partially completed
+            if (currentWeightG > 0 || currentPrice > 0) {
+                totalWeightKg += (currentWeightG / 1000) * currentQty;
+                totalValue += currentPrice * currentQty;
+            }
         }
+
+        return { totalWeightKg, totalValue };
     }
 
     // Centralised calculator for all weights, costs and sums
     function calculateAllTotals() {
-        let totalWeightKg = 0;
-        let totalValue = 0;
+        const provisional = getProvisionalTotals();
+        let totalWeightKg = provisional.totalWeightKg;
+        let totalValue = provisional.totalValue;
 
-        if (manualItems.length > 0) {
-            manualItems.forEach(item => {
-                totalWeightKg += (item.weightG / 1000) * item.qty;
-                totalValue += item.price * item.qty;
-            });
-        }
-
-        // Add volumetric weight if exists
-        const volWeightText = document.getElementById("volumetric-weight").value.replace(/[^0-9]/g, "") || "0";
-        const volWeightG = parseFloat(volWeightText) || 0;
-        totalWeightKg += volWeightG / 1000;
+        // Volumetric weight calculation removed
 
         // Set hidden forms fields for ASP.NET MVC binding
         document.getElementById("total-weight-hidden").value = totalWeightKg.toFixed(3);

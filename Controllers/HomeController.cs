@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +37,7 @@ namespace SDMS.Controllers
                 }
                 else if (User.IsInRole("Customer"))
                 {
-                    return RedirectToAction("Orders", "Customer");
+                    return RedirectToAction("Index", "Customer");
                 }
             }
             return View();

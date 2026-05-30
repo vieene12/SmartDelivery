@@ -40,9 +40,12 @@
                         }
                         <span class="badge @badgeClass">@item.TrangThaiDonHang</span>
                     </td>
-                    <td>
-                        <a asp-action="Track" asp-route-id="@item.MaDonHang" class="glass" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); color: var(--accent-primary); cursor: pointer; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;">
+                    <td style="display: flex; gap: 0.5rem; justify-content: flex-start; align-items: center;">
+                        <a asp-action="Track" asp-route-id="@item.MaDonHang" class="glass" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); color: var(--accent-primary); cursor: pointer; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;" title="Xem hành trình">
                             <i class="fas fa-search-location"></i>
+                        </a>
+                        <a asp-action="Track" asp-route-id="@item.MaDonHang" asp-route-print="true" class="glass" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); color: #10b981; cursor: pointer; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;" title="In phiếu giao hàng">
+                            <i class="fas fa-print"></i>
                         </a>
                     </td>
                 </tr>

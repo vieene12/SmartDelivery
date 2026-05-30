@@ -3,37 +3,6 @@
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', function () {
-    // --- 1. DARK MODE THEME CONTROLLER ---
-    const themeToggleBtn = document.getElementById('theme-toggle');
-    
-    // Sync UI with current theme on page load (applied in _Layout.cshtml head to avoid flicker)
-    function syncThemeUI() {
-        const isDark = document.body.classList.contains('dark-mode');
-        if (themeToggleBtn) {
-            const icon = themeToggleBtn.querySelector('i');
-            if (icon) {
-                if (isDark) {
-                    icon.className = 'fas fa-sun';
-                } else {
-                    icon.className = 'fas fa-moon';
-                }
-            }
-        }
-    }
-    
-    // Initial sync
-    syncThemeUI();
-
-    // Theme toggle click handler
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', function () {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            syncThemeUI();
-        });
-    }
-
     // --- 2. DYNAMIC HOMEPAGE ESTIMATOR (COUNT-UP) ---
     const homeWeightSlider = document.getElementById('home-weight-slider');
     const homeWeightVal = document.getElementById('home-weight-val');

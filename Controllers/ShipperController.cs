@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SDMS.Data;
@@ -107,6 +107,119 @@ public class ShipperController : Controller
         await _context.SaveChangesAsync();
         TempData["SuccessMessage"] = "Tiếp nhận đơn hàng thành công!";
         return RedirectToAction(nameof(MyDeliveries));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ScanOrderCode(string maDonHang)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var shipper = await _context.NhanViens.FirstOrDefaultAsync(n => n.UserId == userId);
+        
+        if (shipper == null) 
+            return Json(new { success = false, message = "Không tìm thấy hồ sơ Shipper của bạn." });
+
+        if (string.IsNullOrWhiteSpace(maDonHang))
+            return Json(new { success = false, message = "Mã đơn hàng không hợp lệ." });
+
+        // 1. Tìm đơn hàng
+        var order = await _context.DonHangs
+            .Include(d => d.KhachHang)
+            .FirstOrDefaultAsync(d => d.MaDonHang == maDonHang);
+
+        if (order == null)
+            return Json(new { success = false, message = $"Không tìm thấy đơn hàng mã '{maDonHang}' trong hệ thống." });
+
+        // 2. Kiểm tra xem đơn hàng đã được phân công cho shipper này hay chưa và trạng thái
+        var assignment = await _context.HanhTrinhDonHangs
+            .FirstOrDefaultAsync(p => p.MaDonHang == maDonHang && p.MaNhanVien == shipper.MaNhanVien);
+
+        if (assignment != null)
+        {
+            if (assignment.TrangThai == "Đang giao")
+            {
+                // Đã nhận và đang giao, yêu cầu client mở Modal cập nhật trạng thái trực tiếp
+                return Json(new { 
+                    success = true, 
+                    action = "openUpdateModal", 
+                    maHanhTrinh = assignment.MaHanhTrinh,
+                    maDonHang = maDonHang,
+                    tenNguoiNhan = order.TenNguoiNhan,
+                    soDienThoai = order.SoDienThoaiNguoiNhan,
+                    diaChi = order.DiaChiNguoiNhan,
+                    phiGiaoHang = order.PhiGiaoHang
+                });
+            }
+            else if (assignment.TrangThai == "Giao hàng thành công" || assignment.TrangThai == "Giao hàng thất bại")
+            {
+                return Json(new { success = false, message = $"Đơn hàng '{maDonHang}' đã hoàn thành hành trình với trạng thái: {assignment.TrangThai}." });
+            }
+        }
+
+        // 3. Tìm tuyến đang phân công của Shipper
+        var activeRoute = await _context.PhanCongTuyens
+            .Include(p => p.TuyenGiao)
+            .FirstOrDefaultAsync(p => p.MaNhanVien == shipper.MaNhanVien 
+                                 && p.NgayBatDau <= DateTime.Now 
+                                 && (p.NgayKetThuc == null || p.NgayKetThuc >= DateTime.Now));
+
+        if (activeRoute == null)
+        {
+            return Json(new { success = false, message = "Bạn chưa được phân công tuyến giao hàng nào cho ca làm việc hiện tại." });
+        }
+
+        // 4. Tìm vị trí lưu kho của Đơn hàng trong bảng NhapKho
+        var storageRecord = await _context.NhapKhos
+            .Where(q => q.MaDonHang == maDonHang && q.TrangThaiKho == "Đã nhập kho")
+            .OrderByDescending(q => q.ThoiGianNhap)
+            .FirstOrDefaultAsync();
+
+        if (storageRecord == null || string.IsNullOrEmpty(storageRecord.ViTriLuuTru))
+        {
+            return Json(new { success = false, message = "Không tìm thấy thông tin vị trí lưu trữ (kệ hàng) của đơn hàng này." });
+        }
+
+        // 5. Đối chiếu kệ hàng và địa chỉ với Tuyến giao của Shipper
+        string viTriKhu = storageRecord.ViTriLuuTru?.ToLower() ?? "";
+        string tenTuyen = activeRoute.TuyenGiao.TenTuyen.ToLower();
+        string diaChiGiao = order.DiaChiNguoiNhan?.ToLower() ?? "";
+
+        if (!viTriKhu.Contains(tenTuyen) && !diaChiGiao.Contains(tenTuyen))
+        {
+            return Json(new { 
+                success = false, 
+                message = $"Đơn hàng '{maDonHang}' đang ở kệ '{storageRecord.ViTriLuuTru}' và giao đến '{order.DiaChiNguoiNhan}', không thuộc Tuyến '{activeRoute.TuyenGiao.TenTuyen}' của bạn!" 
+            });
+        }
+
+        // 6. Cập nhật hoặc tạo phân công giao hàng sang Đang giao
+        if (assignment == null)
+        {
+            assignment = new HanhTrinhDonHang
+            {
+                MaHanhTrinh = "HT" + DateTime.Now.Ticks.ToString().Substring(10),
+                MaDonHang = maDonHang,
+                MaNhanVien = shipper.MaNhanVien,
+                ThoiGianTiepNhan = DateTime.Now,
+                TrangThai = "Đang giao",
+                ViTriHienTai = storageRecord.ViTriLuuTru
+            };
+            _context.HanhTrinhDonHangs.Add(assignment);
+        }
+        else
+        {
+            assignment.TrangThai = "Đang giao";
+            assignment.ViTriHienTai = storageRecord.ViTriLuuTru;
+            assignment.ThoiGianTiepNhan = DateTime.Now;
+        }
+
+        order.TrangThaiDonHang = "Đang giao hàng";
+        await _context.SaveChangesAsync();
+
+        return Json(new { 
+            success = true, 
+            action = "addedToDelivery",
+            message = $"Tiếp nhận đơn hàng '{maDonHang}' tại kệ '{storageRecord.ViTriLuuTru}' thành công!" 
+        });
     }
 
     public async Task<IActionResult> UpdateStatus(string id)

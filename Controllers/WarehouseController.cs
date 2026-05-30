@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SDMS.Data;
@@ -59,6 +59,43 @@ public class WarehouseController : Controller
 
         ViewBag.Warehouses = await _context.KhoHangs.ToListAsync();
         return View(order);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetOrderDetails(string id)
+    {
+        if (string.IsNullOrEmpty(id))
+        {
+            return Json(new { success = false, message = "Mã đơn hàng không hợp lệ." });
+        }
+
+        var order = await _context.DonHangs
+            .Include(d => d.KhachHang)
+            .Include(d => d.ChiTietDonHangs)
+            .ThenInclude(c => c.HangHoa)
+            .FirstOrDefaultAsync(d => d.MaDonHang == id.Trim());
+
+        if (order == null)
+        {
+            return Json(new { success = false, message = "Không tìm thấy đơn hàng trong hệ thống." });
+        }
+
+        return Json(new
+        {
+            success = true,
+            maDonHang = order.MaDonHang,
+            nguoiGui = order.KhachHang?.HoTen ?? "N/A",
+            nguoiNhan = order.TenNguoiNhan,
+            diaChiNhan = order.DiaChiNguoiNhan,
+            tongKhoiLuong = order.TongKhoiLuong,
+            trangThai = order.TrangThaiDonHang,
+            items = order.ChiTietDonHangs.Select(c => new
+            {
+                tenHangHoa = c.HangHoa?.TenHangHoa ?? "N/A",
+                soLuong = c.SoLuong,
+                khoiLuong = c.HangHoa?.KhoiLuong ?? 0
+            }).ToList()
+        });
     }
 
     [HttpPost]

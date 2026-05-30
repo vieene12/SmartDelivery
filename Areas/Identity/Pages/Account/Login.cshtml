@@ -20,10 +20,10 @@
         <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom: 1.25rem; color: #ef4444; font-size: 0.85rem; font-weight: 600;"></div>
         
         <div class="form-group" style="margin-bottom: 1.5rem;">
-            <label asp-for="Input.Identifier" style="display: block; font-weight: 750; font-size: 0.825rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.04em;">Tài khoản (SĐT / Mã nhân viên)</label>
+            <label asp-for="Input.Identifier" style="display: block; font-weight: 750; font-size: 0.825rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; letter-spacing: 0.04em;">Tài khoản</label>
             <div style="position: relative; display: flex; align-items: center; background: var(--card-bg, white); border: 1.5px solid var(--border-color, #CBD5E1); border-radius: 8px; padding: 0.15rem 0.75rem; box-shadow: var(--shadow-sm); transition: all 0.2s;" class="login-input-wrapper">
                 <i class="fas fa-user" style="color: var(--text-light); margin-right: 0.5rem; font-size: 0.95rem;"></i>
-                <input asp-for="Input.Identifier" autocomplete="username" aria-required="true" style="flex: 1; border: none; background: transparent; padding: 0.7rem 0; font-size: 0.95rem; font-weight: 600; color: var(--text-main); outline: none; width: 100%;" placeholder="Nhập SĐT hoặc Mã NV" />
+                <input asp-for="Input.Identifier" autocomplete="username" aria-required="true" style="flex: 1; border: none; background: transparent; padding: 0.7rem 0; font-size: 0.95rem; font-weight: 600; color: var(--text-main); outline: none; width: 100%;" placeholder="Nhập tài khoản" />
             </div>
             <span asp-validation-for="Input.Identifier" class="text-danger" style="color: #ef4444; font-size: 0.825rem; margin-top: 0.35rem; display: block; font-weight: 600;"></span>
         </div>

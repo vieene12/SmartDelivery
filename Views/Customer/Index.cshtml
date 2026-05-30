@@ -1,0 +1,441 @@
+@model IEnumerable<SDMS.Models.DonHang>
+@{
+    ViewData["Title"] = "Thống kê & Báo cáo Vận đơn";
+}
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 1.5rem 0 3rem 0;">
+    <!-- Dashboard Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0; color: var(--text-main); display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fas fa-chart-line" style="color: var(--primary);"></i> Thống kê & Báo cáo
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.35rem;">Phân tích hiệu suất giao nhận và đối soát tài chính trực quan.</p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a asp-action="CreateOrder" class="btn-premium" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-plus"></i> Tạo vận đơn mới
+            </a>
+        </div>
+    </div>
+
+    <!-- Interactive Filters Section -->
+    <div class="glass" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-size: 1rem; font-weight: 750; margin-top: 0; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-filter" style="color: var(--primary);"></i> Bộ lọc báo cáo bưu gửi
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; align-items: flex-end;">
+            <!-- Quick select month -->
+            <div class="form-group-custom">
+                <label style="display: block; font-size: 0.8rem; font-weight: 750; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem;">Chọn nhanh mốc thời gian</label>
+                <div class="select-custom-wrapper" style="width: 100%;">
+                    <select id="quick-date-filter" onchange="applyQuickDateFilter(this.value)">
+                        <option value="all" selected>Tất cả thời gian</option>
+                        <option value="this-month">Tháng này (05/2026)</option>
+                        <option value="last-month">Tháng trước (04/2026)</option>
+                        <option value="custom">Tùy chọn khoảng thời gian...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- From Date -->
+            <div class="form-group-custom">
+                <label style="display: block; font-size: 0.8rem; font-weight: 750; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem;">Từ ngày</label>
+                <input type="date" id="filter-from-date" class="glass" style="width: 100%; padding: 0.6rem 1rem; border: 1px solid var(--border-color); color: var(--text-main); font-family: inherit; font-size: 0.9rem;" onchange="onCustomDateChange()" />
+            </div>
+
+            <!-- To Date -->
+            <div class="form-group-custom">
+                <label style="display: block; font-size: 0.8rem; font-weight: 750; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.4rem;">Đến ngày</label>
+                <input type="date" id="filter-to-date" class="glass" style="width: 100%; padding: 0.6rem 1rem; border: 1px solid var(--border-color); color: var(--text-main); font-family: inherit; font-size: 0.9rem;" onchange="onCustomDateChange()" />
+            </div>
+
+            <!-- Actions buttons -->
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="button" class="btn-premium" style="flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;" onclick="filterAndCalculate()">
+                    <i class="fas fa-arrows-rotate"></i> Cập nhật
+                </button>
+                <button type="button" class="btn-premium" style="background-color: #10b981 !important; background: linear-gradient(135deg, #10b981, #059669) !important; color: white !important; flex: 1.2; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 700;" onclick="triggerReportPrint()">
+                    <i class="fas fa-file-pdf"></i> In báo cáo PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Dashboard Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+        <!-- Card 1: Total Orders -->
+        <div class="glass" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid var(--primary); position: relative;">
+            <div>
+                <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 750; letter-spacing: 0.5px;">Tổng số đơn gửi</span>
+                <h3 id="stat-total-orders" style="font-size: 2.25rem; font-weight: 850; margin: 0.5rem 0 0 0; color: var(--text-main);">0</h3>
+            </div>
+            <i class="fas fa-box" style="position: absolute; right: 1.25rem; top: 1.25rem; font-size: 2rem; color: var(--primary); opacity: 0.08;"></i>
+        </div>
+
+        <!-- Card 2: Success Rate -->
+        <div class="glass" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid #16a34a; position: relative;">
+            <div>
+                <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 750; letter-spacing: 0.5px;">Tỷ lệ thành công</span>
+                <h3 id="stat-success-rate" style="font-size: 2.25rem; font-weight: 850; margin: 0.5rem 0 0 0; color: #16a34a;">0%</h3>
+            </div>
+            <i class="fas fa-circle-check" style="position: absolute; right: 1.25rem; top: 1.25rem; font-size: 2rem; color: #16a34a; opacity: 0.08;"></i>
+        </div>
+
+        <!-- Card 3: Total Spent -->
+        <div class="glass" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid #ff6b35; position: relative;">
+            <div>
+                <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 750; letter-spacing: 0.5px;">Cước vận chuyển</span>
+                <h3 id="stat-total-spent" style="font-size: 2rem; font-weight: 850; margin: 0.75rem 0 0 0; color: var(--text-main); white-space: nowrap;">0 đ</h3>
+            </div>
+            <i class="fas fa-coins" style="position: absolute; right: 1.25rem; top: 1.25rem; font-size: 2rem; color: #ff6b35; opacity: 0.08;"></i>
+        </div>
+
+        <!-- Card 4: Total COD -->
+        <div class="glass" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; border-left: 4px solid #06b6d4; position: relative;">
+            <div>
+                <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 750; letter-spacing: 0.5px;">Doanh thu thu hộ (COD)</span>
+                <h3 id="stat-total-cod" style="font-size: 2rem; font-weight: 850; margin: 0.75rem 0 0 0; color: var(--text-main); white-space: nowrap;">0 đ</h3>
+            </div>
+            <i class="fas fa-truck-ramp-box" style="position: absolute; right: 1.25rem; top: 1.25rem; font-size: 2rem; color: #06b6d4; opacity: 0.08;"></i>
+        </div>
+    </div>
+
+    <!-- Active Orders Detailed table matching the filter -->
+    <div class="glass" style="padding: 2rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 800; margin-top: 0; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-list-ul" style="color: var(--primary);"></i> Chi tiết danh sách bưu gửi trong kỳ báo cáo
+        </h3>
+
+        <div style="overflow-x: auto;">
+            <table class="premium-table" id="dashboard-orders-table">
+                <thead>
+                    <tr>
+                        <th>Mã vận đơn</th>
+                        <th>Người nhận</th>
+                        <th>Thời gian tạo</th>
+                        <th>Cước phí</th>
+                        <th>Tiền thu hộ (COD)</th>
+                        <th>Trạng thái bưu gửi</th>
+                        <th style="text-align: right;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                    <!-- JS will dynamically filter and render rows here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================================== -->
+<!-- 📄 PRINTABLE A4 REPORT OUTLINE (HIDDEN ON SCREEN, VISIBLE ON PRINT) -->
+<!-- ========================================================================== -->
+<div id="pdf-report-printable-area">
+    <div style="font-family: 'Times New Roman', Times, serif; color: black; background: white; padding: 2rem; line-height: 1.5; text-align: left; font-size: 0.9rem;">
+        
+        <!-- Standard Header -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem;">
+            <tr>
+                <td style="width: 50%; font-size: 0.85rem; font-weight: bold; text-align: left; vertical-align: top;">
+                    CÔNG TY LOGISTICS SMARTDELIVERY<br />
+                    BỘ PHẬN ĐỐI SOÁT TÀI CHÍNH VẬN ĐƠN
+                </td>
+                <td style="width: 50%; font-size: 0.85rem; font-weight: bold; text-align: right; vertical-align: top;">
+                    CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br />
+                    Độc lập - Tự do - Hạnh phúc<br />
+                    <span style="font-weight: normal; font-style: italic; font-size: 0.8rem;">Ngày lập báo cáo: @DateTime.Now.ToString("dd/MM/yyyy")</span>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Main Report Title -->
+        <div style="text-align: center; margin: 2rem 0; font-weight: bold; text-transform: uppercase;">
+            <span style="font-size: 1.4rem;">BÁO CÁO ĐỐI SOÁT DỊCH VỤ VẬN CHUYỂN</span><br />
+            <span style="font-size: 0.95rem; font-weight: normal; font-style: italic;" id="print-lbl-timeframe">Kỳ đối soát: Toàn bộ thời gian</span>
+        </div>
+
+        <!-- Customer Summary -->
+        <div style="margin-bottom: 1.5rem; font-size: 0.95rem; border: 1.5px solid black; padding: 1rem; border-radius: 0;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 50%; padding: 0.25rem 0;">Tên khách hàng: <strong>@User.Identity.Name</strong></td>
+                    <td style="width: 50%; padding: 0.25rem 0; text-align: right;">Email liên hệ: <strong>@User.Identity.Name</strong></td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.25rem 0;">Tổng số vận đơn phát sinh: <strong id="print-summary-orders">0</strong></td>
+                    <td style="padding: 0.25rem 0; text-align: right;">Tỷ lệ giao nhận thành công: <strong id="print-summary-rate">0%</strong></td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.25rem 0;">Tổng cước vận chuyển: <strong id="print-summary-spent">0 đ</strong></td>
+                    <td style="padding: 0.25rem 0; text-align: right;">Tổng doanh thu COD thu hộ: <strong id="print-summary-cod">0 đ</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Detailed Table -->
+        <div style="margin-bottom: 3rem;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.825rem; color: black; border: 1px solid black; text-align: left;">
+                <thead>
+                    <tr style="background-color: #f1f5f9; border-bottom: 1.5px solid black;">
+                        <th style="padding: 0.5rem; border: 1px solid black; font-weight: bold;">STT</th>
+                        <th style="padding: 0.5rem; border: 1px solid black; font-weight: bold;">Mã đơn hàng</th>
+                        <th style="padding: 0.5rem; border: 1px solid black; font-weight: bold;">Người nhận</th>
+                        <th style="padding: 0.5rem; border: 1px solid black; font-weight: bold;">Thời gian tạo</th>
+                        <th style="padding: 0.5rem; border: 1px solid black; font-weight: bold; text-align: right;">Phí vận chuyển</th>
+                        <th style="padding: 0.5rem; border: 1px solid black; font-weight: bold; text-align: right;">Tiền COD</th>
+                        <th style="padding: 0.5rem; border: 1px solid black; font-weight: bold;">Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody id="print-table-body">
+                    <!-- Javascript will copy filtered rows here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Signature Boxes -->
+        <table style="width: 100%; border-collapse: collapse; text-align: center; margin-top: 3rem;">
+            <tr>
+                <td style="width: 50%; font-size: 0.95rem; font-weight: bold; vertical-align: top;">
+                    ĐẠI DIỆN KHÁCH HÀNG<br />
+                    <span style="font-size: 0.8rem; font-weight: normal; font-style: italic;">(Ký, ghi rõ họ tên)</span>
+                    <div style="height: 100px;"></div>
+                    <span style="font-weight: normal;">@User.Identity.Name</span>
+                </td>
+                <td style="width: 50%; font-size: 0.95rem; font-weight: bold; vertical-align: top;">
+                    BỘ PHẬN ĐỐI SOÁT SMARTDELIVERY<br />
+                    <span style="font-size: 0.8rem; font-weight: normal; font-style: italic;">(Ký, ghi rõ họ tên)</span>
+                    <div style="height: 100px;"></div>
+                    <span style="font-weight: normal; color: #64748b;">(Đã phê duyệt điện tử)</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<style>
+    /* Hide printable report area on screen by default */
+    #pdf-report-printable-area {
+        display: none;
+    }
+
+    /* Styling specifically optimized for printing as PDF statement */
+    @@media print {
+        body {
+            background: white !important;
+            color: black !important;
+        }
+        body * {
+            visibility: hidden;
+        }
+        #pdf-report-printable-area, #pdf-report-printable-area * {
+            visibility: visible;
+        }
+        #pdf-report-printable-area {
+            display: block !important;
+            position: absolute;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .sidebar, .navbar, .footer-section, .btn-premium, .glass {
+            display: none !important;
+        }
+    }
+</style>
+
+<script>
+    // Global database model serialised into array of items
+    const rawOrdersData = [
+        @foreach (var item in Model)
+        {
+            // Compute item COD
+            var codVal = item.HinhThucThanhToan == "COD" ? item.PhiGiaoHang : 0;
+            <text>{
+                maDonHang: @Html.Raw(Json.Serialize(item.MaDonHang)),
+                tenNguoiNhan: @Html.Raw(Json.Serialize(item.TenNguoiNhan)),
+                soDienThoaiNguoiNhan: @Html.Raw(Json.Serialize(item.SoDienThoaiNguoiNhan)),
+                thoiGianTaoStr: @Html.Raw(Json.Serialize(item.ThoiGianTao.ToString("yyyy-MM-ddTHH:mm:ss"))),
+                thoiGianTaoFormatted: @Html.Raw(Json.Serialize(item.ThoiGianTao.ToString("dd/MM/yyyy HH:mm"))),
+                phiGiaoHang: @Html.Raw(Json.Serialize(item.PhiGiaoHang)),
+                codValue: @Html.Raw(Json.Serialize(codVal)),
+                trangThai: @Html.Raw(Json.Serialize(item.TrangThaiDonHang))
+            },</text>
+        }
+    ];
+
+    // Applies date range filters quickly
+    function applyQuickDateFilter(value) {
+        const fromInput = document.getElementById("filter-from-date");
+        const toInput = document.getElementById("filter-to-date");
+
+        if (value === "all") {
+            fromInput.value = "";
+            toInput.value = "";
+            fromInput.disabled = true;
+            toInput.disabled = true;
+        } else if (value === "this-month") {
+            // Current month is 05/2026
+            fromInput.value = "2026-05-01";
+            toInput.value = "2026-05-31";
+            fromInput.disabled = true;
+            toInput.disabled = true;
+        } else if (value === "last-month") {
+            // Last month is 04/2026
+            fromInput.value = "2026-04-01";
+            toInput.value = "2026-04-30";
+            fromInput.disabled = true;
+            toInput.disabled = true;
+        } else if (value === "custom") {
+            fromInput.disabled = false;
+            toInput.disabled = false;
+        }
+
+        filterAndCalculate();
+    }
+
+    function onCustomDateChange() {
+        document.getElementById("quick-date-filter").value = "custom";
+        filterAndCalculate();
+    }
+
+    // Main filter function
+    function filterAndCalculate() {
+        const fromDateVal = document.getElementById("filter-from-date").value;
+        const toDateVal = document.getElementById("filter-to-date").value;
+
+        const fromTime = fromDateVal ? new Date(fromDateVal + "T00:00:00").getTime() : null;
+        const toTime = toDateVal ? new Date(toDateVal + "T23:59:59").getTime() : null;
+
+        // Perform filter on memory list
+        const filtered = rawOrdersData.filter(order => {
+            const orderTime = new Date(order.thoiGianTaoStr).getTime();
+            if (fromTime && orderTime < fromTime) return false;
+            if (toTime && orderTime > toTime) return false;
+            return true;
+        });
+
+        // Sum statistics
+        let totalCount = filtered.length;
+        let successCount = filtered.filter(o => o.trangThai === "Giao hàng thành công").length;
+        let successRate = totalCount > 0 ? Math.round((successCount / totalCount) * 100) : 0;
+        let totalSpent = 0;
+        let totalCOD = 0;
+
+        filtered.forEach(o => {
+            totalSpent += o.phiGiaoHang;
+            totalCOD += o.codValue;
+        });
+
+        // 1. Update UI Counters
+        document.getElementById("stat-total-orders").innerText = totalCount;
+        document.getElementById("stat-success-rate").innerText = successRate + "%";
+        document.getElementById("stat-total-spent").innerText = totalSpent.toLocaleString('vi-VN') + " đ";
+        document.getElementById("stat-total-cod").innerText = totalCOD.toLocaleString('vi-VN') + " đ";
+
+        // 2. Render UI Table
+        const tbody = document.getElementById("orders-table-body");
+        tbody.innerHTML = "";
+
+        if (totalCount === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 4rem; color: var(--text-muted);">
+                        <i class="fas fa-box-open" style="font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.1;"></i>
+                        Không phát sinh vận đơn nào trong khoảng thời gian đã chọn.
+                    </td>
+                </tr>
+            `;
+        } else {
+            filtered.forEach(order => {
+                const badgeClass = order.trangThai === "Giao hàng thành công" ? "badge-success" : 
+                                  (order.trangThai === "Giao hàng thất bại" ? "badge-error" : "badge-warning");
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td style="font-weight: 700; color: var(--accent-primary);">${order.maDonHang}</td>
+                    <td>
+                        <div style="font-weight: 600;">${order.tenNguoiNhan}</div>
+                        <div style="font-size: 0.8125rem; color: var(--text-muted);">${order.soDienThoaiNguoiNhan}</div>
+                    </td>
+                    <td>${order.thoiGianTaoFormatted}</td>
+                    <td style="font-weight: 700;">${order.phiGiaoHang.toLocaleString('vi-VN')} đ</td>
+                    <td style="font-weight: 700; color: var(--primary);">${order.codValue.toLocaleString('vi-VN')} đ</td>
+                    <td><span class="badge ${badgeClass}">${order.trangThai}</span></td>
+                    <td style="text-align: right;">
+                        <a href="/Customer/Track/${order.maDonHang}" class="glass" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); color: var(--accent-primary); cursor: pointer; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center;" title="Xem hành trình">
+                            <i class="fas fa-search-location"></i>
+                        </a>
+                        <a href="/Customer/Track/${order.maDonHang}?print=true" class="glass" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); color: #10b981; cursor: pointer; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; margin-left: 0.25rem;" title="In phiếu giao hàng">
+                            <i class="fas fa-print"></i>
+                        </a>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 3. Render Printable PDF Report Area
+        document.getElementById("print-summary-orders").innerText = totalCount;
+        document.getElementById("print-summary-rate").innerText = successRate + "%";
+        document.getElementById("print-summary-spent").innerText = totalSpent.toLocaleString('vi-VN') + " đ";
+        document.getElementById("print-summary-cod").innerText = totalCOD.toLocaleString('vi-VN') + " đ";
+
+        const printTbody = document.getElementById("print-table-body");
+        printTbody.innerHTML = "";
+
+        if (totalCount === 0) {
+            printTbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 2rem; font-style: italic;">
+                        Không phát sinh vận đơn nào trong kỳ đối soát này.
+                    </td>
+                </tr>
+            `;
+        } else {
+            filtered.forEach((order, index) => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td style="padding: 0.5rem; border: 1px solid black; text-align: center;">${index + 1}</td>
+                    <td style="padding: 0.5rem; border: 1px solid black; font-weight: bold; font-family: monospace;">${order.maDonHang}</td>
+                    <td style="padding: 0.5rem; border: 1px solid black;">
+                        <strong>${order.tenNguoiNhan}</strong><br />SĐT: ${order.soDienThoaiNguoiNhan}
+                    </td>
+                    <td style="padding: 0.5rem; border: 1px solid black;">${order.thoiGianTaoFormatted}</td>
+                    <td style="padding: 0.5rem; border: 1px solid black; text-align: right; font-weight: bold;">${order.phiGiaoHang.toLocaleString('vi-VN')} đ</td>
+                    <td style="padding: 0.5rem; border: 1px solid black; text-align: right; font-weight: bold;">${order.codValue.toLocaleString('vi-VN')} đ</td>
+                    <td style="padding: 0.5rem; border: 1px solid black; font-weight: bold;">${order.trangThai}</td>
+                `;
+                printTbody.appendChild(tr);
+            });
+        }
+
+        // Update Kỳ báo cáo label on PDF header
+        const timeframeLabel = document.getElementById("print-lbl-timeframe");
+        if (fromDateVal && toDateVal) {
+            const fDateStr = new Date(fromDateVal).toLocaleDateString('vi-VN');
+            const tDateStr = new Date(toDateVal).toLocaleDateString('vi-VN');
+            timeframeLabel.innerText = `Kỳ đối soát: Từ ngày ${fDateStr} đến ngày ${tDateStr}`;
+        } else if (fromDateVal) {
+            const fDateStr = new Date(fromDateVal).toLocaleDateString('vi-VN');
+            timeframeLabel.innerText = `Kỳ đối soát: Từ ngày ${fDateStr}`;
+        } else if (toDateVal) {
+            const tDateStr = new Date(toDateVal).toLocaleDateString('vi-VN');
+            timeframeLabel.innerText = `Kỳ đối soát: Đến ngày ${tDateStr}`;
+        } else {
+            timeframeLabel.innerText = "Kỳ đối soát: Toàn bộ thời gian phát sinh";
+        }
+    }
+
+    function triggerReportPrint() {
+        window.print();
+    }
+
+    // Run initial data bindings on startup
+    document.addEventListener("DOMContentLoaded", () => {
+        // Default select quick all filter
+        applyQuickDateFilter("all");
+    });
+</script>

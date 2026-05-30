@@ -5,6 +5,7 @@
     --primary-dark: #1d4ed8;
     --primary-solid: var(--primary);
     --primary-glow: rgba(37, 99, 235, 0.18);
+    --accent-primary: #3b82f6;
     
     --secondary: #ff6b35;
     --secondary-light: #ff8a5b;
