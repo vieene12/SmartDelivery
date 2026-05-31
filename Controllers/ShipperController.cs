@@ -40,12 +40,33 @@ public class ShipperController : Controller
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var shipper = await _context.NhanViens.FirstOrDefaultAsync(n => n.UserId == userId);
         
+        if (shipper == null) return NotFound("Shipper profile not found.");
+
         var deliveries = await _context.HanhTrinhDonHangs
             .Include(p => p.DonHang)
             .ThenInclude(d => d.KhachHang)
             .Where(p => p.MaNhanVien == shipper.MaNhanVien && (p.TrangThai == "Chờ shipper lấy hàng" || p.TrangThai == "Đang giao"))
             .OrderByDescending(p => p.ThoiGianTiepNhan)
             .ToListAsync();
+
+        // Query active route for shipper demo info
+        var activeRoute = await _context.PhanCongTuyens
+            .Include(p => p.TuyenGiao)
+            .FirstOrDefaultAsync(p => p.MaNhanVien == shipper.MaNhanVien 
+                                 && p.NgayBatDau <= DateTime.Now 
+                                 && (p.NgayKetThuc == null || p.NgayKetThuc >= DateTime.Now));
+
+        // Query packages in warehouse waiting to be picked up
+        var pendingWarehouseOrders = await _context.NhapKhos
+            .Include(n => n.DonHang)
+            .Where(n => n.TrangThaiKho == "Đã nhập kho" && !_context.HanhTrinhDonHangs.Any(h => h.MaDonHang == n.MaDonHang && (h.TrangThai == "Đang giao" || h.TrangThai == "Giao hàng thành công")))
+            .OrderByDescending(n => n.ThoiGianNhap)
+            .Take(6)
+            .ToListAsync();
+
+        ViewBag.Shipper = shipper;
+        ViewBag.ActiveRoute = activeRoute;
+        ViewBag.PendingWarehouseOrders = pendingWarehouseOrders;
 
         return View(deliveries);
     }

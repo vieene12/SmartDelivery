@@ -15,6 +15,98 @@
         <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i> @TempData["SuccessMessage"]
     </div>
 }
+<!-- Demo Helper Panel -->
+<div class="glass" style="padding: 1.5rem 2rem; margin-bottom: 2rem; background: linear-gradient(135deg, rgba(37, 99, 235, 0.03) 0%, rgba(6, 182, 212, 0.03) 100%); border: 1px dashed var(--primary); border-radius: 1rem; position: relative;">
+    <span style="position: absolute; top: -10px; left: 20px; background: var(--primary); color: white; padding: 0.25rem 0.85rem; border-radius: 20px; font-size: 0.725rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);"><i class="fas fa-magic"></i> Bảng Hỗ Trợ Demo</span>
+    
+    <div style="display: flex; gap: 2rem; align-items: stretch; flex-wrap: wrap; margin-top: 0.5rem;">
+        <!-- Shipper active route section -->
+        <div style="flex: 1; min-width: 250px; border-right: 1px dashed var(--border-color); padding-right: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1.05rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-id-badge" style="color: var(--primary);"></i> Shipper Đăng Nhập
+                </h4>
+                <div style="font-size: 0.9rem; color: var(--text-main);">
+                    <strong>Họ tên:</strong> @(ViewBag.Shipper?.HoTen ?? "N/A") (@(ViewBag.Shipper?.MaNhanVien ?? "N/A"))
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-main); margin-top: 0.25rem;">
+                    <strong>Tuyến giao hoạt động:</strong> 
+                    @if (ViewBag.ActiveRoute != null)
+                    {
+                        <span class="badge badge-success" style="font-size: 0.8rem; padding: 0.2rem 0.5rem;">@ViewBag.ActiveRoute.TuyenGiao.TenTuyen</span>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; font-style: italic;">
+                            (Khu vực tuyến: @ViewBag.ActiveRoute.TuyenGiao.KhuVuc)
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="badge badge-error" style="font-size: 0.8rem; padding: 0.2rem 0.5rem;">Chưa có Tuyến</span>
+                        <div style="font-size: 0.75rem; color: #b91c1c; margin-top: 0.25rem; font-weight: 600;">
+                            <i class="fas fa-exclamation-triangle"></i> Bạn cần gán tuyến cho Shipper này tại mục Admin -> Tuyến đường để có thể quét nhận hàng!
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 1rem; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 0.5rem;">
+                💡 <strong>Quy tắc:</strong> Quét nhận hàng thành công khi kệ hàng (`ViTriLuuTru`) hoặc địa chỉ nhận hàng có chứa tên Tuyến giao hoạt động ở trên.
+            </div>
+        </div>
+        
+        <!-- Pending warehouse packages section -->
+        <div style="flex: 2; min-width: 320px;">
+            <h4 style="margin: 0 0 0.5rem 0; font-size: 1.05rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-boxes" style="color: var(--secondary);"></i> Kiện Hàng Sẵn Có Trong Kho (Đã nhập kho)
+            </h4>
+            
+            @if (ViewBag.PendingWarehouseOrders == null || !((List<SDMS.Models.NhapKho>)ViewBag.PendingWarehouseOrders).Any())
+            {
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-style: italic; padding: 1.5rem 0; text-align: center; border: 1px dashed #cbd5e1; border-radius: 8px; background: rgba(0,0,0,0.01);">
+                    <i class="fas fa-box-open" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem; opacity: 0.4;"></i>
+                    Không có kiện hàng nào có trạng thái "Đã nhập kho" trong hệ thống. Hãy nhập kho đơn hàng trước trong tài khoản Thủ kho (Warehouse).
+                </div>
+            }
+            else
+            {
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 0.75rem; max-height: 140px; overflow-y: auto; padding-right: 0.5rem;">
+                    @foreach (var item in (List<SDMS.Models.NhapKho>)ViewBag.PendingWarehouseOrders)
+                    {
+                        var activeRoute = (SDMS.Models.PhanCongTuyen)ViewBag.ActiveRoute;
+                        bool isEligible = activeRoute != null && (
+                            (item.ViTriLuuTru != null && item.ViTriLuuTru.ToLower().Contains(activeRoute.TuyenGiao.TenTuyen.ToLower())) ||
+                            (item.DonHang != null && item.DonHang.DiaChiNguoiNhan != null && item.DonHang.DiaChiNguoiNhan.ToLower().Contains(activeRoute.TuyenGiao.TenTuyen.ToLower()))
+                        );
+                        
+                        <div class="glass" style="padding: 0.6rem; border-radius: 8px; border: 1px solid @(isEligible ? "rgba(22, 163, 74, 0.25)" : "rgba(245, 158, 11, 0.25)"); background: @(isEligible ? "rgba(22, 163, 74, 0.04)" : "rgba(245, 158, 11, 0.04)"); display: flex; flex-direction: column; justify-content: space-between; gap: 0.25rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-family: monospace; font-weight: 800; font-size: 0.85rem; color: var(--primary);">@item.MaDonHang</span>
+                                @if (isEligible)
+                                {
+                                    <span class="badge badge-success" style="font-size: 0.65rem; padding: 0.1rem 0.35rem; line-height: 1.2;">Đúng tuyến</span>
+                                }
+                                else
+                                {
+                                    <span class="badge" style="font-size: 0.65rem; padding: 0.1rem 0.35rem; background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2); line-height: 1.2;">Khác tuyến</span>
+                                }
+                            </div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@item.DonHang?.DiaChiNguoiNhan">
+                                📍 @(item.DonHang?.DiaChiNguoiNhan ?? "Chưa rõ địa chỉ")
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.2rem; border-top: 1px solid rgba(0,0,0,0.03); padding-top: 0.3rem;">
+                                <span style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted);">
+                                    📦 Kệ: @(item.ViTriLuuTru ?? "Chưa xếp")
+                                </span>
+                                <button onclick="quickFillAndScan('@item.MaDonHang')" class="btn-premium" style="padding: 0.15rem 0.45rem; font-size: 0.65rem; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                                    <i class="fas fa-paste"></i> Demo Quét
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 <div class="glass" style="padding: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
     <div>
@@ -597,5 +689,19 @@
                 });
             }
         });
+
+        // Quick Fill & Scan helper for demo purposes
+        window.quickFillAndScan = function(code) {
+            // Close camera scanner modal if it is currently open
+            const scannerModal = document.getElementById('scanner-modal');
+            if (scannerModal && scannerModal.classList.contains('modal-active')) {
+                stopScanning();
+            }
+            
+            showToast("Đang giả lập quét mã vận đơn: " + code, true);
+            setTimeout(() => {
+                submitOrderCode(code);
+            }, 600);
+        };
     </script>
 }
