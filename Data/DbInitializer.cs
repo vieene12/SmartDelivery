@@ -30,7 +30,11 @@ public static class DbInitializer
             new { Email = "warehouse@sdms.com", Role = "WarehouseStaff", FullName = "Phạm Thị Thủ Kho", Id = "warehouse-staff-id-01", MaNhanVien = "NV002", ChucVu = "WarehouseStaff" },
             new { Email = "shipper@sdms.com", Role = "Shipper", FullName = "Nguyễn Văn Shipper", Id = "shipper-test-id", MaNhanVien = "NV_SHIPPER_TEST", ChucVu = "Shipper" },
             new { Email = "shipper2@sdms.com", Role = "Shipper", FullName = "Trần Văn Bưu Tá", Id = "shipper-staff-id-02", MaNhanVien = "NV004", ChucVu = "Shipper" },
-            new { Email = "customer@sdms.com", Role = "Customer", FullName = "Lê Thị Khách Hàng", Id = "customer-test-id", MaNhanVien = (string)null, ChucVu = (string)null }
+            new { Email = "customer@sdms.com", Role = "Customer", FullName = "Lê Thị Khách Hàng", Id = "customer-test-id", MaNhanVien = (string)null, ChucVu = (string)null },
+            new { Email = "longnv@gmail.com", Role = "Customer", FullName = "Nguyễn Văn Long", Id = "customer-long-id", MaNhanVien = (string)null, ChucVu = (string)null },
+            new { Email = "hoangpm@gmail.com", Role = "Customer", FullName = "Phạm Minh Hoàng", Id = "customer-hoang-id", MaNhanVien = (string)null, ChucVu = (string)null },
+            new { Email = "sondt@gmail.com", Role = "Customer", FullName = "Đỗ Thanh Sơn", Id = "customer-son-id", MaNhanVien = (string)null, ChucVu = (string)null },
+            new { Email = "ngochb@gmail.com", Role = "Customer", FullName = "Hoàng Bích Ngọc", Id = "customer-ngoc-id", MaNhanVien = (string)null, ChucVu = (string)null }
         };
 
         foreach (var u in defaultUsers)
@@ -124,10 +128,10 @@ public static class DbInitializer
         // 5. Seed Customer profiles (KhachHang)
         context.KhachHangs.AddRange(
             new KhachHang { MaKhachHang = "KH_TEST_01", HoTen = "Lê Thị Khách Hàng", SoDienThoai = "0912345678", DiaChi = "456 Nguyễn Huệ, Quận 1, TP. HCM", Email = "customer@sdms.com", UserId = "customer-test-id" },
-            new KhachHang { MaKhachHang = "KH_002", HoTen = "Nguyễn Văn Long", SoDienThoai = "0938472910", DiaChi = "18 Bis Tôn Đức Thắng, Quận 1, TP. HCM", Email = "longnv@gmail.com" },
-            new KhachHang { MaKhachHang = "KH_003", HoTen = "Phạm Minh Hoàng", SoDienThoai = "0908123456", DiaChi = "45 Nguyễn Trãi, Quận 5, TP. HCM", Email = "hoangpm@gmail.com" },
-            new KhachHang { MaKhachHang = "KH_004", HoTen = "Đỗ Thanh Sơn", SoDienThoai = "0989098909", DiaChi = "102 Trần Hưng Đạo, Quận 1, TP. HCM", Email = "sondt@gmail.com" },
-            new KhachHang { MaKhachHang = "KH_005", HoTen = "Hoàng Bích Ngọc", SoDienThoai = "0977112233", DiaChi = "12 Xuân Thủy, Quận Cầu Giấy, Hà Nội", Email = "ngochb@gmail.com" }
+            new KhachHang { MaKhachHang = "KH_002", HoTen = "Nguyễn Văn Long", SoDienThoai = "0938472910", DiaChi = "18 Bis Tôn Đức Thắng, Quận 1, TP. HCM", Email = "longnv@gmail.com", UserId = "customer-long-id" },
+            new KhachHang { MaKhachHang = "KH_003", HoTen = "Phạm Minh Hoàng", SoDienThoai = "0908123456", DiaChi = "45 Nguyễn Trãi, Quận 5, TP. HCM", Email = "hoangpm@gmail.com", UserId = "customer-hoang-id" },
+            new KhachHang { MaKhachHang = "KH_004", HoTen = "Đỗ Thanh Sơn", SoDienThoai = "0989098909", DiaChi = "102 Trần Hưng Đạo, Quận 1, TP. HCM", Email = "sondt@gmail.com", UserId = "customer-son-id" },
+            new KhachHang { MaKhachHang = "KH_005", HoTen = "Hoàng Bích Ngọc", SoDienThoai = "0977112233", DiaChi = "12 Xuân Thủy, Quận Cầu Giấy, Hà Nội", Email = "ngochb@gmail.com", UserId = "customer-ngoc-id" }
         );
         await context.SaveChangesAsync();
 

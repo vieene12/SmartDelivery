@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using SDMS.Models
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -22,6 +22,6 @@
 else
 {
     <a class="nav-item" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
-    <a class="nav-item" asp-area="Identity" asp-page="/Account/Register">Đăng ký</a>
+    <a class="btn-register-outline" asp-area="Identity" asp-page="/Account/Register">Đăng ký</a>
 }
 </div>

@@ -1,5 +1,7 @@
 @{
     bool isStaffOrAdmin = User.Identity.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("WarehouseStaff") || User.IsInRole("Shipper"));
+    string currentController = ViewContext.RouteData.Values["Controller"]?.ToString() ?? "";
+    string currentAction = ViewContext.RouteData.Values["Action"]?.ToString() ?? "";
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -155,11 +157,11 @@
             <div class="sidebar-nav">
                 <div style="font-size: 0.725rem; color: var(--text-light); text-transform: uppercase; font-weight: 750; padding: 0 1.1rem 0.5rem; letter-spacing: 0.05em;">Hệ Thống</div>
                 
-                <a class="sidebar-item" asp-controller="Home" asp-action="Index">
+                <a class="sidebar-item @(currentController == "Home" && currentAction == "Index" ? "active" : "")" asp-controller="Home" asp-action="Index">
                     <i class="fas fa-home" style="width: 20px; font-size: 0.95rem;"></i> Trang Chủ
                 </a>
 
-                <a class="sidebar-item" asp-controller="Home" asp-action="Profile">
+                <a class="sidebar-item @(currentController == "Home" && currentAction == "Profile" ? "active" : "")" asp-controller="Home" asp-action="Profile">
                     <i class="fas fa-user-circle" style="width: 20px; font-size: 0.95rem;"></i> Thông tin cá nhân
                 </a>
 
@@ -167,16 +169,19 @@
                 {
                     <div style="font-size: 0.725rem; color: var(--text-light); text-transform: uppercase; font-weight: 750; padding: 1.25rem 1.1rem 0.5rem; letter-spacing: 0.05em;">Quản trị viên</div>
                     
-                    <a class="sidebar-item" asp-controller="Admin" asp-action="Staff">
+                    <a class="sidebar-item @(currentController == "Admin" && currentAction == "Staff" ? "active" : "")" asp-controller="Admin" asp-action="Staff">
                         <i class="fas fa-users" style="width: 20px; font-size: 0.95rem;"></i> Nhân sự
                     </a>
-                    <a class="sidebar-item" asp-controller="Admin" asp-action="Warehouses">
+                    <a class="sidebar-item @(currentController == "Admin" && currentAction == "Customers" ? "active" : "")" asp-controller="Admin" asp-action="Customers">
+                        <i class="fas fa-user-friends" style="width: 20px; font-size: 0.95rem;"></i> Khách hàng
+                    </a>
+                    <a class="sidebar-item @(currentController == "Admin" && currentAction == "Warehouses" ? "active" : "")" asp-controller="Admin" asp-action="Warehouses">
                         <i class="fas fa-warehouse" style="width: 20px; font-size: 0.95rem;"></i> Kho bãi
                     </a>
-                    <a class="sidebar-item" asp-controller="Admin" asp-action="AuditLogs">
+                    <a class="sidebar-item @(currentController == "Admin" && currentAction == "AuditLogs" ? "active" : "")" asp-controller="Admin" asp-action="AuditLogs">
                         <i class="fas fa-history" style="width: 20px; font-size: 0.95rem;"></i> Nhật ký
                     </a>
-                    <a class="sidebar-item" asp-controller="Admin" asp-action="OrderReport">
+                    <a class="sidebar-item @(currentController == "Admin" && currentAction == "OrderReport" ? "active" : "")" asp-controller="Admin" asp-action="OrderReport">
                         <i class="fas fa-chart-bar" style="width: 20px; font-size: 0.95rem;"></i> Báo cáo
                     </a>
                 }
@@ -185,7 +190,7 @@
                 {
                     <div style="font-size: 0.725rem; color: var(--text-light); text-transform: uppercase; font-weight: 750; padding: 1.25rem 1.1rem 0.5rem; letter-spacing: 0.05em;">Thủ kho</div>
                     
-                    <a class="sidebar-item" asp-controller="Warehouse" asp-action="Inventory">
+                    <a class="sidebar-item @(currentController == "Warehouse" && currentAction == "Inventory" ? "active" : "")" asp-controller="Warehouse" asp-action="Inventory">
                         <i class="fas fa-boxes" style="width: 20px; font-size: 0.95rem;"></i> Kho hàng
                     </a>
                 }
@@ -194,7 +199,7 @@
                 {
                     <div style="font-size: 0.725rem; color: var(--text-light); text-transform: uppercase; font-weight: 750; padding: 1.25rem 1.1rem 0.5rem; letter-spacing: 0.05em;">Nhân viên giao hàng</div>
                     
-                    <a class="sidebar-item" asp-controller="Shipper" asp-action="MyDeliveries">
+                    <a class="sidebar-item @(currentController == "Shipper" && currentAction == "MyDeliveries" ? "active" : "")" asp-controller="Shipper" asp-action="MyDeliveries">
                         <i class="fas fa-truck-loading" style="width: 20px; font-size: 0.95rem;"></i> Vận chuyển
                     </a>
                 }
@@ -245,36 +250,6 @@
                         <span class="brand-name" style="font-size: 1.45rem; font-weight: 850; color: var(--primary); letter-spacing: -0.04em;">SmartDelivery</span>
                     </a>
                 }
-
-                <nav class="nav-links">
-                    @if (User.Identity.IsAuthenticated && User.IsInRole("Customer"))
-                    {
-                        <a asp-controller="Customer" asp-action="Index" class="nav-item active">Trang Chủ</a>
-                    }
-                    else
-                    {
-                        <a asp-controller="Home" asp-action="Index" class="nav-item active">Trang Chủ</a>
-                    }
-                    <div class="dropdown">
-                        <a class="nav-item dropdown-toggle" id="pricingDropdown" style="display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer;">
-                            Bảng giá <i class="fas fa-caret-down" style="font-size: 0.8rem; margin-left: 0.2rem;"></i>
-                        </a>
-                        <div class="dropdown-menu">
-                            <a class="dropdown-item" asp-controller="Home" asp-action="Pricing" asp-route-tab="hcm-hn">
-                                🏢 Hà Nội – Thành phố Hồ Chí Minh
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" asp-controller="Home" asp-action="Pricing" asp-route-tab="others">
-                                🗺️ Tỉnh – Thành phố còn lại
-                            </a>
-                        </div>
-                    </div>
-
-                    @if (User.IsInRole("Customer") || User.IsInRole("Admin"))
-                    {
-                        <a class="nav-item" asp-controller="Customer" asp-action="Orders">Đơn hàng của tôi</a>
-                    }
-                </nav>
             }
             else
             {
@@ -284,6 +259,39 @@
                 </span>
             }
         </div>
+
+        @if (!isStaffOrAdmin)
+        {
+            <nav class="nav-links">
+                @if (User.Identity.IsAuthenticated && User.IsInRole("Customer"))
+                {
+                    <a asp-controller="Customer" asp-action="Index" class="nav-item @(currentController == "Customer" && currentAction == "Index" ? "active" : "")">Trang Chủ</a>
+                }
+                else
+                {
+                    <a asp-controller="Home" asp-action="Index" class="nav-item @(currentController == "Home" && currentAction == "Index" ? "active" : "")">Trang Chủ</a>
+                }
+                <div class="dropdown">
+                    <a class="nav-item dropdown-toggle @(currentController == "Home" && currentAction == "Pricing" ? "active" : "")" id="pricingDropdown" style="display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+                        Bảng giá <i class="fas fa-caret-down" style="font-size: 0.8rem; margin-left: 0.2rem;"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" asp-controller="Home" asp-action="Pricing" asp-route-tab="hcm-hn">
+                            🏢 Hà Nội – Thành phố Hồ Chí Minh
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" asp-controller="Home" asp-action="Pricing" asp-route-tab="others">
+                            🗺️ Tỉnh – Thành phố còn lại
+                        </a>
+                    </div>
+                </div>
+
+                @if (User.IsInRole("Customer") || User.IsInRole("Admin"))
+                {
+                    <a class="nav-item @(currentController == "Customer" && currentAction == "Orders" ? "active" : "")" asp-controller="Customer" asp-action="Orders">Đơn hàng của tôi</a>
+                }
+            </nav>
+        }
 
         <div style="display: flex; align-items: center; gap: 1.25rem;">
             <partial name="_LoginPartial" />
@@ -336,9 +344,9 @@
             </div>
             <div class="footer-column">
                 <h4>Liên Hệ</h4>
-                <p style="margin-bottom: 0.5rem;"><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 0.5rem;"></i> Quận 1, TP. Hồ Chí Minh</p>
+                <p style="margin-bottom: 0.5rem;"><i class="fas fa-map-marker-alt" style="color: var(--primary); margin-right: 0.5rem;"></i> Thủ Đức, TP. Hồ Chí Minh</p>
                 <p style="margin-bottom: 0.5rem;"><i class="fas fa-phone-alt" style="color: var(--primary); margin-right: 0.5rem;"></i> Hotline: 1900 6868</p>
-                <p><i class="fas fa-envelope" style="color: var(--primary); margin-right: 0.5rem;"></i> hotro@smartdelivery.vn</p>
+                <p><i class="fas fa-envelope" style="color: var(--primary); margin-right: 0.5rem;"></i> giaonhanhangsite@gmail.com</p>
             </div>
         </div>
         <div class="footer-bottom">
@@ -349,6 +357,38 @@
             </div>
         </div>
     </footer>
+
+    <!-- Pricing Selector Modal for Mobile -->
+    <div id="pricingModal" class="pricing-modal-overlay">
+        <div class="pricing-modal-card glass">
+            <button class="pricing-modal-close" id="closePricingModal" aria-label="Close modal">&times;</button>
+            <div class="pricing-modal-header">
+                <div class="pricing-modal-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h3>Chọn Khu Vực Xem Bảng Giá</h3>
+                <p>Vui lòng lựa chọn tuyến giao nhận bên dưới để xem bảng giá cước chi tiết.</p>
+            </div>
+            <div class="pricing-modal-options">
+                <a asp-controller="Home" asp-action="Pricing" asp-route-tab="hcm-hn" class="pricing-modal-option-card opt-red" id="btnPricingHcmHn">
+                    <div class="opt-icon"><i class="fas fa-city"></i></div>
+                    <div class="opt-details">
+                        <h4>Hà Nội ↔ TP. Hồ Chí Minh</h4>
+                        <p>Tuyến kết nối liên vùng huyết mạch</p>
+                    </div>
+                    <div class="opt-arrow"><i class="fas fa-chevron-right"></i></div>
+                </a>
+                <a asp-controller="Home" asp-action="Pricing" asp-route-tab="others" class="pricing-modal-option-card opt-blue" id="btnPricingOthers">
+                    <div class="opt-icon"><i class="fas fa-map-marked-alt"></i></div>
+                    <div class="opt-details">
+                        <h4>Tỉnh & Thành Phố Khác</h4>
+                        <p>Hành trình liên tỉnh toàn quốc</p>
+                    </div>
+                    <div class="opt-arrow"><i class="fas fa-chevron-right"></i></div>
+                </a>
+            </div>
+        </div>
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -367,16 +407,59 @@
             }
         });
 
-        // Highlight active link in vertical sidebar
+        // Highlight active link in vertical sidebar (robust client-side fallback)
         document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
+            const currentPath = window.location.pathname.toLowerCase().replace(/\/$/, "");
             const sidebarItems = document.querySelectorAll('.sidebar-item');
             
             sidebarItems.forEach(item => {
                 const href = item.getAttribute('href');
-                if (href && currentPath === href) {
-                    sidebarItems.forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
+                if (href) {
+                    const normalizedHref = href.toLowerCase().replace(/\/$/, "");
+                    if (currentPath === normalizedHref || currentPath.startsWith(normalizedHref + "/")) {
+                        sidebarItems.forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+                    }
+                }
+            });
+        });
+
+        // Pricing Dropdown (Desktop) & Modal (Mobile) Interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            const pricingDropdown = document.getElementById('pricingDropdown');
+            const dropdownParent = pricingDropdown?.closest('.dropdown');
+            const pricingModal = document.getElementById('pricingModal');
+            const closePricingModal = document.getElementById('closePricingModal');
+
+            // Handle clicking Bảng giá
+            pricingDropdown?.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Show beautiful Modal on Mobile screen, toggle Dropdown on Desktop
+                if (window.innerWidth <= 768) {
+                    pricingModal?.classList.add('active');
+                    dropdownParent?.classList.remove('active');
+                } else {
+                    dropdownParent?.classList.toggle('active');
+                }
+            });
+
+            // Close Modal on click
+            closePricingModal?.addEventListener('click', function() {
+                pricingModal?.classList.remove('active');
+            });
+
+            pricingModal?.addEventListener('click', function(e) {
+                if (e.target === pricingModal) {
+                    pricingModal.classList.remove('active');
+                }
+            });
+
+            // Close Desktop Dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (dropdownParent && !dropdownParent.contains(e.target)) {
+                    dropdownParent.classList.remove('active');
                 }
             });
         });

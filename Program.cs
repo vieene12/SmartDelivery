@@ -22,7 +22,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     .AddDefaultUI()
     .AddDefaultTokenProviders();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
 builder.Services.AddRazorPages();
 
 var app = builder.Build();

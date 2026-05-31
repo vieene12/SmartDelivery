@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -474,5 +474,253 @@ public class AdminController : Controller
         await _context.SaveChangesAsync();
         TempData["Success"] = "Cập nhật tuyến đường thành công!";
         return RedirectToAction(nameof(Routes));
+    }
+
+    // --- Customer Management ---
+    public async Task<IActionResult> Customers(string search)
+    {
+        var query = _context.KhachHangs
+            .Include(k => k.User)
+            .Include(k => k.DonHangs)
+            .AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            search = search.Trim().ToLower();
+            query = query.Where(k => k.HoTen.ToLower().Contains(search) || 
+                                     k.SoDienThoai.Contains(search) || 
+                                     (k.Email != null && k.Email.ToLower().Contains(search)));
+        }
+
+        var customers = await query.ToListAsync();
+        ViewBag.Search = search;
+        return View(customers);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetCustomerDetails(string id)
+    {
+        var customer = await _context.KhachHangs
+            .Include(k => k.User)
+            .Include(k => k.DonHangs)
+            .FirstOrDefaultAsync(k => k.MaKhachHang == id);
+
+        if (customer == null)
+        {
+            return NotFound();
+        }
+
+        var isLocked = false;
+        if (customer.User != null)
+        {
+            isLocked = await _userManager.IsLockedOutAsync(customer.User);
+        }
+
+        var orders = customer.DonHangs
+            .OrderByDescending(d => d.ThoiGianTao)
+            .Select(d => new
+            {
+                maDonHang = d.MaDonHang,
+                thoiGianTao = d.ThoiGianTao.ToString("dd/MM/yyyy HH:mm"),
+                ngayGiaoDuKien = d.NgayGiaoDuKien.HasValue ? d.NgayGiaoDuKien.Value.ToString("dd/MM/yyyy") : "Chưa xác định",
+                tongKhoiLuong = d.TongKhoiLuong,
+                phiGiaoHang = d.PhiGiaoHang.ToString("N0") + " đ",
+                trangThaiDonHang = d.TrangThaiDonHang
+            })
+            .ToList();
+
+        return Json(new
+        {
+            maKhachHang = customer.MaKhachHang,
+            hoTen = customer.HoTen,
+            soDienThoai = customer.SoDienThoai,
+            email = customer.Email ?? "",
+            diaChi = customer.DiaChi ?? "",
+            isLocked = isLocked,
+            hasUser = customer.UserId != null,
+            orders = orders
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> EditCustomer(string maKhachHang, string hoTen, string soDienThoai, string email, string diaChi)
+    {
+        var customer = await _context.KhachHangs.Include(k => k.User).FirstOrDefaultAsync(k => k.MaKhachHang == maKhachHang);
+        if (customer == null)
+        {
+            TempData["Error"] = "Không tìm thấy khách hàng.";
+            return RedirectToAction(nameof(Customers));
+        }
+
+        if (string.IsNullOrWhiteSpace(hoTen) || string.IsNullOrWhiteSpace(soDienThoai))
+        {
+            TempData["Error"] = "Họ tên và số điện thoại không được để trống.";
+            return RedirectToAction(nameof(Customers));
+        }
+
+        // Validate phone number unique among NhanVien and other KhachHang
+        if (customer.SoDienThoai != soDienThoai)
+        {
+            var phoneExists = await _context.NhanViens.AnyAsync(n => n.SoDienThoai == soDienThoai) || 
+                                await _context.KhachHangs.AnyAsync(k => k.SoDienThoai == soDienThoai && k.MaKhachHang != maKhachHang);
+            if (phoneExists)
+            {
+                TempData["Error"] = "Số điện thoại này đã được sử dụng bởi người dùng khác.";
+                return RedirectToAction(nameof(Customers));
+            }
+        }
+
+        customer.HoTen = hoTen.Trim();
+        customer.SoDienThoai = soDienThoai.Trim();
+        customer.Email = email?.Trim();
+        customer.DiaChi = diaChi?.Trim();
+
+        if (customer.User != null)
+        {
+            customer.User.FullName = customer.HoTen;
+            customer.User.PhoneNumber = customer.SoDienThoai;
+            customer.User.Address = customer.DiaChi;
+            customer.User.Email = customer.Email;
+            customer.User.NormalizedEmail = customer.Email?.ToUpper();
+            customer.User.UserName = customer.SoDienThoai;
+            customer.User.NormalizedUserName = customer.SoDienThoai.ToUpper();
+
+            var result = await _userManager.UpdateAsync(customer.User);
+            if (!result.Succeeded)
+            {
+                TempData["Error"] = "Lỗi khi cập nhật tài khoản người dùng: " + string.Join(", ", result.Errors.Select(e => e.Description));
+                return RedirectToAction(nameof(Customers));
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        TempData["Success"] = "Cập nhật thông tin khách hàng thành công!";
+        return RedirectToAction(nameof(Customers));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ToggleCustomerStatus(string id)
+    {
+        var customer = await _context.KhachHangs.Include(k => k.User).FirstOrDefaultAsync(k => k.MaKhachHang == id);
+        if (customer == null)
+        {
+            TempData["Error"] = "Không tìm thấy khách hàng.";
+            return RedirectToAction(nameof(Customers));
+        }
+
+        if (customer.User == null)
+        {
+            TempData["Error"] = "Khách hàng này không có tài khoản đăng nhập để khóa.";
+            return RedirectToAction(nameof(Customers));
+        }
+
+        var isLocked = await _userManager.IsLockedOutAsync(customer.User);
+        if (isLocked)
+        {
+            // Unlock
+            await _userManager.SetLockoutEndDateAsync(customer.User, null);
+            TempData["Success"] = $"Đã mở khóa tài khoản khách hàng {customer.HoTen} thành công!";
+        }
+        else
+        {
+            // Lock
+            await _userManager.SetLockoutEnabledAsync(customer.User, true);
+            await _userManager.SetLockoutEndDateAsync(customer.User, DateTimeOffset.UtcNow.AddYears(100));
+            TempData["Success"] = $"Đã khóa tài khoản khách hàng {customer.HoTen} thành công!";
+        }
+
+        return RedirectToAction(nameof(Customers));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateCustomer(string hoTen, string soDienThoai, string email, string diaChi, string password)
+    {
+        if (string.IsNullOrWhiteSpace(hoTen) || string.IsNullOrWhiteSpace(soDienThoai))
+        {
+            TempData["Error"] = "Họ tên và số điện thoại không được để trống.";
+            return RedirectToAction(nameof(Customers));
+        }
+
+        // Validate phone number unique among NhanVien and KhachHang
+        var phoneExists = await _context.NhanViens.AnyAsync(n => n.SoDienThoai == soDienThoai) || 
+                            await _context.KhachHangs.AnyAsync(k => k.SoDienThoai == soDienThoai);
+        if (phoneExists)
+        {
+            TempData["Error"] = "Số điện thoại này đã tồn tại trong hệ thống.";
+            return RedirectToAction(nameof(Customers));
+        }
+
+        var dummyEmail = string.IsNullOrWhiteSpace(email) ? $"{soDienThoai}@sdms.com" : email;
+        var user = new ApplicationUser 
+        { 
+            UserName = soDienThoai, 
+            PhoneNumber = soDienThoai,
+            Email = dummyEmail, 
+            FullName = hoTen,
+            Address = diaChi
+        };
+        
+        var initPassword = string.IsNullOrWhiteSpace(password) ? "Customer@123" : password;
+        var result = await _userManager.CreateAsync(user, initPassword);
+
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(user, "Customer");
+            
+            var khachHang = new KhachHang
+            {
+                MaKhachHang = "KH" + DateTime.Now.Ticks.ToString().Substring(12),
+                HoTen = hoTen.Trim(),
+                SoDienThoai = soDienThoai.Trim(),
+                Email = dummyEmail,
+                DiaChi = diaChi?.Trim(),
+                UserId = user.Id
+            };
+            _context.KhachHangs.Add(khachHang);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Thêm khách hàng mới thành công! Số điện thoại đăng nhập: {soDienThoai}";
+        }
+        else
+        {
+            TempData["Error"] = "Lỗi tạo tài khoản: " + string.Join(", ", result.Errors.Select(e => e.Description));
+        }
+
+        return RedirectToAction(nameof(Customers));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteCustomer(string id)
+    {
+        var customer = await _context.KhachHangs.Include(k => k.User).FirstOrDefaultAsync(k => k.MaKhachHang == id);
+        if (customer == null)
+        {
+            TempData["Error"] = "Không tìm thấy khách hàng.";
+            return RedirectToAction(nameof(Customers));
+        }
+
+        // Check if customer has any orders
+        var hasOrders = await _context.DonHangs.AnyAsync(d => d.MaKhachHang == id);
+        if (hasOrders)
+        {
+            TempData["Error"] = "Không thể xóa khách hàng vì đã có lịch sử đơn hàng trên hệ thống. Hãy sử dụng chức năng Khóa tài khoản để đảm bảo an toàn dữ liệu.";
+            return RedirectToAction(nameof(Customers));
+        }
+
+        // If they have no orders, delete them
+        _context.KhachHangs.Remove(customer);
+        
+        if (customer.User != null)
+        {
+            var result = await _userManager.DeleteAsync(customer.User);
+            if (!result.Succeeded)
+            {
+                TempData["Error"] = "Lỗi khi xóa tài khoản người dùng: " + string.Join(", ", result.Errors.Select(e => e.Description));
+                return RedirectToAction(nameof(Customers));
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        TempData["Success"] = $"Đã xóa khách hàng {customer.HoTen} thành công!";
+        return RedirectToAction(nameof(Customers));
     }
 }
